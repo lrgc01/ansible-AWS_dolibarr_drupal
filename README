@@ -17,12 +17,6 @@ botocore 1.12.0
 AWS RDS instances have some issues with python3 (or boto??), so used 
 python2.
 
-AWS needs the file ~/.aws/config with the contents:
----
-[default]
-region = eu-west-2
----
-
 ----------------------------------------------------------------------
 GENERAL STRUCTURE
 ----------------------------------------------------------------------
@@ -177,38 +171,44 @@ command:
 ----
 playbook: Drupal.yml
 
-  play #1 (server2): server2	TAGS: []
+  play #1 (server2): server2    TAGS: []
     tasks:
-      inst_Drupal : Update cache and upgrade --------------------------	TAGS: [update_repository]
-      inst_Drupal : Install Drupal dependencies -----------------------	TAGS: [drupal_files, install_dep_pkg]
-      inst_Drupal : Set composer required pack ------------------------	TAGS: [drupal_files]
-      inst_Drupal : Ensure directories all_descriptor_list.types=dir --	TAGS: [config_files, deploy_templates, drupal_files]
-      inst_Drupal : Create admin users for drupal/site ----------------	TAGS: [drupal_files]
-      inst_Drupal : Set php.ini file ----------------------------------	TAGS: [config_files, config_php_files, deploy_templates]
-      inst_Drupal : Remove undesired files (absent in item.types) -----	TAGS: [config_files, deploy_templates]
-      inst_Drupal : Deploy templates all_descriptor_list.types=tmpl ---	TAGS: [config_files, deploy_templates]
-      inst_Drupal : Make proper links all_descriptor_list.types=link --	TAGS: [config_files, deploy_templates]
-      inst_Drupal : Ensure web service is restarted and enabled -------	TAGS: [config_files, config_php_files, deploy_templates, install_dep_pkg]
-      inst_Drupal : Generate private key for account and csr ----------	TAGS: [ssl_certificate]
-      inst_Drupal : Create CSR certificate ----------------------------	TAGS: [ssl_certificate]
-      inst_Drupal : Create ACME account with respective email ---------	TAGS: [ssl_certificate]
-      inst_Drupal : Create certificate - 1st step challenge -----------	TAGS: [ssl_certificate]
-      inst_Drupal : Create directory structure for challenge ----------	TAGS: [ssl_certificate]
-      inst_Drupal : Copy resource to web site to complete the 2nd step	TAGS: [ssl_certificate]
-      inst_Drupal : Create certificate - 2nd step challenge -get certs-	TAGS: [ssl_certificate]
-      inst_Drupal : Copy new cert and key to web server's place -------	TAGS: [ssl_certificate]
-      inst_Drupal : Create DBs on respective hosts --------------------	TAGS: [create_databases, databases]
-      inst_Drupal : Grant user privileges in DBs ----------------------	TAGS: [databases, grant_privileges]
-      inst_Drupal : Download Drupal using drush pm-download (dl) ------	TAGS: [drupal_files]
-      inst_Drupal : Download and extract civiCRM ----------------------	TAGS: [drupal_files]
-      inst_Drupal : Install Drupal site using drush site-install (si) -	TAGS: [drupal_files]
-      inst_Drupal : Install CiviCRM module with drush -----------------	TAGS: [drupal_files]
-      inst_Drupal : Enable some civicrm modules for testing -----------	TAGS: [drupal_files]
-      inst_Drupal : Run pm-update to update database if necessary -----	TAGS: [drupal_files]
-      inst_Drupal : Deploy Drupal specific templates ------------------	TAGS: [deploy_templates, drupal_files]
-      inst_Drupal : Adjust drupal sites and core permissions ----------	TAGS: [drupal_files]
-      inst_Drupal : Set variables in settings.php of drupal/civicrm ---	TAGS: [drupal_files]
-      inst_Drupal : Ensure services are started and enabled -----------	TAGS: [install_dep_pkg]
+      inst_Drupal : Update cache and upgrade -------------------------- TAGS: [update_repository]
+      inst_Drupal : Install Drupal dependencies ----------------------- TAGS: [drupal_site, install_dep_pkg]
+      inst_Drupal : Set composer required pack ------------------------ TAGS: [drupal_site]
+      inst_Drupal : Ensure directories all_descriptor_list.types=dir -- TAGS: [config_files, deploy_templates, drupal_site]
+      inst_Drupal : Create admin users for drupal/site ---------------- TAGS: [drupal_site, git_config]
+      inst_Drupal : Retrieve priv key from git user ------------------- TAGS: [git_config]
+      inst_Drupal : Fill in authorized_keys to git user --------------- TAGS: [git_config]
+      inst_Drupal : Grant repodir permissions to git user ------------- TAGS: [git_config]
+      inst_Drupal : Create some git projects on server ---------------- TAGS: [git_config]
+      inst_Drupal : Set php.ini file ---------------------------------- TAGS: [config_files, config_php_files, deploy_templates]
+      inst_Drupal : Remove undesired files (absent in item.types) ----- TAGS: [config_files, deploy_templates]
+      inst_Drupal : Deploy templates all_descriptor_list.types=tmpl --- TAGS: [config_files, deploy_templates]
+      inst_Drupal : Make proper links all_descriptor_list.types=link -- TAGS: [config_files, deploy_templates]
+      inst_Drupal : Upload cert and key files if needed --------------- TAGS: [config_files, key_cert_copy_only, ssl_certificate]
+      inst_Drupal : Ensure web service is restarted and enabled ------- TAGS: [config_files, config_php_files, deploy_templates, install_dep_pkg]
+      inst_Drupal : Generate private key for account and csr ---------- TAGS: [ssl_certificate]
+      inst_Drupal : Create CSR certificate ---------------------------- TAGS: [ssl_certificate]
+      inst_Drupal : Create ACME account with respective email --------- TAGS: [ssl_certificate]
+      inst_Drupal : Create certificate - 1st step challenge ----------- TAGS: [ssl_certificate]
+      inst_Drupal : Create directory structure for challenge ---------- TAGS: [ssl_certificate]
+      inst_Drupal : Copy resource to web site to complete the 2nd step  TAGS: [ssl_certificate]
+      inst_Drupal : Create certificate - 2nd step challenge -get certs- TAGS: [ssl_certificate]
+      inst_Drupal : Copy new cert and key to web server's place ------- TAGS: [ssl_certificate]
+      inst_Drupal : Download cert and key files if needed ------------- TAGS: [key_cert_copy_only, ssl_certificate]
+      inst_Drupal : Create DBs on respective hosts -------------------- TAGS: [create_databases, databases]
+      inst_Drupal : Grant user privileges in DBs ---------------------- TAGS: [databases, grant_privileges]
+      inst_Drupal : Download Drupal using drush pm-download (dl) ------ TAGS: [drupal_site]
+      inst_Drupal : Download and extract civiCRM ---------------------- TAGS: [drupal_site]
+      inst_Drupal : Install Drupal site using drush site-install (si) - TAGS: [drupal_site]
+      inst_Drupal : Install CiviCRM module with drush ----------------- TAGS: [drupal_site]
+      inst_Drupal : Enable some civicrm modules ----------------------- TAGS: [drupal_site]
+      inst_Drupal : Run pm-update to update database if necessary ----- TAGS: [drupal_site]
+      inst_Drupal : Deploy Drupal specific templates ------------------ TAGS: [deploy_templates, drupal_site]
+      inst_Drupal : Adjust drupal sites and core permissions ---------- TAGS: [drupal_site]
+      inst_Drupal : Set variables in settings.php of drupal/civicrm --- TAGS: [drupal_site]
+      inst_Drupal : Ensure services are started and enabled ----------- TAGS: [install_dep_pkg]
 ----
 
 The hiphens o minus signs are used just to make the output easier to 
@@ -244,6 +244,8 @@ playbook: AWS.yml
 
   play #1 (localhost): localhost        TAGS: []
     tasks:
+      AWS : Ensure aws config dir ------------- TAGS: [base_config]
+      AWS : Set AWS config ini style file ----- TAGS: [base_config]
       AWS : Gather default VPC facts ---------- TAGS: [create_aws_instances, create_ec2_instances, create_security_groups, gather_default_vpc]
       AWS : Ensure base output dir ------------ TAGS: [create_aws_instances, create_ec2_instances, create_security_groups, gather_default_vpc]
       AWS : Copy default VPC facts ------------ TAGS: [gather_default_vpc]
@@ -338,8 +340,11 @@ The playbook creates the git user, the repository outside git homedir
 and can create projects from the variable named project_list 
 in group_vars/server2.yml file.
 
-Find the private key to connect in conf.d/git_priv_key and use it in
-you ~/.ssh/config. A simple example will look like:
+Find the private key to connect in 
+
+	conf.d/git_priv_key 
+
+and use it in you ~/.ssh/config. A simple example will look like:
 
 ----
 Host lrgc01.uk.to
