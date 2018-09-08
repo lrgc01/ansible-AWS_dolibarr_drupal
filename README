@@ -1,0 +1,207 @@
+
+----------------------------------------------------------------------
+General organization:
+----------------------------------------------------------------------
+Basically an ansible with some external configs to SSH access - check 
+all.sh
+
+The inventory is “host” as used by the main playbook YAML file, 
+Drupal.yml
+
+ - Files:
+
+   - hosts - inventory for the Drupal + civicrm site
+
+   - Drupal.yml - main playbook to get Drupal + civicrm up and 
+     running
+
+   - removeDrupal.yml - just to clean the server and restart 
+     Drupal.yml later
+
+   - AWS.yml - playbook used to build server, DB instance, sec 
+     groups, etc.
+
+   - all.sh - shell used to build everything including AWS (off by 
+     now) together with some SSH base configs
+
+   - aws.sh - just to run AWS playbook
+
+   - uninst.sh - runs the playbook to clean the server in hosts 
+     inventory
+
+ - Folder hierarchy (roles):
+
+   - roles/
+   - roles/common
+   - roles/inst_Drupal
+   - roles/uninst_Drupal
+   - roles/AWS
+   - roles/*/{defaults,tasks,vars,templates,handlers}
+
+ - Other folders:
+
+   - group_vars - from ansible best practices - define vars for 
+     each server in an inventory
+
+   - facts.d - all data from AWS after deploying the platform
+
+   - conf.d - SSH config file made by AWS playbook - mandatory!
+
+   - test - self explanatory
+
+ - Other files:
+
+   - facts.d/linux-key.pem - The key to SSH to lrgc01.uk.to
+
+   - conf.d/ssh_config - SSH client config with hostname and keypath
+
+   - group_vars/server2.yml - look for every var definition here
+
+----------------------------------------------------------------------
+Running
+----------------------------------------------------------------------
+
+Probably the server (here named server2) is up and running. A first 
+run of the playbook might be right to check it, as soon as all 
+returns "ok".
+
+Just do:
+
+	prompt$ sh all.sh
+
+(AWS is off since it is out of the scope of this job, but I may send 
+the password if asked)
+
+To destroy the server and start again:
+
+	prompt$ sh uninst.sh
+
+And again you may run the first shell script to start over:
+
+	prompt$ sh all.sh
+
+----------------------------------------------------------------------
+Extra variables supplied (--extra-vars) and my default choices:
+----------------------------------------------------------------------
+
+ - gather_y_n: false
+   Up to now there is no need
+ 
+ - update_cache_y_n: yes
+   The module apt uses this variable. It's off in the script for a 
+   while to speed things.
+
+ - purge_y_n: false
+   When uninstalling a package we may choose to purge
+
+ - autoremove_y_n: false
+   The same as above, we may uninstall the whole dependency tree
+
+----------------------------------------------------------------------
+Variables of main interest in group_vars/server2.yml:
+----------------------------------------------------------------------
+
+ - www_basedir: if using other than the default /var/www.
+
+ - web_service: if using other package than nginx.
+
+ - remove_list: when removing, if not using nginx nor mysql, should 
+   alter here.
+
+ - cert_base_path and key_base_path: change according to your needs.
+
+ - cert_params_hash{C, ST, L, O, OU, etc}: change according to your 
+   location.
+
+ - drupal_version: in a future upgrade
+
+ - drupal_basename: base site name within web rootdir.
+
+ - db_list{admuser, admpass, host, user, pass, etc}: change to fit 
+   your servers.
+
+ - composer_required: the same as for drupal_version above - future 
+   upgrade.
+
+ - civicrm_download_url: when upgrading civicrm module.
+
+ - drupal_private_files_dir and civicrm_extensions_dir: you may 
+   choose any folder location.
+
+----------------------------------------------------------------------
+Templates:
+----------------------------------------------------------------------
+
+All of them are mandatory to be checked. Templates are very particular 
+to one site. They can be found here:
+
+ - roles/inst_Drupal/templates
+
+----------------------------------------------------------------------
+The playbook:
+----------------------------------------------------------------------
+Here the output of "ansible-playbook -i hosts --list-tasks Drupal.yml" 
+command:
+
+--
+playbook: Drupal.yml
+
+  play #1 (server2): server2	TAGS: []
+    tasks:
+      inst_Drupal : Update cache and upgrade --------------------------	TAGS: [update_repository]
+      inst_Drupal : Install Drupal dependencies -----------------------	TAGS: [drupal_files, install_dep_pkg]
+      inst_Drupal : Set composer required pack ------------------------	TAGS: [drupal_files]
+      inst_Drupal : Ensure directories all_descriptor_list.types=dir --	TAGS: [config_files, deploy_templates, drupal_files]
+      inst_Drupal : Create admin users for drupal/site ----------------	TAGS: [drupal_files]
+      inst_Drupal : Set php.ini file ----------------------------------	TAGS: [config_files, config_php_files, deploy_templates]
+      inst_Drupal : Remove undesired files (absent in item.types) -----	TAGS: [config_files, deploy_templates]
+      inst_Drupal : Deploy templates all_descriptor_list.types=tmpl ---	TAGS: [config_files, deploy_templates]
+      inst_Drupal : Make proper links all_descriptor_list.types=link --	TAGS: [config_files, deploy_templates]
+      inst_Drupal : Ensure web service is restarted and enabled -------	TAGS: [config_files, config_php_files, deploy_templates, install_dep_pkg]
+      inst_Drupal : Generate private key for account and csr ----------	TAGS: [ssl_certificate]
+      inst_Drupal : Create CSR certificate ----------------------------	TAGS: [ssl_certificate]
+      inst_Drupal : Create ACME account with respective email ---------	TAGS: [ssl_certificate]
+      inst_Drupal : Create certificate - 1st step challenge -----------	TAGS: [ssl_certificate]
+      inst_Drupal : Create directory structure for challenge ----------	TAGS: [ssl_certificate]
+      inst_Drupal : Copy resource to web site to complete the 2nd step	TAGS: [ssl_certificate]
+      inst_Drupal : Create certificate - 2nd step challenge -get certs-	TAGS: [ssl_certificate]
+      inst_Drupal : Copy new cert and key to web server's place -------	TAGS: [ssl_certificate]
+      inst_Drupal : Create DBs on respective hosts --------------------	TAGS: [create_databases, databases]
+      inst_Drupal : Grant user privileges in DBs ----------------------	TAGS: [databases, grant_privileges]
+      inst_Drupal : Download Drupal using drush pm-download (dl) ------	TAGS: [drupal_files]
+      inst_Drupal : Download and extract civiCRM ----------------------	TAGS: [drupal_files]
+      inst_Drupal : Install Drupal site using drush site-install (si) -	TAGS: [drupal_files]
+      inst_Drupal : Install CiviCRM module with drush -----------------	TAGS: [drupal_files]
+      inst_Drupal : Enable some civicrm modules for testing -----------	TAGS: [drupal_files]
+      inst_Drupal : Run pm-update to update database if necessary -----	TAGS: [drupal_files]
+      inst_Drupal : Deploy Drupal specific templates ------------------	TAGS: [deploy_templates, drupal_files]
+      inst_Drupal : Adjust drupal sites and core permissions ----------	TAGS: [drupal_files]
+      inst_Drupal : Set variables in settings.php of drupal/civicrm ---	TAGS: [drupal_files]
+      inst_Drupal : Ensure services are started and enabled -----------	TAGS: [install_dep_pkg]
+--
+
+The hiphens o minus signs are used just to make the output easier to 
+understand.
+
+Everything is based in few distinct blocks as can be noted in 
+roles/inst_Drupal/tasks folder:
+
+	main.yml
+
+which includes:
+
+	10-base.yml
+	20-siteconfig.yml
+	30-ssl_certificate.yml
+	40-database.yml
+	50-drupal.yml
+	90-last.yml
+
+They are almost self explanatory, but the idea is to prepare the 
+environment with the base packages with 01-base, then configure
+the mininal nginx with SSL in 02-siteconfig. The 2 step challenge 
+certificate in 03-ssl_certficate needs a web server. The 
+04-database is almost independent and could be the 2nd pass,
+for example, but 04 is fine. Of course Drupal depends on all
+these things before. 06-last is a final check to keep services
+up - may possibly be omitted.
