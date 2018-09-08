@@ -8,6 +8,9 @@ BASEDIR="`pwd`"
 CONFDIR="${BASEDIR}/conf.d"
 SSHCONF="${CONFDIR}/ssh_config"
 
+# Ensure priv keys in conf.d dir are protected
+chmod 600 ${CONFDIR}/*
+
 export BASEDIR CONFDIR SSHCONF
 
 export DISPLAY_SKIPPED_HOSTS="false"

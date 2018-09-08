@@ -1,6 +1,29 @@
 This is the README file
 
 ----------------------------------------------------------------------
+BEFORE ANYTHING
+----------------------------------------------------------------------
+
+In you work linux box you should have installed ansible and boto. This 
+list below works fine in ubuntu 16.04 (xenial) and debian 9 (stretch):
+
+ansible  2.6.3 (from ppa source)
+python3  2.7.13
+(install these with pip)
+boto3    1.9.0
+boto     2.49.0
+botocore 1.12.0
+
+AWS RDS instances have some issues with python3 (or boto??), so used 
+python2.
+
+AWS needs the file ~/.aws/config with the contents:
+---
+[default]
+region = eu-west-2
+---
+
+----------------------------------------------------------------------
 GENERAL STRUCTURE
 ----------------------------------------------------------------------
 Basically an ansible with some external configs to SSH access - check 
@@ -53,6 +76,8 @@ Drupal.yml
    - conf.d - SSH files built by AWS playbook - mandatory
 
    - test - self explanatory - unused by now
+
+   - secret - sensitive data
 
  - Other files:
 
@@ -256,6 +281,8 @@ will change. Use with parsimony.
 All instances facts will be copied to facts.d subdir - even
 the IP address when changing.
 
+The secret subdir contains the sensitive data to access AWS endpoints.
+
 ----------------------------------------------------------------------
 PLAYING WITH THE BOOK
 ----------------------------------------------------------------------
@@ -292,6 +319,15 @@ their own default values already defined in common/defaults/main.yml
 of in PLAYBOOK/vars/main.yml below the roles subdir.
 
 Note that group_vars/_SERVER_GROUP_.yml is the main variable file.
+
+It is possible to run just the git parts:
+
+(after the shell script header!!)
+$ ansible-playbook \ 
+    --extra-vars \
+    "basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" \
+    --tags "git_config" \
+    Drupal.yml
 
 ----------------------------------------------------------------------
 GIT 

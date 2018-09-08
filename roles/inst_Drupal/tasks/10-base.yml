@@ -19,7 +19,7 @@
     state: "present"
   loop: "{{ dep_pkg_list }}"
   register: drupal_dep_pkg_installed
-  tags: install_dep_pkg, drupal_files
+  tags: install_dep_pkg, drupal_site
 
 - name: Set composer required pack ------------------------
   composer:
@@ -27,7 +27,7 @@
     arguments: "{{ composer_required }}"
     global_command: yes
   register: composer_done
-  tags: drupal_files
+  tags: drupal_site
 
 - name: Ensure directories all_descriptor_list.types=dir --
   file: 
@@ -36,7 +36,7 @@
   when: '"dir" in item.types'
   loop: "{{ all_descriptor_list }}"
   register: directories_in_place
-  tags: drupal_files, config_files, deploy_templates
+  tags: drupal_site, config_files, deploy_templates
 
 - name: Create admin users for drupal/site ----------------
   user:
@@ -47,7 +47,15 @@
     append: true
   loop: "{{ users_list }}"
   register: users_created
-  tags: drupal_files, git_config
+  tags: drupal_site, git_config
+
+- name: Retrieve priv key from git user -------------------
+  fetch: 
+    dest: "{{ confdir }}/git_priv_key"
+    src: "~git/.ssh/id_rsa"
+    flat: true
+  when: users_created is success 
+  tags: git_config
 
 - name: Fill in authorized_keys to git user ---------------
   authorized_key:

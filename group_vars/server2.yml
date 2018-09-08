@@ -1,5 +1,4 @@
-#
-# General vars
+# # General vars
 # update_cache_y_n also appears in common/default vars
 #
 update_cache_y_n        : "yes"
@@ -28,8 +27,8 @@ dep_pkg_list            :
    - { pkg : "php-xml"         }
    - { pkg : "php-mcrypt"      }
    - { pkg : "composer"        }
-   - { pkg : "python3-mysqldb" }
-   - { pkg : "python3-openssl" }
+   - { pkg : "python-mysqldb" }
+   - { pkg : "python-openssl" }
    - { pkg : "git" 	       }
 #
 # For git
@@ -202,7 +201,7 @@ drupal_file_system_dir	      : "{{ drupal_sites_default }}/files"
 drupal_settings_file          : "{{ drupal_sites_default }}/settings.php"
 drupal_default_settings_file  : "{{ drupal_sites_default }}/default.settings.php"
 drupal_private_files_dir      : "{{ www_basedir }}/private/drupal/files"
-drupal_modules_list           : "ctools views views_ui"
+drupal_modules_list           : [ "ctools" , "views" , "views_ui" ]
 #
 # civiCRM specific
 #
@@ -212,7 +211,7 @@ civicrm_dbname          : "--dbname={{ db_list[1].dbname }}"
 civicrm_dbpass          : "--dbpass={{ db_list[1].pass }}"
 civicrm_dbuser          : "--dbuser={{ db_list[1].user }}"
 civicrm_site_url        : "--site_url={{ cert_params_hash.CN }}"
-civicrm_cmd_args	: "civicrm-install --ssl=on {{ civicrm_dbhost }} {{ civicrm_dbname }} {{ civicrm_dbpass }} {{ civicrm_dbuser }} {{ civicrm_site_url }}"
+civicrm_cmd_args	: "--ssl=on {{ civicrm_dbhost }} {{ civicrm_dbname }} {{ civicrm_dbpass }} {{ civicrm_dbuser }} {{ civicrm_site_url }}"
 civicrm_settings_file   : "{{ drupal_sites_default }}/civicrm.settings.php"
 civicrm_extensions_dir  : "{{ www_basedir }}/private/civicrm/ext"
 #

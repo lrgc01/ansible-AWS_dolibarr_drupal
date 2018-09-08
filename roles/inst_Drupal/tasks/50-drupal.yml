@@ -6,7 +6,7 @@
     chdir: "{{ www_basedir }}"
   when: composer_done is success and directories_in_place is success
   register: drupal_installed
-  tags: drupal_files
+  tags: drupal_site
 
 - name: Download and extract civiCRM ----------------------
   unarchive: 
@@ -19,7 +19,7 @@
     creates: "{{ drupal_all_module_dir }}/civicrm"
   when: drupal_installed is success
   register: civicrm_module_downloaded
-  tags: drupal_files
+  tags: drupal_site
 
 - name: Install Drupal site using drush site-install (si) -
   shell: "{{ drush_base_cmd }} si {{ drush_si_args }}"
@@ -28,33 +28,33 @@
     chdir: "{{ drupal_site_rootdir }}"
   when: drupal_installed is success
   register: drupal_installed
-  tags: drupal_files
+  tags: drupal_site
 
 - name: Install CiviCRM module with drush -----------------
-  shell: "{{ drush_base_cmd }} {{ civicrm_cmd_args }}"
+  shell: "{{ drush_base_cmd }} civicrm-install {{ civicrm_cmd_args }}"
   args:
     creates: "{{ civicrm_settings_file }}"
     chdir: "{{ drupal_site_rootdir }}"
   when: civicrm_module_downloaded is success
   register: civicrm_installed
-  tags: drupal_files
+  tags: drupal_site
 
 # Only after 1st civicrm installation according to "changed" condition.
 - name: Enable some civicrm modules -----------------------
-  shell: "{{ drush_base_cmd }} pm-enable {{ drupal_modules_list }}"
+  shell: "{{ drush_base_cmd }} pm-enable {{ item }}"
   args:
     chdir: "{{ drupal_site_rootdir }}"
   when: civicrm_installed is changed
-  #loop: "{{ civicrm_modules_list }} + {{ drupal_modules_list }}"
+  loop: "{{ drupal_modules_list }}"
   register: civicrm_modules_enabled
-  tags: drupal_files
+  tags: drupal_site
 
 - name: Run pm-update to update database if necessary -----
   shell: "{{ drush_base_cmd }} pm-update "
   args:
     chdir: "{{ drupal_site_rootdir }}"
   when: civicrm_modules_enabled is changed
-  tags: drupal_files
+  tags: drupal_site
 
 - name: Deploy Drupal specific templates ------------------
   template:
@@ -64,7 +64,7 @@
   when: directories_in_place is success and "tmpl" in item.types
   notify: Restart web server
   register: drupal_templates_in_place
-  tags: drupal_files, deploy_templates
+  tags: drupal_site, deploy_templates
  
 - name: Adjust drupal sites and core permissions ----------
   file: 
@@ -77,7 +77,7 @@
   loop: "{{ drupal_dirs_config_list }}"
   when: drupal_installed is success
   register: drupal_filesystem_adjusted
-  tags: drupal_files
+  tags: drupal_site
 
 # Manually set the extension directory in civicrm.settings.php 
 # and request_fails line to settings.php.
@@ -91,5 +91,5 @@
     mode: "{{ item.mode }}"
   loop: "{{ drupal_lineinfile_config_list }}"
   #when: civicrm_installed is success and drupal_installed is success
-  tags: drupal_files
+  tags: drupal_site
 
