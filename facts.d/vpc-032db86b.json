@@ -1,0 +1,23 @@
+{
+    "cidr_block": "172.31.0.0/16", 
+    "cidr_block_association_set": [
+        {
+            "association_id": "vpc-cidr-assoc-bf016dd7", 
+            "cidr_block": "172.31.0.0/16", 
+            "cidr_block_state": {
+                "state": "associated"
+            }
+        }
+    ], 
+    "classic_link_dns_supported": false, 
+    "classic_link_enabled": false, 
+    "dhcp_options_id": "dopt-df573bb7", 
+    "enable_dns_hostnames": true, 
+    "enable_dns_support": true, 
+    "id": "vpc-032db86b", 
+    "instance_tenancy": "default", 
+    "is_default": true, 
+    "state": "available", 
+    "tags": {}, 
+    "vpc_id": "vpc-032db86b"
+}

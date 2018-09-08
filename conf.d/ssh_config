@@ -1,0 +1,6 @@
+Host server2 35.178.190.34 ec2-35-178-190-34.eu-west-2.compute.amazonaws.com
+Compression yes
+ServerAliveInterval 30
+IdentityFile conf.d/linux-key.pem
+StrictHostKeyChecking no
+

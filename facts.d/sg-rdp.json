@@ -1,0 +1,94 @@
+{
+    "_ansible_ignore_errors": null, 
+    "_ansible_item_label": {
+        "description": "Access to windows port 3389", 
+        "name": "rdp", 
+        "rules": [
+            {
+                "cidr_ip": "0.0.0.0/0", 
+                "ports": "3389", 
+                "proto": "tcp"
+            }
+        ], 
+        "vpc_id": "vpc-032db86b"
+    }, 
+    "_ansible_item_result": true, 
+    "_ansible_no_log": false, 
+    "_ansible_parsed": true, 
+    "changed": false, 
+    "description": "Access to windows port 3389", 
+    "failed": false, 
+    "group_id": "sg-0a40aba62a50f99a4", 
+    "group_name": "rdp", 
+    "invocation": {
+        "module_args": {
+            "aws_access_key": "AKIAI5ATGZLJLK6YIUDQ", 
+            "aws_secret_key": "VALUE_SPECIFIED_IN_NO_LOG_PARAMETER", 
+            "description": "Access to windows port 3389", 
+            "ec2_url": null, 
+            "group_id": null, 
+            "name": "rdp", 
+            "profile": null, 
+            "purge_rules": true, 
+            "purge_rules_egress": true, 
+            "purge_tags": true, 
+            "region": "eu-west-2", 
+            "rules": [
+                {
+                    "cidr_ip": "0.0.0.0/0", 
+                    "ports": "3389", 
+                    "proto": "tcp"
+                }
+            ], 
+            "rules_egress": null, 
+            "security_token": null, 
+            "state": "present", 
+            "tags": null, 
+            "validate_certs": true, 
+            "vpc_id": "vpc-032db86b"
+        }
+    }, 
+    "ip_permissions": [
+        {
+            "from_port": 3389, 
+            "ip_protocol": "tcp", 
+            "ip_ranges": [
+                {
+                    "cidr_ip": "0.0.0.0/0"
+                }
+            ], 
+            "ipv6_ranges": [], 
+            "prefix_list_ids": [], 
+            "to_port": 3389, 
+            "user_id_group_pairs": []
+        }
+    ], 
+    "ip_permissions_egress": [
+        {
+            "ip_protocol": "-1", 
+            "ip_ranges": [
+                {
+                    "cidr_ip": "0.0.0.0/0"
+                }
+            ], 
+            "ipv6_ranges": [], 
+            "prefix_list_ids": [], 
+            "user_id_group_pairs": []
+        }
+    ], 
+    "item": {
+        "description": "Access to windows port 3389", 
+        "name": "rdp", 
+        "rules": [
+            {
+                "cidr_ip": "0.0.0.0/0", 
+                "ports": "3389", 
+                "proto": "tcp"
+            }
+        ], 
+        "vpc_id": "vpc-032db86b"
+    }, 
+    "owner_id": "439356976537", 
+    "tags": {}, 
+    "vpc_id": "vpc-032db86b"
+}

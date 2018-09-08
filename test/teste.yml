@@ -1,0 +1,15 @@
+- hosts: server2
+  remote_user: "ubuntu"
+  gather_facts: true
+  become: true
+  vars_files:
+    - /home/luiz/secret/Drupal_vars.yml
+#  roles:
+#    - common
+#    - Drupal
+  tasks:
+    - name: show all the hosts matching the pattern, ie all but the group www
+      debug:
+        msg: "{{ item }}"
+      with_inventory_hostnames:
+        - all

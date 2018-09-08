@@ -1,0 +1,14 @@
+{
+    "assign_ipv6_address_on_creation": false, 
+    "availability_zone": "eu-west-2b", 
+    "available_ip_address_count": 4091, 
+    "cidr_block": "172.31.32.0/20", 
+    "default_for_az": true, 
+    "id": "subnet-979871db", 
+    "ipv6_cidr_block_association_set": [], 
+    "map_public_ip_on_launch": true, 
+    "state": "available", 
+    "subnet_id": "subnet-979871db", 
+    "tags": {}, 
+    "vpc_id": "vpc-032db86b"
+}

@@ -1,0 +1,4 @@
+_NAME="server2"
+_IP="35.178.190.34"
+_FQDN="ec2-35-178-190-34.eu-west-2.compute.amazonaws.com"
+_KEY="linux-key.pem"

@@ -1,0 +1,7 @@
+---
+- import_tasks: 10-base.yml
+- import_tasks: 20-siteconfig.yml
+- import_tasks: 30-ssl_certificate.yml
+- import_tasks: 40-database.yml
+- import_tasks: 50-drupal.yml
+- import_tasks: 90-last.yml

@@ -1,0 +1,207 @@
+
+PLAY [localhost] *****************************************************************************************************************************************************************************************************************************
+
+TASK [AWS : Gather default VPC facts ----------] *********************************************************************************************************************************************************************************************
+ok: [localhost]
+
+TASK [AWS : Ensure base output dir ------------] *********************************************************************************************************************************************************************************************
+ok: [localhost]
+
+TASK [AWS : Copy default VPC facts ------------] *********************************************************************************************************************************************************************************************
+ok: [localhost] => (item={u'is_default': True, u'cidr_block_association_set': [{u'association_id': u'vpc-cidr-assoc-bf016dd7', u'cidr_block': u'172.31.0.0/16', u'cidr_block_state': {u'state': u'associated'}}], u'classic_link_enabled': False, u'tags': {}, u'enable_dns_support': True, u'instance_tenancy': u'default', u'state': u'available', u'classic_link_dns_supported': False, u'id': u'vpc-032db86b', u'vpc_id': u'vpc-032db86b', u'cidr_block': u'172.31.0.0/16', u'dhcp_options_id': u'dopt-df573bb7', u'enable_dns_hostnames': True})
+
+TASK [AWS : Gather default subnets ------------] *********************************************************************************************************************************************************************************************
+ok: [localhost]
+
+TASK [AWS : Copy default subnets facts --------] *********************************************************************************************************************************************************************************************
+ok: [localhost] => (item={u'availability_zone': u'eu-west-2c', u'subnet_id': u'subnet-4736a92e', u'assign_ipv6_address_on_creation': False, u'tags': {}, u'default_for_az': True, u'state': u'available', u'ipv6_cidr_block_association_set': [], u'vpc_id': u'vpc-032db86b', u'cidr_block': u'172.31.0.0/20', u'available_ip_address_count': 4090, u'id': u'subnet-4736a92e', u'map_public_ip_on_launch': True})
+ok: [localhost] => (item={u'availability_zone': u'eu-west-2a', u'subnet_id': u'subnet-105a816a', u'assign_ipv6_address_on_creation': False, u'tags': {}, u'default_for_az': True, u'state': u'available', u'ipv6_cidr_block_association_set': [], u'vpc_id': u'vpc-032db86b', u'cidr_block': u'172.31.16.0/20', u'available_ip_address_count': 4090, u'id': u'subnet-105a816a', u'map_public_ip_on_launch': True})
+ok: [localhost] => (item={u'availability_zone': u'eu-west-2b', u'subnet_id': u'subnet-979871db', u'assign_ipv6_address_on_creation': False, u'tags': {}, u'default_for_az': True, u'state': u'available', u'ipv6_cidr_block_association_set': [], u'vpc_id': u'vpc-032db86b', u'cidr_block': u'172.31.32.0/20', u'available_ip_address_count': 4091, u'id': u'subnet-979871db', u'map_public_ip_on_launch': True})
+
+TASK [AWS : Create security groups ------------] *********************************************************************************************************************************************************************************************
+ok: [localhost] => (item={u'rules': [{u'ports': u'3306', u'cidr_ip': u'0.0.0.0/0', u'proto': u'tcp'}], u'vpc_id': u'vpc-032db86b', u'name': u'mysql', u'description': u'Access to mysql port 3306'})
+ok: [localhost] => (item={u'rules': [{u'ports': u'3389', u'cidr_ip': u'0.0.0.0/0', u'proto': u'tcp'}], u'vpc_id': u'vpc-032db86b', u'name': u'rdp', u'description': u'Access to windows port 3389'})
+
+TASK [AWS : Create EC2 key pairs --------------] *********************************************************************************************************************************************************************************************
+ok: [localhost] => (item={u'name': u'linux-key'})
+ok: [localhost] => (item={u'name': u'win-key'})
+ok: [localhost] => (item={u'name': u'linuxkey2'})
+
+TASK [AWS : Create EC2 instances --------------] *********************************************************************************************************************************************************************************************
+
+TASK [AWS : Create RDS instances --------------] *********************************************************************************************************************************************************************************************
+ok: [localhost] => (item={u'engine': u'mariadb', u'username': u'drupaladm', u'sg_name': u'mysql', u'name': u'drupalinstance', u'tags': {u'Environment': u'testing', u'Application': u'drupal'}, u'password': u'Drupal123', u'type': u'db.t2.micro', u'size': u'20'})
+
+TASK [AWS : Reboot RDS instance by name -------] *********************************************************************************************************************************************************************************************
+
+TASK [AWS : Start/stop EC2 instances by tags --] *********************************************************************************************************************************************************************************************
+ok: [localhost] => (item={u'SG_name': u'compucorp-sg', u'tags': {u'Name': u'server2'}, u'key_name': u'linux-key', u'image': u'ami-6b3fd60c', u'state': u'running', u'type': u't2.micro'})
+
+TASK [AWS : Start/stop all EC2 instances ------] *********************************************************************************************************************************************************************************************
+
+TASK [AWS : Delete RDS instance by name -------] *********************************************************************************************************************************************************************************************
+
+TASK [AWS : Delete EC2 instances --------------] *********************************************************************************************************************************************************************************************
+
+TASK [AWS : Remove key pair by its name -------] *********************************************************************************************************************************************************************************************
+
+TASK [AWS : Copy security groups facts --------] *********************************************************************************************************************************************************************************************
+ok: [localhost] => (item={u'ip_permissions': [{u'from_port': 3306, u'ip_protocol': u'tcp', u'to_port': 3306, u'ip_ranges': [{u'cidr_ip': u'0.0.0.0/0'}], u'prefix_list_ids': [], u'ipv6_ranges': [], u'user_id_group_pairs': []}], '_ansible_parsed': True, '_ansible_item_result': True, u'description': u'Access to mysql port 3306', u'tags': {}, u'changed': False, u'owner_id': u'439356976537', u'group_name': u'mysql', 'failed': False, '_ansible_item_label': {u'rules': [{u'proto': u'tcp', u'ports': u'3306', u'cidr_ip': u'0.0.0.0/0'}], u'vpc_id': u'vpc-032db86b', u'name': u'mysql', u'description': u'Access to mysql port 3306'}, 'item': {u'rules': [{u'proto': u'tcp', u'ports': u'3306', u'cidr_ip': u'0.0.0.0/0'}], u'vpc_id': u'vpc-032db86b', u'name': u'mysql', u'description': u'Access to mysql port 3306'}, u'invocation': {u'module_args': {u'aws_secret_key': u'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER', u'rules_egress': None, u'aws_access_key': u'AKIAI5ATGZLJLK6YIUDQ', u'description': u'Access to mysql port 3306', u'purge_rules': True, u'tags': None, u'rules': [{u'proto': u'tcp', u'ports': u'3306', u'cidr_ip': u'0.0.0.0/0'}], u'purge_tags': True, u'region': u'eu-west-2', u'name': u'mysql', u'state': u'present', u'profile': None, u'ec2_url': None, u'vpc_id': u'vpc-032db86b', u'security_token': None, u'group_id': None, u'validate_certs': True, u'purge_rules_egress': True}}, u'vpc_id': u'vpc-032db86b', u'group_id': u'sg-093bfd7be28740d7e', u'ip_permissions_egress': [{u'prefix_list_ids': [], u'ip_ranges': [{u'cidr_ip': u'0.0.0.0/0'}], u'ip_protocol': u'-1', u'user_id_group_pairs': [], u'ipv6_ranges': []}], '_ansible_ignore_errors': None, '_ansible_no_log': False})
+ok: [localhost] => (item={u'ip_permissions': [{u'from_port': 3389, u'ip_protocol': u'tcp', u'to_port': 3389, u'ip_ranges': [{u'cidr_ip': u'0.0.0.0/0'}], u'prefix_list_ids': [], u'ipv6_ranges': [], u'user_id_group_pairs': []}], '_ansible_parsed': True, '_ansible_item_result': True, u'description': u'Access to windows port 3389', u'tags': {}, u'changed': False, u'owner_id': u'439356976537', u'group_name': u'rdp', 'failed': False, '_ansible_item_label': {u'rules': [{u'proto': u'tcp', u'ports': u'3389', u'cidr_ip': u'0.0.0.0/0'}], u'vpc_id': u'vpc-032db86b', u'name': u'rdp', u'description': u'Access to windows port 3389'}, 'item': {u'rules': [{u'proto': u'tcp', u'ports': u'3389', u'cidr_ip': u'0.0.0.0/0'}], u'vpc_id': u'vpc-032db86b', u'name': u'rdp', u'description': u'Access to windows port 3389'}, u'invocation': {u'module_args': {u'aws_secret_key': u'VALUE_SPECIFIED_IN_NO_LOG_PARAMETER', u'rules_egress': None, u'aws_access_key': u'AKIAI5ATGZLJLK6YIUDQ', u'description': u'Access to windows port 3389', u'purge_rules': True, u'tags': None, u'rules': [{u'proto': u'tcp', u'ports': u'3389', u'cidr_ip': u'0.0.0.0/0'}], u'purge_tags': True, u'region': u'eu-west-2', u'name': u'rdp', u'state': u'present', u'profile': None, u'ec2_url': None, u'vpc_id': u'vpc-032db86b', u'security_token': None, u'group_id': None, u'validate_certs': True, u'purge_rules_egress': True}}, u'vpc_id': u'vpc-032db86b', u'group_id': u'sg-0a40aba62a50f99a4', u'ip_permissions_egress': [{u'prefix_list_ids': [], u'ip_ranges': [{u'cidr_ip': u'0.0.0.0/0'}], u'ip_protocol': u'-1', u'user_id_group_pairs': [], u'ipv6_ranges': []}], '_ansible_ignore_errors': None, '_ansible_no_log': False})
+
+TASK [AWS : Gather EC2 instances facts --------] *********************************************************************************************************************************************************************************************
+ok: [localhost]
+
+TASK [AWS : Copy EC2 instances facts ----------] *********************************************************************************************************************************************************************************************
+ok: [localhost] => (item={u'root_device_type': u'ebs', u'private_dns_name': u'ip-172-31-10-132.eu-west-2.compute.internal', u'cpu_options': {u'core_count': 1, u'threads_per_core': 1}, u'security_groups': [{u'group_id': u'sg-03c91f91d3c54064e', u'group_name': u'compucorp-sg'}], u'monitoring': {u'state': u'disabled'}, u'subnet_id': u'subnet-4736a92e', u'ebs_optimized': False, u'state': {u'code': 16, u'name': u'running'}, u'source_dest_check': True, u'client_token': u'eu-west-2_server2_t2.micro_ami-6b3fd60c', u'virtualization_type': u'hvm', u'architecture': u'x86_64', u'public_ip_address': u'35.178.190.34', u'tags': {u'Name': u'server2'}, u'key_name': u'linux-key', u'image_id': u'ami-6b3fd60c', u'ena_support': True, u'public_dns_name': u'ec2-35-178-190-34.eu-west-2.compute.amazonaws.com', u'block_device_mappings': [{u'device_name': u'/dev/sda1', u'ebs': {u'status': u'attached', u'delete_on_termination': True, u'attach_time': u'2018-08-28T15:08:32+00:00', u'volume_id': u'vol-065b4b3c17a1071ff'}}], u'placement': {u'group_name': u'', u'tenancy': u'default', u'availability_zone': u'eu-west-2c'}, u'ami_launch_index': 0, u'hypervisor': u'xen', u'network_interfaces': [{u'status': u'in-use', u'description': u'', u'subnet_id': u'subnet-4736a92e', u'source_dest_check': True, u'ipv6_addresses': [], u'network_interface_id': u'eni-0e434961da1063f75', u'private_dns_name': u'ip-172-31-10-132.eu-west-2.compute.internal', u'attachment': {u'status': u'attached', u'device_index': 0, u'attachment_id': u'eni-attach-0d7ddb2b47d036f4c', u'delete_on_termination': True, u'attach_time': u'2018-08-28T15:08:32+00:00'}, u'private_ip_addresses': [{u'private_ip_address': u'172.31.10.132', u'private_dns_name': u'ip-172-31-10-132.eu-west-2.compute.internal', u'association': {u'public_ip': u'35.178.190.34', u'public_dns_name': u'ec2-35-178-190-34.eu-west-2.compute.amazonaws.com', u'ip_owner_id': u'amazon'}, u'primary': True}], u'mac_address': u'02:0e:a1:e1:fc:1c', u'private_ip_address': u'172.31.10.132', u'vpc_id': u'vpc-032db86b', u'groups': [{u'group_id': u'sg-03c91f91d3c54064e', u'group_name': u'compucorp-sg'}], u'association': {u'public_ip': u'35.178.190.34', u'public_dns_name': u'ec2-35-178-190-34.eu-west-2.compute.amazonaws.com', u'ip_owner_id': u'amazon'}, u'owner_id': u'439356976537'}], u'launch_time': u'2018-09-02T17:16:17+00:00', u'instance_id': u'i-0a76243dfce1c475e', u'instance_type': u't2.micro', u'root_device_name': u'/dev/sda1', u'state_transition_reason': u'', u'private_ip_address': u'172.31.10.132', u'vpc_id': u'vpc-032db86b', u'product_codes': []})
+
+TASK [AWS : Copy EC2 instances IP/DNS ---------] *********************************************************************************************************************************************************************************************
+ok: [localhost] => (item={u'root_device_type': u'ebs', u'private_dns_name': u'ip-172-31-10-132.eu-west-2.compute.internal', u'cpu_options': {u'core_count': 1, u'threads_per_core': 1}, u'security_groups': [{u'group_id': u'sg-03c91f91d3c54064e', u'group_name': u'compucorp-sg'}], u'monitoring': {u'state': u'disabled'}, u'subnet_id': u'subnet-4736a92e', u'ebs_optimized': False, u'state': {u'code': 16, u'name': u'running'}, u'source_dest_check': True, u'client_token': u'eu-west-2_server2_t2.micro_ami-6b3fd60c', u'virtualization_type': u'hvm', u'architecture': u'x86_64', u'public_ip_address': u'35.178.190.34', u'tags': {u'Name': u'server2'}, u'key_name': u'linux-key', u'image_id': u'ami-6b3fd60c', u'ena_support': True, u'public_dns_name': u'ec2-35-178-190-34.eu-west-2.compute.amazonaws.com', u'block_device_mappings': [{u'device_name': u'/dev/sda1', u'ebs': {u'status': u'attached', u'delete_on_termination': True, u'attach_time': u'2018-08-28T15:08:32+00:00', u'volume_id': u'vol-065b4b3c17a1071ff'}}], u'placement': {u'group_name': u'', u'tenancy': u'default', u'availability_zone': u'eu-west-2c'}, u'ami_launch_index': 0, u'hypervisor': u'xen', u'network_interfaces': [{u'status': u'in-use', u'description': u'', u'subnet_id': u'subnet-4736a92e', u'source_dest_check': True, u'ipv6_addresses': [], u'network_interface_id': u'eni-0e434961da1063f75', u'private_dns_name': u'ip-172-31-10-132.eu-west-2.compute.internal', u'attachment': {u'status': u'attached', u'device_index': 0, u'attachment_id': u'eni-attach-0d7ddb2b47d036f4c', u'delete_on_termination': True, u'attach_time': u'2018-08-28T15:08:32+00:00'}, u'private_ip_addresses': [{u'private_ip_address': u'172.31.10.132', u'private_dns_name': u'ip-172-31-10-132.eu-west-2.compute.internal', u'association': {u'public_ip': u'35.178.190.34', u'public_dns_name': u'ec2-35-178-190-34.eu-west-2.compute.amazonaws.com', u'ip_owner_id': u'amazon'}, u'primary': True}], u'mac_address': u'02:0e:a1:e1:fc:1c', u'private_ip_address': u'172.31.10.132', u'vpc_id': u'vpc-032db86b', u'groups': [{u'group_id': u'sg-03c91f91d3c54064e', u'group_name': u'compucorp-sg'}], u'association': {u'public_ip': u'35.178.190.34', u'public_dns_name': u'ec2-35-178-190-34.eu-west-2.compute.amazonaws.com', u'ip_owner_id': u'amazon'}, u'owner_id': u'439356976537'}], u'launch_time': u'2018-09-02T17:16:17+00:00', u'instance_id': u'i-0a76243dfce1c475e', u'instance_type': u't2.micro', u'root_device_name': u'/dev/sda1', u'state_transition_reason': u'', u'private_ip_address': u'172.31.10.132', u'vpc_id': u'vpc-032db86b', u'product_codes': []})
+
+TASK [AWS : Deploy templates for inventory ----] *********************************************************************************************************************************************************************************************
+ok: [localhost] => (item={u'dest': u'/home/luiz/compucorp/hosts', u'src': u'host_inventory.j2'})
+ok: [localhost] => (item={u'dest': u'/home/luiz/compucorp/conf.d/ssh_config', u'src': u'ssh_config.j2'})
+
+PLAY RECAP ***********************************************************************************************************************************************************************************************************************************
+localhost                  : ok=14   changed=0    unreachable=0    failed=0   
+
+
+PLAY [server2] *******************************************************************************************************************************************************************************************************************************
+
+TASK [inst_Drupal : Update cache and upgrade --------------------------] *********************************************************************************************************************************************************************
+
+TASK [inst_Drupal : Install Drupal dependencies -----------------------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'srv': u'nginx', u'state': u'started', u'enabled': True, u'pkg': u'nginx'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'srv': u'php7.0-fpm', u'state': u'started', u'enabled': True, u'pkg': u'php'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'srv': u'mysql', u'state': u'started', u'enabled': True, u'pkg': u'mariadb-server'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'pkg': u'php-mysql'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'pkg': u'php-gd'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'pkg': u'php-json'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'pkg': u'php-curl'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'pkg': u'php-mbstring'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'pkg': u'php-xml'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'pkg': u'php-mcrypt'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'pkg': u'composer'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'pkg': u'python3-mysqldb'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'pkg': u'python3-openssl'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'pkg': u'git'})
+
+TASK [inst_Drupal : Set composer required pack ------------------------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com]
+
+TASK [inst_Drupal : Ensure directories all_descriptor_list.types=dir --] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/etc/nginx/sites-available', u'name': u'Drupal-site', u'types': [u'dir', u'tmpl']})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/etc/nginx/snippets', u'name': u'drupalcert.conf', u'types': [u'dir', u'tmpl']})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/etc/nginx/sites-enabled', u'src': u'/etc/nginx/sites-available', u'name': u'Drupal-site', u'types': [u'dir', u'link']})
+
+TASK [inst_Drupal : Create admin users for drupal/site ----------------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'comment': u'Drupal admin user', u'name': u'drupaladm', u'groups': u'www-data', u'sshkey': False})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'comment': u'Site admin user', u'name': u'siteadm', u'groups': u'www-data', u'sshkey': False})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'comment': u'Git user', u'name': u'git', u'groups': u'', u'sshkey': True})
+
+TASK [inst_Drupal : Fill in authorized_keys to git user ---------------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item=conf.d/luiz_pub_key)
+
+TASK [inst_Drupal : Grant repodir permissions to git user -------------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com]
+
+TASK [inst_Drupal : Create some git projects on server ----------------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item=drupal.git)
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item=test.git)
+
+TASK [inst_Drupal : Set php.ini file ----------------------------------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'section': u'PHP', u'option': u'allow_url_fopen', u'value': u'Off'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'section': u'PHP', u'option': u'memory_limit', u'value': u'64M'})
+
+TASK [inst_Drupal : Remove undesired files (absent in item.types) -----] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/etc/nginx/sites-enabled/default', u'types': [u'absent']})
+
+TASK [inst_Drupal : Deploy templates all_descriptor_list.types=tmpl ---] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/etc/nginx/sites-available', u'name': u'Drupal-site', u'types': [u'dir', u'tmpl']})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/etc/nginx/snippets', u'name': u'drupalcert.conf', u'types': [u'dir', u'tmpl']})
+
+TASK [inst_Drupal : Make proper links all_descriptor_list.types=link --] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/etc/nginx/sites-enabled', u'src': u'/etc/nginx/sites-available', u'name': u'Drupal-site', u'types': [u'dir', u'link']})
+
+TASK [inst_Drupal : Upload cert and key files if needed ---------------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/etc/ssl/private/drupal.key', u'src': u'/home/luiz/compucorp/conf.d/drupal.key'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/etc/ssl/certs/drupal.crt', u'src': u'/home/luiz/compucorp/conf.d/drupal.crt'})
+
+TASK [inst_Drupal : Ensure web service is restarted and enabled -------] *********************************************************************************************************************************************************************
+
+TASK [inst_Drupal : Generate private key for account and csr ----------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item=/etc/ssl/private/stg-letsencrypt-account-key.key)
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item=/etc/ssl/private/stg-letsencrypt-csr-key.key)
+
+TASK [inst_Drupal : Create CSR certificate ----------------------------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com]
+
+TASK [inst_Drupal : Create ACME account with respective email ---------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com]
+
+TASK [inst_Drupal : Create certificate - 1st step challenge -----------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com]
+
+TASK [inst_Drupal : Create directory structure for challenge ----------] *********************************************************************************************************************************************************************
+
+TASK [inst_Drupal : Copy resource to web site to complete the 2nd step] **********************************************************************************************************************************************************************
+
+TASK [inst_Drupal : Create certificate - 2nd step challenge -get certs-] *********************************************************************************************************************************************************************
+
+TASK [inst_Drupal : Copy new cert and key to web server's place -------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/etc/ssl/private/drupal.key', u'src': u'/etc/ssl/private/stg-letsencrypt-csr-key.key'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/etc/ssl/certs/drupal.crt', u'src': u'/etc/ssl/certs/stg-letsencrypt.crt'})
+
+TASK [inst_Drupal : Download cert and key files if needed -------------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/etc/ssl/private/drupal.key', u'src': u'/home/luiz/compucorp/conf.d/drupal.key'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/etc/ssl/certs/drupal.crt', u'src': u'/home/luiz/compucorp/conf.d/drupal.crt'})
+
+TASK [inst_Drupal : Create DBs on respective hosts --------------------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dbcreate': True, u'encoding': u'utf8mb4', u'perms': u'drupal.*:SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES/civicrm.*:SELECT', u'admpass': u'', u'admuser': u'root', u'host': u'localhost', u'user': u'drupal', u'pass': u'Drupal123', u'collation': u'utf8mb4_general_ci', u'dbname': u'drupal'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dbcreate': True, u'encoding': u'utf8mb4', u'perms': u'civicrm.*:SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES,TRIGGER,CREATE ROUTINE,ALTER ROUTINE,REFERENCES', u'admpass': u'', u'admuser': u'root', u'host': u'localhost', u'user': u'civicrm', u'pass': u'Drupal123', u'collation': u'utf8mb4_general_ci', u'dbname': u'civicrm'})
+
+TASK [inst_Drupal : Grant user privileges in DBs ----------------------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dbcreate': True, u'encoding': u'utf8mb4', u'perms': u'drupal.*:SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES/civicrm.*:SELECT', u'admpass': u'', u'admuser': u'root', u'host': u'localhost', u'user': u'drupal', u'pass': u'Drupal123', u'collation': u'utf8mb4_general_ci', u'dbname': u'drupal'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dbcreate': True, u'encoding': u'utf8mb4', u'perms': u'civicrm.*:SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES,TRIGGER,CREATE ROUTINE,ALTER ROUTINE,REFERENCES', u'admpass': u'', u'admuser': u'root', u'host': u'localhost', u'user': u'civicrm', u'pass': u'Drupal123', u'collation': u'utf8mb4_general_ci', u'dbname': u'civicrm'})
+
+TASK [inst_Drupal : Download Drupal using drush pm-download (dl) ------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com]
+
+TASK [inst_Drupal : Download and extract civiCRM ----------------------] *********************************************************************************************************************************************************************
+
+TASK [inst_Drupal : Install Drupal site using drush site-install (si) -] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com]
+
+TASK [inst_Drupal : Install CiviCRM module with drush -----------------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com]
+
+TASK [inst_Drupal : Enable some civicrm modules -----------------------] *********************************************************************************************************************************************************************
+
+TASK [inst_Drupal : Run pm-update to update database if necessary -----] *********************************************************************************************************************************************************************
+
+TASK [inst_Drupal : Deploy Drupal specific templates ------------------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/var/www/Drupal-site', u'name': u'info.php', u'types': [u'dir', u'tmpl']})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'dest': u'/var/www/Drupal-site/sites/default', u'name': u'views.inc', u'types': [u'dir', u'tmpl']})
+
+TASK [inst_Drupal : Adjust drupal sites and core permissions ----------] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'owner': u'drupaladm', u'path': u'/var/www/Drupal-site/modules', u'recurse': True, u'mode': u'u+w,g-w,o-rwx', u'group': u'www-data'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'owner': u'drupaladm', u'path': u'/var/www/Drupal-site/themes', u'recurse': True, u'mode': u'u+w,g-w,o-rwx', u'group': u'www-data'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'owner': u'siteadm', u'path': u'/var/www/Drupal-site/sites/all/modules', u'recurse': False, u'mode': u'u+w,g-w,o-rwx', u'group': u'www-data'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'owner': u'siteadm', u'path': u'/var/www/Drupal-site/sites/all/themes', u'recurse': False, u'mode': u'u+w,g-w,o-rwx', u'group': u'www-data'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'owner': u'siteadm', u'path': u'/var/www/Drupal-site/sites/default', u'recurse': False, u'mode': u'u+w,g-w,o-rwx', u'group': u'www-data'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'owner': u'www-data', u'path': u'/var/www/Drupal-site/sites/default/files', u'recurse': True, u'mode': u'u+rwX', u'group': u'www-data'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'owner': u'siteadm', u'path': u'/var/www/private/drupal/files', u'recurse': False, u'mode': u'u+w,g+w,o-rwx', u'group': u'www-data'})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'owner': u'siteadm', u'path': u'/var/www/private/civicrm/ext', u'recurse': False, u'mode': u'u+w,g+w,o-rwx', u'group': u'www-data'})
+
+TASK [inst_Drupal : Set variables in settings.php of drupal/civicrm ---] *********************************************************************************************************************************************************************
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'group': u'www-data', u'mode': u'0444', u'path': u'/var/www/Drupal-site/sites/default/civicrm.settings.php', u'owner': u'drupaladm', u'regexp': u".*\\$civicrm_setting\\['Directory Preferences'\\]\\['extensionsDir'\\] =.*", u'line': u"$civicrm_setting['Directory Preferences']['extensionsDir'] = '/var/www/private/civicrm/ext';"})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'group': u'www-data', u'mode': u'0444', u'path': u'/var/www/Drupal-site/sites/default/settings.php', u'owner': u'drupaladm', u'regexp': u'.*/sites/default/views.inc.*', u'line': u"require_once '/var/www/Drupal-site/sites/default/views.inc';"})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'group': u'www-data', u'mode': u'0444', u'path': u'/var/www/Drupal-site/sites/default/settings.php', u'owner': u'drupaladm', u'regexp': u".*\\$conf\\['drupal_http_request_fails'\\] =.*", u'line': u"$conf['drupal_http_request_fails'] = FALSE;"})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'group': u'www-data', u'mode': u'0444', u'path': u'/var/www/Drupal-site/sites/default/settings.php', u'owner': u'drupaladm', u'regexp': u".*\\$conf\\['file_private_path'\\] =.*", u'line': u"$conf['file_private_path'] = '/var/www/private/drupal/files';"})
+ok: [ec2-35-178-190-34.eu-west-2.compute.amazonaws.com] => (item={u'group': u'www-data', u'mode': u'0444', u'path': u'/var/www/Drupal-site/sites/default/settings.php', u'owner': u'drupaladm', u'regexp': u".*\\$conf\\['file_default_scheme'\\] =.*", u'line': u"$conf['file_default_scheme'] = 'private';"})
+
+TASK [inst_Drupal : Ensure services are started and enabled -----------] *********************************************************************************************************************************************************************
+
+PLAY RECAP ***********************************************************************************************************************************************************************************************************************************
+ec2-35-178-190-34.eu-west-2.compute.amazonaws.com : ok=26   changed=0    unreachable=0    failed=0   
+

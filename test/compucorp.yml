@@ -1,0 +1,27 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  become: false
+  vars_files: 
+    - /home/luiz/secret/AWS_vars.yml
+  roles:
+    - common
+    - AWS
+
+- hosts: ubuntu
+  ansible_user: "ubuntu"
+  ansible_ssh_args: "-C -o ControlMaster=auto -o ControlPersist=60s -i {{ key_path }} "
+  gather_facts: true
+  become: true
+  vars_files:
+    - /home/luiz/secret/Drupal_vars.yml
+#  roles:
+#    - common
+#    - Drupal
+  tasks:
+    - name: show all the hosts matching the pattern, ie all but the group www
+      debug:
+        msg: "{{ item }}"
+      with_inventory_hostnames:
+        - all

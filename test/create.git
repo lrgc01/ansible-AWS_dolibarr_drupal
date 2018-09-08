@@ -1,0 +1,32 @@
+1037  useradd -m git
+ 1038  cd ~git
+ 1039  su - git
+ 1040  ls
+ 1041  ls ~ubuntu/.ssh
+ 1042  cp -r ~ubuntu/.ssh .
+ 1043  ls -la .ssh
+ 1044  chown -R git:git .ssh
+
+142  mkdir drupal_install
+ 2143  cd drupal_install
+ 2144  git clone git@lrgc01.uk.to:drupal_install.git
+ 2145  cp ../compucorp/facts.d/linux-key.pem ~/.ssh/git.key
+ 2146  vi ~/.ssh/config 
+ 2147  git clone git@lrgc01.uk.to:drupal_install.git
+ 2148  ls -la
+ 2149  cd ..
+ 2150  mv drupal_install git_projects
+ 2151  cd git_projects/
+ 2152  git remote add origin ssh://git@lrgc01.uk.to/drupal_install.git
+ 2153  git remote add origin ssh://git@lrgc01.uk.to/home/git/drupal_install.git
+ 2154  cd drupal_install/
+ 2155  git remote add origin ssh://git@lrgc01.uk.to/drupal_install.git
+ 2156  git commit
+ 2157  vi README
+ 2158  git add -A
+ 2159  git commit
+ 2160  git commit --global user.email "luizrogeriocarvalho@gmail.com"
+ 2161  git config --global user.email "luizrogeriocarvalho@gmail.com"
+ 2162  git config --global user.name "Luiz Carvalho"
+ 2163  git commit
+ 2164  git push origin master

@@ -1,0 +1,10 @@
+---
+gather_y_n	: "yes"
+update_cache_y_n: "yes"
+purge_y_n	: "no"
+autoremove_y_n  : "no"
+basedir		: "/home/luiz/compucorp"
+confdir         : "{{ basedir }}/conf.d"
+sshconf		: "{{ confdir }}/ssh_config"
+facts_out_dir	: "{{ basedir }}/facts.d"
+tmp_dir		: "/tmp"

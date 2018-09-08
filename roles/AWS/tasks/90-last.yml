@@ -1,0 +1,46 @@
+---
+###################################################################
+# Gather information after any change, or when specified but --tags
+- name: Copy security groups facts --------
+  copy:
+    content: "{{ item | to_nice_json }}"
+    dest: "{{ facts_out_dir }}/sg-{{ item.group_name }}.json"
+  loop: "{{ created_sg.results }}"
+  when: created_sg is success
+  tags: create_security_groups, change_state_all_ec2_instances, change_state_all_instances, create_ec2_instances, create_rds_instances, create_aws_instances
+
+- name: Gather EC2 instances facts --------
+  ec2_instance_facts:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    #filters:
+      #"tag:Name": "{{ item.tags.Name }}"
+  #loop: "{{ ec2_instances_by_tag }}"
+  register: ec2_facts
+  tags: gather_ec2, change_state_all_ec2_instances, change_state_all_instances, create_ec2_instances, create_aws_instances
+
+- name: Copy EC2 instances facts ----------
+  copy:
+    content: "{{ item | to_nice_json }}"
+    dest: "{{ facts_out_dir }}/{{ item.instance_id }}.json"
+  loop: "{{ ec2_facts.instances }}"
+  when: ec2_facts is success
+  tags: gather_ec2, change_state_all_ec2_instances, change_state_all_instances, create_ec2_instances, create_aws_instances
+
+- name: Copy EC2 instances IP/DNS ---------
+  copy:
+    content: "_NAME=\"{{ item.tags.Name }}\"\n_IP=\"{{ item.public_ip_address }}\"\n_FQDN=\"{{ item.public_dns_name }}\"\n_KEY=\"{{ item.key_name }}.pem\"\n"
+    dest: "{{ facts_out_dir }}/{{ item.tags.Name }}.rc"
+  loop: "{{ ec2_facts.instances }}"
+  when: ec2_facts is success and 'Name' in item.tags and item.public_ip_address is defined 
+        and item.public_dns_name is defined and item.key_name is defined
+  tags: gather_ec2, change_state_all_ec2_instances, change_state_all_instances, create_ec2_instances, create_aws_instances
+
+- name: Deploy templates for inventory ----
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop: "{{ my_templates }}"
+  when: ec2_facts is success and my_templates is defined
+  tags: config_files, config_ansible_host_file
+

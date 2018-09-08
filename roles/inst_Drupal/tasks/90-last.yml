@@ -1,0 +1,9 @@
+# Can optionally stop or disable
+- name: Ensure services are started and enabled -----------
+  service: 
+    name: "{{ item.srv }}" 
+    state: "{{ item.state }}" 
+    enabled: "{{ item.enabled }}"
+  loop: "{{ dep_pkg_list }}"
+  when: item.srv is defined and drupal_dep_pkg_installed is changed
+  tags: install_dep_pkg

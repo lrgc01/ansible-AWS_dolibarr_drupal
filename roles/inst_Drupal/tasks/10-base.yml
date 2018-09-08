@@ -1,0 +1,79 @@
+---
+#- name: Apt repositories for certbot ----------------------
+#  apt_repository:
+#    repo: ppa:certbot/certbot
+#  register: certbot_repo_added
+#  tags: update_repository
+#
+- name: Update cache and upgrade --------------------------
+  apt: 
+    update_cache: "{{ update_cache_y_n }}"
+    upgrade: "{{ update_cache_y_n }}"
+  register: updated_cache
+  when: update_cache_y_n == "true"
+  tags: update_repository
+
+- name: Install Drupal dependencies -----------------------
+  apt: 
+    pkg: "{{ item.pkg }}" 
+    state: "present"
+  loop: "{{ dep_pkg_list }}"
+  register: drupal_dep_pkg_installed
+  tags: install_dep_pkg, drupal_files
+
+- name: Set composer required pack ------------------------
+  composer:
+    command: require
+    arguments: "{{ composer_required }}"
+    global_command: yes
+  register: composer_done
+  tags: drupal_files
+
+- name: Ensure directories all_descriptor_list.types=dir --
+  file: 
+    path: "{{ item.dest }}" 
+    state: "directory"
+  when: '"dir" in item.types'
+  loop: "{{ all_descriptor_list }}"
+  register: directories_in_place
+  tags: drupal_files, config_files, deploy_templates
+
+- name: Create admin users for drupal/site ----------------
+  user:
+    name: "{{ item.name }}"
+    comment: "{{ item.comment }}"
+    generate_ssh_key: "{{ item.sshkey }}"
+    groups: "{{ item.groups }}"
+    append: true
+  loop: "{{ users_list }}"
+  register: users_created
+  tags: drupal_files, git_config
+
+- name: Fill in authorized_keys to git user ---------------
+  authorized_key:
+    user: "git"
+    state: present
+    key: "{{ lookup('file', item ) }}"
+  loop: "{{ pub_keys_file_list }}"
+  when: users_created is success
+  tags: git_config
+
+- name: Grant repodir permissions to git user -------------
+  file:
+    path: "{{ git_repodir }}"
+    state: "directory"
+    owner: "git"
+    group: "git"
+    recurse: true
+  when: users_created is success
+  tags: git_config
+
+- name: Create some git projects on server ----------------
+  shell: "su - git -c \"/usr/bin/git init --bare {{ git_repodir }}/{{ item }}\""
+  args:
+    creates: "{{ item }}"
+    chdir: "{{ git_repodir }}"
+    warn: false
+  loop: "{{ project_list }}"
+  when: users_created is success
+  tags: git_config

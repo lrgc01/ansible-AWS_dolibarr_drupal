@@ -1,0 +1,11 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  become: false
+# file not given
+  vars_files: 
+    - /home/luiz/secret/AWS_vars.yml
+  roles:
+   - common
+   - AWS
