@@ -30,7 +30,7 @@
   register: drupal_installed
   tags: drupal_site
 
-- name: Install CiviCRM module with drush -----------------
+- name: Install CiviCRM module with drush civicrm-install -
   shell: "{{ drush_base_cmd }} civicrm-install {{ civicrm_cmd_args }}"
   args:
     creates: "{{ civicrm_settings_file }}"
@@ -40,7 +40,7 @@
   tags: drupal_site
 
 # Only after 1st civicrm installation according to "changed" condition.
-- name: Enable some civicrm modules -----------------------
+- name: Enable some modules with drush --------------------
   shell: "{{ drush_base_cmd }} pm-enable {{ item }}"
   args:
     chdir: "{{ drupal_site_rootdir }}"
