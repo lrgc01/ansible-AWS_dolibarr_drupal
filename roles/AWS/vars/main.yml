@@ -2,6 +2,13 @@
 # General
 region                    : "eu-west-2"
 vpc_id		          : "vpc-032db86b"
+#
+# AWS ini $HOME file configuration
+#
+aws_homedir		: "~/.aws"
+aws_ini_file            : "{{ aws_homedir }}/config"
+aws_ini_pairs           :
+   - { section : "default" , option : "region" , value : "{{ region }}" }
 my_templates		  :
    - {
        src  : "host_inventory.j2",

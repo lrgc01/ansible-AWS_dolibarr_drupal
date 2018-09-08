@@ -1,4 +1,22 @@
 ---
+- name: Ensure aws config dir -------------
+  file:
+    path: "{{ aws_homedir }}"
+    state: "directory"
+    mode: "0755"
+  register: aws_dir_created
+  tags: base_config
+
+- name: Set AWS config ini style file -----
+  ini_file:
+    path: "{{ aws_ini_file }}"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  loop: "{{ aws_ini_pairs }}"
+  register: aws_ini_updated
+  tags: base_config
+
 - name: Gather default VPC facts ----------
   ec2_vpc_net_facts:
     aws_access_key: "{{ aws_access_key }}"
