@@ -1,7 +1,7 @@
 This is the README file
 
 ----------------------------------------------------------------------
-GENERAL ORGANIZATION
+GENERAL STRUCTURE
 ----------------------------------------------------------------------
 Basically an ansible with some external configs to SSH access - check 
 all.sh
@@ -292,4 +292,29 @@ their own default values already defined in common/defaults/main.yml
 of in PLAYBOOK/vars/main.yml below the roles subdir.
 
 Note that group_vars/_SERVER_GROUP_.yml is the main variable file.
+
 ----------------------------------------------------------------------
+GIT 
+----------------------------------------------------------------------
+The simplest way to build a git server is with ssh and a pair of keys.
+
+The playbook creates the git user, the repository outside git homedir 
+and can create projects from the variable named project_list 
+in group_vars/server2.yml file.
+
+Find the private key to connect in conf.d/git_priv_key and use it in
+you ~/.ssh/config. A simple example will look like:
+
+----
+Host lrgc01.uk.to
+User git
+ConnectTimeout 600
+Compression yes
+IdentityFile ~/.ssh/git_priv_key
+----
+
+Then move to a more clean directory and try:
+	git clone ssh://git@lrgc01.uk.to/repos/test.git
+
+It should retrieve the complete repository of this ansible job 
+including this README file.
