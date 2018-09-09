@@ -39,6 +39,8 @@ Drupal.yml
    - AWS.yml - playbook used to build server, DB instance, sec 
      groups, etc.
 
+   - base_AWS.yml - this playbook try to install basics like boto*
+
    - removeDrupal.yml - just to clean the server and restart 
      Drupal.yml later
 
@@ -59,6 +61,7 @@ Drupal.yml
    - roles/inst_Drupal
    - roles/uninst_Drupal
    - roles/AWS
+   - roles/base_AWS
    - roles/*/{defaults,tasks,vars,templates,handlers}
 
  - Other folders:
