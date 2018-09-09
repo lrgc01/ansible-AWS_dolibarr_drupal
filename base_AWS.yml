@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  become: true
+# file not given
+  roles:
+   - common
+   - base_AWS

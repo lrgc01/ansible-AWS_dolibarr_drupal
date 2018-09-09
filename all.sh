@@ -15,7 +15,11 @@ export BASEDIR CONFDIR SSHCONF
 
 export DISPLAY_SKIPPED_HOSTS="false"
 
+# First check base local pre-requisites, but becoming root with password:
+ansible-playbook --ask-become-pass base_AWS.yml
+# can comment the line after first successfull run
 
+# The rest of AWS stuff may be as local non-root user
 ansible-playbook --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" AWS.yml
 
 export ANSIBLE_SSH_ARGS="-C -o ControlMaster=auto -o ControlPersist=60s -F ${SSHCONF}"
