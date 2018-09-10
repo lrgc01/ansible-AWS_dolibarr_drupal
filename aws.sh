@@ -13,6 +13,7 @@ export BASEDIR CONFDIR SSHCONF
 export DISPLAY_SKIPPED_HOSTS="false"
 
 # First check base local pre-requisites, but becoming root with password:
+echo "Local sudo to install local base requirements (may comment line after first run)"
 ansible-playbook --ask-become-pass base_AWS.yml
 # can comment the line after first successfull run
 
