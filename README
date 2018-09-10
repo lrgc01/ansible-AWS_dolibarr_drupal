@@ -4,13 +4,16 @@ This is the README file
 BEFORE ANYTHING
 ----------------------------------------------------------------------
 
-In you work linux box you should have installed ansible and boto. This 
-list below works fine in ubuntu 16.04 (xenial) and debian 9 (stretch):
+In the work linux box it should have installed ansible, pip and boto. 
+This list below works fine in ubuntu 16.04 (xenial) and debian 9 
+(stretch) although other versions may work as well:
 
 ansible  2.6.3 (from ppa source)
 python3  2.7.13
+pip 18	
 
-These below the role base_AWS will try to install pip ansible module:
+These below is a python lib list defined in the role base_AWS vars 
+in which pip ansible module will try to install:
 boto3    1.9.0
 boto     2.49.0
 botocore 1.12.0
