@@ -62,6 +62,7 @@ all_descriptor_list     :
    - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/snippets"        , name : "drupalcert.conf" }
    - { types : [ "dir" , "link" ] , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "Drupal-site" }
    - { types : [ "absent"       ] , dest : "/etc/nginx/sites-enabled/default" }
+   - { types : [ "tmpl" ]         , dest : "~ubuntu" , name : "updatedns.sh" }
 #
 # SSL certificate and private key
 #
@@ -72,8 +73,7 @@ key_base_path		: "/etc/ssl/private"
 cert_base_path          : "/etc/ssl/certs"
 site_certkey		: "{{ key_base_path }}/drupal.key"
 site_cert		: "{{ cert_base_path }}/drupal.crt"
-#cert_name_prefix	: "stg-letsencrypt"
-cert_name_prefix	: "pro-letsencrypt"
+cert_name_prefix	: "stg-letsencrypt"
 cert_params_hash	: {
    account_private_key_path : "{{ key_base_path }}/{{ cert_name_prefix }}-account-key.key",
    csr_private_key_path     : "{{ key_base_path }}/{{ cert_name_prefix }}-csr-key.key",
@@ -81,7 +81,7 @@ cert_params_hash	: {
    site_crt_cert_path       : "{{ cert_base_path }}/{{ cert_name_prefix }}.crt",
    site_crt_fullchain_path  : "{{ cert_base_path }}/{{ cert_name_prefix }}-fullchain.crt",
    site_crt_interchain_path : "{{ cert_base_path }}/{{ cert_name_prefix }}-intermmediate.crt",
-   acme_directory           : "https://acme-v02.api.letsencrypt.org/directory",
+   acme_directory           : "https://acme-staging-v02.api.letsencrypt.org/directory",
    C             	    : "GB",
    ST			    : "England",
    L   			    : "London",

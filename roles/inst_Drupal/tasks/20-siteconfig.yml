@@ -37,6 +37,17 @@
   register: links_in_place
   tags: config_files, deploy_templates
 
+# Cron to update FQDN of the computer instance
+- name: Configure cron ------------------------------------
+  cron:
+    name: "Update FQDN"
+    minute: "*/5"
+    job: "~ubuntu/updatedns.sh"
+    user: "ubuntu"
+    state: present
+  register: cron_updated
+  tags: cron_config
+
 # Our server is SSL - check first certs
 - name: Upload cert and key files if needed ---------------
   copy:
