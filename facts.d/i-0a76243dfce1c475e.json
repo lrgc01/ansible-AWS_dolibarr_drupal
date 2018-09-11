@@ -24,7 +24,7 @@
     "instance_id": "i-0a76243dfce1c475e", 
     "instance_type": "t2.micro", 
     "key_name": "linux-key", 
-    "launch_time": "2018-09-02T17:16:17+00:00", 
+    "launch_time": "2018-09-11T12:51:09+00:00", 
     "monitoring": {
         "state": "disabled"
     }, 
@@ -32,8 +32,8 @@
         {
             "association": {
                 "ip_owner_id": "amazon", 
-                "public_dns_name": "ec2-35-178-190-34.eu-west-2.compute.amazonaws.com", 
-                "public_ip": "35.178.190.34"
+                "public_dns_name": "ec2-18-130-69-28.eu-west-2.compute.amazonaws.com", 
+                "public_ip": "18.130.69.28"
             }, 
             "attachment": {
                 "attach_time": "2018-08-28T15:08:32+00:00", 
@@ -59,8 +59,8 @@
                 {
                     "association": {
                         "ip_owner_id": "amazon", 
-                        "public_dns_name": "ec2-35-178-190-34.eu-west-2.compute.amazonaws.com", 
-                        "public_ip": "35.178.190.34"
+                        "public_dns_name": "ec2-18-130-69-28.eu-west-2.compute.amazonaws.com", 
+                        "public_ip": "18.130.69.28"
                     }, 
                     "primary": true, 
                     "private_dns_name": "ip-172-31-10-132.eu-west-2.compute.internal", 
@@ -81,8 +81,8 @@
     "private_dns_name": "ip-172-31-10-132.eu-west-2.compute.internal", 
     "private_ip_address": "172.31.10.132", 
     "product_codes": [], 
-    "public_dns_name": "ec2-35-178-190-34.eu-west-2.compute.amazonaws.com", 
-    "public_ip_address": "35.178.190.34", 
+    "public_dns_name": "ec2-18-130-69-28.eu-west-2.compute.amazonaws.com", 
+    "public_ip_address": "18.130.69.28", 
     "root_device_name": "/dev/sda1", 
     "root_device_type": "ebs", 
     "security_groups": [
