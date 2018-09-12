@@ -22,6 +22,7 @@
   template: 
     src: "{{ item.name }}.j2" 
     dest: "{{ item.dest }}/{{ item.name }}"
+    mode: "{{ item.mode | default('0644') }}"
   loop: "{{ all_descriptor_list }}"
   when: directories_in_place is success and "tmpl" in item.types
   register: templates_in_place

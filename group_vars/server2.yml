@@ -27,13 +27,17 @@ dep_pkg_list            :
    - { pkg : "php-xml"         }
    - { pkg : "php-mcrypt"      }
    - { pkg : "composer"        }
-   - { pkg : "python-mysqldb" }
-   - { pkg : "python-openssl" }
+   - { pkg : "python-mysqldb"  }
+   - { pkg : "python-openssl"  }
    - { pkg : "git" 	       }
 #
 # For git
 #
 git_repodir		: "/repos"
+git_user		: "git"
+auth_keys_to_remote_user: 
+   - { localkeyfile 	: "conf.d/luiz_pub_key" , remoteuser : "{{ git_user }}" }
+   - { localkeyfile 	: "conf.d/nono_pub_key" , remoteuser : "{{ git_user }}" }
 pub_keys_file_list	:
    - "conf.d/luiz_pub_key"
 project_list		:
@@ -62,7 +66,7 @@ all_descriptor_list     :
    - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/snippets"        , name : "drupalcert.conf" }
    - { types : [ "dir" , "link" ] , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "Drupal-site" }
    - { types : [ "absent"       ] , dest : "/etc/nginx/sites-enabled/default" }
-   - { types : [ "tmpl" ]         , dest : "~ubuntu" , name : "updatedns.sh" }
+   - { types : [ "tmpl" ]         , dest : "~ubuntu" , name : "updatedns.sh" , mode : "0755" }
 #
 # SSL certificate and private key
 #
@@ -132,7 +136,7 @@ siteadm_user		: "siteadm"
 users_list        	:
    - { name : "{{ drupaladm_user }}" , comment : "Drupal admin user" , groups : "www-data" , sshkey: false }
    - { name : "{{ siteadm_user }}"   , comment : "Site admin user"   , groups : "www-data" , sshkey: false }
-   - { name : "git"                  , comment : "Git user"          , groups : ""         , sshkey: true  }
+   - { name : "{{ git_user }}"       , comment : "Git user"          , groups : ""         , sshkey: true  }
 #
 # DATABASES
 # Will be used as a list for a loop.

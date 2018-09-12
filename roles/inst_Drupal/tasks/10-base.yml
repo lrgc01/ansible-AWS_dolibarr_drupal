@@ -13,21 +13,13 @@
   when: update_cache_y_n == "true"
   tags: update_repository
 
-- name: Install Drupal dependencies -----------------------
+- name: Install dependency packages -----------------------
   apt: 
     pkg: "{{ item.pkg }}" 
     state: "present"
   loop: "{{ dep_pkg_list }}"
   register: drupal_dep_pkg_installed
   tags: install_dep_pkg, drupal_site
-
-- name: Set composer required pack ------------------------
-  composer:
-    command: require
-    arguments: "{{ composer_required }}"
-    global_command: yes
-  register: composer_done
-  tags: drupal_site
 
 - name: Ensure directories all_descriptor_list.types=dir --
   file: 
@@ -38,7 +30,15 @@
   register: directories_in_place
   tags: drupal_site, config_files, deploy_templates
 
-- name: Create admin users for drupal/site ----------------
+- name: Set composer packs if required (PHP) --------------
+  composer:
+    command: require
+    arguments: "{{ composer_required }}"
+    global_command: yes
+  register: composer_done
+  tags: drupal_site
+
+- name: Create some users for site / app ------------------
   user:
     name: "{{ item.name }}"
     comment: "{{ item.comment }}"
@@ -49,7 +49,7 @@
   register: users_created
   tags: drupal_site, git_config
 
-- name: Retrieve priv key from git user -------------------
+- name: Retrieve priv key from list of users --------------
   fetch: 
     dest: "{{ confdir }}/git_priv_key"
     src: "~git/.ssh/id_rsa"
@@ -57,9 +57,9 @@
   when: users_created is success 
   tags: git_config
 
-- name: Fill in authorized_keys to git user ---------------
+- name: Fill in authorized_keys to each user of a list -----
   authorized_key:
-    user: "git"
+    user: "{{ git_user }}"
     state: present
     key: "{{ lookup('file', item ) }}"
   loop: "{{ pub_keys_file_list }}"
@@ -69,19 +69,22 @@
 - name: Grant repodir permissions to git user -------------
   file:
     path: "{{ git_repodir }}"
-    state: "directory"
-    owner: "git"
-    group: "git"
-    recurse: true
+    state: directory
+    owner: "{{ git_user }}"
+    group: "{{ git_user }}"
+    mode: "g+rwx"
+    recurse: false
   when: users_created is success
+  register: git_perms_in_repodir
   tags: git_config
 
 - name: Create some git projects on server ----------------
-  shell: "su - git -c \"/usr/bin/git init --bare {{ git_repodir }}/{{ item }}\""
+  shell: "su - {{ git_user }} -c \"/usr/bin/git init --bare {{ git_repodir }}/{{ item }}\""
   args:
     creates: "{{ item }}"
     chdir: "{{ git_repodir }}"
     warn: false
   loop: "{{ project_list }}"
-  when: users_created is success
+  when: git_perms_in_repodir is success
+  register: git_repos_created
   tags: git_config

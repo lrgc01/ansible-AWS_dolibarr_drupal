@@ -1,0 +1,40 @@
+
+- name: Grant repodir permissions to git user -------------
+  file:
+    path: "{{ git_repodir }}"
+    state: directory
+    owner: "{{ git_user }}"
+    group: "{{ git_user }}"
+    mode: "g+rwx"
+    recurse: false
+  when: users_created is success
+  register: git_perms_in_repodir
+  tags: git_config
+
+- name: Create some git projects on server ----------------
+  shell: "su - {{ git_user }} -c \"/usr/bin/git init --bare {{ git_repodir }}/{{ item }}\""
+  args:
+    creates: "{{ item }}"
+    chdir: "{{ git_repodir }}"
+    warn: false
+  loop: "{{ project_list }}"
+  when: git_perms_in_repodir is success
+  register: git_repos_created
+  tags: git_config
+
+- name: Set composer packs if required (PHP) --------------
+  composer:
+    command: require
+    arguments: "{{ item }}"
+    global_command: yes
+  loop: "{{ composer_list }}"
+  when: composer_list is defined
+  register: composer_done
+  tags: php_config
+
+- name: Install local python dependencies via pip ---------
+  pip:
+    name: "{{ item }}"
+  loop: "{{ pip_install_list }}"
+  tags: python_config
+

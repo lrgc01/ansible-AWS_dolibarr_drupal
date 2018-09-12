@@ -1,0 +1,3 @@
+---
+- import_tasks: 10-base.yml
+- import_tasks: 20-app_specific.yml

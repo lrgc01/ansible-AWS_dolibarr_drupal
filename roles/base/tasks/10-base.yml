@@ -1,0 +1,61 @@
+---
+#- name: Apt repositories for certbot ----------------------
+#  apt_repository:
+#    repo: ppa:certbot/certbot
+#  register: certbot_repo_added
+#  tags: update_repository
+#
+- name: Update cache and upgrade --------------------------
+  apt: 
+    update_cache: "{{ update_cache_y_n }}"
+    upgrade: "{{ update_cache_y_n }}"
+  register: updated_cache
+  when: update_cache_y_n
+  tags: update_repository
+
+- name: Install dependency packages -----------------------
+  apt: 
+    pkg: "{{ item.pkg }}" 
+    state: "present"
+  loop: "{{ dep_pkg_list }}"
+  register: drupal_dep_pkg_installed
+  tags: install_dep_pkg
+
+- name: Ensure directories dir_file_tmpl_list.types=dir ---
+  file: 
+    path: "{{ item.dest }}" 
+    state: "directory"
+  when: '"dir" in item.types and dir_file_tmpl_list is defined'
+  loop: "{{ dir_file_tmpl_list }}"
+  register: directories_in_place
+  tags: deploy_templates
+
+- name: Create some users for general purpose -------------
+  user:
+    name: "{{ item.username }}"
+    comment: "{{ item.comment }}"
+    generate_ssh_key: "{{ item.sshkey }}"
+    groups: "{{ item.groups }}"
+    append: true
+  loop: "{{ users_list }}"
+  when: users_list is defined
+  register: users_created
+  tags: base_users
+
+- name: Retrieve priv key from list of users --------------
+  fetch: 
+    dest: "{{ confdir }}/{{ item.username }}_priv_key"
+    src: "~{{ item.username }}/.ssh/id_rsa"
+    flat: true
+  loop: "{{ users_list }}"
+  when: users_list is defined and item.sshkey
+  tags: base_users, auth_keys
+
+- name: Fill in authorized_keys to each user of a list ----
+  authorized_key:
+    user: "{{ item.username }}"
+    state: present
+    key: "{{ lookup('file', item.pub_key_file ) }}"
+  loop: "{{ auth_keys_file_list }}"
+  when: auth_keys_file_list is defined
+  tags: base_users, auth_keys
