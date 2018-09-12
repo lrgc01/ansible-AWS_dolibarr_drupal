@@ -4,7 +4,7 @@
   become: true
   remote_user: "ubuntu"
   vars_files:
-   - base_vars.yml
+   - vars_files/base.yml
   roles:
    - common
    - base
