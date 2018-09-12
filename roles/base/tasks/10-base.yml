@@ -18,6 +18,7 @@
     pkg: "{{ item.pkg }}" 
     state: "present"
   loop: "{{ dep_pkg_list }}"
+  when: dep_pkg_list[0]
   register: drupal_dep_pkg_installed
   tags: install_dep_pkg
 
@@ -25,12 +26,12 @@
   file: 
     path: "{{ item.dest }}" 
     state: "directory"
-  when: '"dir" in item.types and dir_file_tmpl_list is defined'
   loop: "{{ dir_file_tmpl_list }}"
+  when: 'dir_file_tmpl_list[0] and "dir" in item.types'
   register: directories_in_place
   tags: deploy_templates
 
-- name: Create some users for general purpose -------------
+- name: Create some general purpose users -----------------
   user:
     name: "{{ item.username }}"
     comment: "{{ item.comment }}"
@@ -38,7 +39,7 @@
     groups: "{{ item.groups }}"
     append: true
   loop: "{{ users_list }}"
-  when: users_list is defined
+  when: users_list[0]
   register: users_created
   tags: base_users
 
@@ -48,7 +49,7 @@
     src: "~{{ item.username }}/.ssh/id_rsa"
     flat: true
   loop: "{{ users_list }}"
-  when: users_list is defined and item.sshkey
+  when: users_list[0] and item.sshkey
   tags: base_users, auth_keys
 
 - name: Fill in authorized_keys to each user of a list ----
@@ -57,5 +58,5 @@
     state: present
     key: "{{ lookup('file', item.pub_key_file ) }}"
   loop: "{{ auth_keys_file_list }}"
-  when: auth_keys_file_list is defined
+  when: auth_keys_file_list[0]
   tags: base_users, auth_keys

@@ -3,6 +3,8 @@
   gather_facts: "{{ gather_y_n }}"
   become: true
   remote_user: "ubuntu"
+  vars_files:
+   - base_vars.yml
   roles:
    - common
    - base

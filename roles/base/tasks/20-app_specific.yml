@@ -7,7 +7,7 @@
     group: "{{ git_user }}"
     mode: "g+rwx"
     recurse: false
-  when: users_created is success
+  when: git_repodir
   register: git_perms_in_repodir
   tags: git_config
 
@@ -18,7 +18,7 @@
     chdir: "{{ git_repodir }}"
     warn: false
   loop: "{{ project_list }}"
-  when: git_perms_in_repodir is success
+  when: git_perms_in_repodir is success and git_repodir
   register: git_repos_created
   tags: git_config
 
@@ -28,7 +28,7 @@
     arguments: "{{ item }}"
     global_command: yes
   loop: "{{ composer_list }}"
-  when: composer_list is defined
+  when: composer_list[0]
   register: composer_done
   tags: php_config
 
@@ -36,5 +36,6 @@
   pip:
     name: "{{ item }}"
   loop: "{{ pip_install_list }}"
+  when: pip_install_list[0]
   tags: python_config
 
