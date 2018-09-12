@@ -1,16 +1,4 @@
 ---
-# It is not possible to undefine a variable. If it is defined in 
-# somewhere else like one of the other precedence places for 
-# variables, just set its value to false or its first element 
-# to false if it is supposed to be a list. All of our "when" 
-# condition tests use false/true instead of "is defined" 
-# condition.
-#
-# some_var : false
-# some_list_var : [ false ]
-# 
-# In our roles it has the same efect as if it were undefined.
-
 #
 # Our web server definitions
 #

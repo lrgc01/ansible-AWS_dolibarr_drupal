@@ -1,0 +1,39 @@
+---
+- name: Generate private key for account and csr ----------
+  openssl_privatekey:
+    path: "{{ item }}"
+  loop:
+    - "{{ cert_params_hash.account_private_key_path }}"
+    - "{{ cert_params_hash.csr_private_key_path }}"
+  register: private_key_created
+  tags: ssl_certificate
+
+- name: Create CSR certificate ----------------------------
+  openssl_csr:
+    path: "{{ cert_params_hash.site_csr_cert_path }}"
+    privatekey_path: "{{ cert_params_hash.csr_private_key_path }}"
+    C: "{{ cert_params_hash.C }}"
+    ST: "{{ cert_params_hash.ST }}"
+    L: "{{ cert_params_hash.L }}"
+    O: "{{ cert_params_hash.O }}"
+    OU: "{{ cert_params_hash.OU }}"
+    E: "{{ cert_params_hash.email_address }}"
+    CN: "{{ cert_params_hash.CN }}"
+  when: private_key_created is success
+  register: csr_cert_created
+  tags: ssl_certificate
+
+- name: Create ACME account with respective email ---------
+  acme_account:
+    account_key_src: "{{ cert_params_hash.account_private_key_path }}"
+    acme_version: '2'
+    acme_directory: "{{ cert_params_hash.acme_directory }}"
+    terms_agreed: yes
+    state: present
+    allow_creation: "{{ cert_params_hash.allow_creation_y_n }}"
+    contact:
+      - "mailto:{{ cert_params_hash.email_address }}"
+  when: private_key_created is success
+  register: acme_account_created
+  tags: ssl_certificate
+

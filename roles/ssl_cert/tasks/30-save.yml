@@ -1,0 +1,20 @@
+
+- name: Copy new cert and key to web server's place -------
+  copy:
+    dest: "{{ item.dest }}"
+    src: "{{ item.src }}"
+    remote_src: true
+  loop: "{{ cert_n_key_list }}"
+  register: new_cert_n_key_in_place
+  notify: Restart web server
+  tags: ssl_certificate
+
+# We just change the order from the upload above
+- name: Download cert and key files if needed -------------
+  fetch:
+    dest: "{{ item.src }}"
+    src: "{{ item.dest }}"
+    flat: true
+  loop: "{{ up_down_cert_files_list }}"
+  tags: ssl_certificate, key_cert_copy_only
+  
