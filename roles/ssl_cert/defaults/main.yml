@@ -35,10 +35,26 @@ cert_hash_list		:
 cert_n_key_list         :
    - false
    -  { 
-        src  : "{{ cert_params_hash.csr_private_key_path }}",
+        src  : "{{ cert_hash_list[1].csr_private_key_path }}",
         dest : "{{ site_certkey }}"
       }
    -  { 
-        src  : "{{ cert_params_hash.site_crt_cert_path }}",
-        dest  : "{{ site_cert }}"
+        src  : "{{ cert_hash_list[1].site_crt_cert_path }}",
+        dest : "{{ site_cert }}"
+      }
+# Base vars to upload the key/cert when first running and
+# download when cert changes, just as a backup.
+# confdir is defined in common role
+local_certkey_path      : "{{ confdir }}/drupal.key"
+local_cert_path         : "{{ confdir }}/drupal.crt"
+up_down_cert_files_list :
+   - false
+   -  { 
+        src  : "{{ local_certkey_path }}",
+        dest : "{{ site_certkey }}"
+      }
+   -  { 
+        src  : "{{ local_cert_path }}" ,
+        dest : "{{ site_cert }}"
+      }
 

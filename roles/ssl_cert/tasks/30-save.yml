@@ -5,6 +5,7 @@
     src: "{{ item.src }}"
     remote_src: true
   loop: "{{ cert_n_key_list }}"
+  when: cert_n_key_list[0]
   register: new_cert_n_key_in_place
   notify: Restart web server
   tags: ssl_certificate
@@ -16,5 +17,6 @@
     src: "{{ item.dest }}"
     flat: true
   loop: "{{ up_down_cert_files_list }}"
+  when: up_down_cert_files_list[0]
   tags: ssl_certificate, key_cert_copy_only
   

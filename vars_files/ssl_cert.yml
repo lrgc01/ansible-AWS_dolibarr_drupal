@@ -1,0 +1,108 @@
+---
+#
+# SSL certificate and private key
+#
+# Production directory in Let's Encrypt: "https://acme-v02.api.letsencrypt.org/directory",
+# Staging directory in Let's Encrypt: "https://acme-staging-v02.api.letsencrypt.org/directory",
+#
+key_base_path		: "/etc/ssl/private"
+cert_base_path		: "/etc/ssl/certs"
+server_certkey		: 
+   - "{{ key_base_path }}/drupal-stg.key"
+   - "{{ key_base_path }}/drupal.key"
+server_cert		: 
+   - "{{ cert_base_path }}/drupal-stg.crt"
+   - "{{ cert_base_path }}/drupal.crt"
+cert_name_prefix	: "stg-letsencrypt"
+cert_name_prefix2	: "pro-letsencrypt"
+cert_hash_list		:
+   - {
+      account_priv_key_path	: "{{ key_base_path }}/{{ cert_name_prefix }}-account-key.key",
+      csr_priv_key_path		: "{{ key_base_path }}/{{ cert_name_prefix }}-csr-key.key",
+      csr_cert_path		: "{{ cert_base_path }}/{{ cert_name_prefix }}.csr",
+      crt_cert_path		: "{{ cert_base_path }}/{{ cert_name_prefix }}.crt",
+      crt_fullchain_path	: "{{ cert_base_path }}/{{ cert_name_prefix }}-fullchain.crt",
+      crt_interchain_path	: "{{ cert_base_path }}/{{ cert_name_prefix }}-intermmediate.crt",
+      acme_directory		: "https://acme-staging-v02.api.letsencrypt.org/directory",
+      C				: "GB",
+      ST			: "England",
+      L				: "London",
+      O				: "Ansible test",
+      OU			: "Ansible test",
+      email_address		: "luizrogeriocarvalho@gmail.com",
+      CN			: "lrgc01.uk.to",
+      force_cert_y_ni		: "no",
+      allow_creation_y_n	: "yes",
+      remaining_days		: "30"
+      server_certkey		: "{{ key_base_path }}/drupal-stg.key"
+      server_cert		: "{{ cert_base_path }}/drupal-stg.crt"
+      local_certkey_path	: "{{ confdir }}/drupal-stg.key"
+      local_cert_path		: "{{ confdir }}/drupal-stg.crt"
+   }
+   - {
+      account_priv_key_path	: "{{ key_base_path }}/{{ cert_name_prefix2 }}-account-key.key",
+      csr_priv_key_path		: "{{ key_base_path }}/{{ cert_name_prefix2 }}-csr-key.key",
+      csr_cert_path		: "{{ cert_base_path }}/{{ cert_name_prefix2 }}.csr",
+      crt_cert_path		: "{{ cert_base_path }}/{{ cert_name_prefix2 }}.crt",
+      crt_fullchain_path	: "{{ cert_base_path }}/{{ cert_name_prefix2 }}-fullchain.crt",
+      crt_interchain_path 	: "{{ cert_base_path }}/{{ cert_name_prefix2 }}-intermmediate.crt",
+      acme_directory		: "https://acme-v02.api.letsencrypt.org/directory",
+      C				: "GB",
+      ST			: "England",
+      L				: "London",
+      O				: "Ansible test",
+      OU			: "Ansible test",
+      email_address		: "luizrogeriocarvalho@gmail.com",
+      CN			: "lrgc01.uk.to",
+      force_cert_y_ni		: "no",
+      allow_creation_y_n	: "yes",
+      remaining_days		: "30"
+      server_certkey		: "{{ key_base_path }}/drupal.key"
+      server_cert		: "{{ cert_base_path }}/drupal.crt"
+      local_certkey_path	: "{{ confdir }}/drupal.key"
+      local_cert_path		: "{{ confdir }}/drupal.crt"
+   }
+cert_n_key_list         :
+   -  { 
+        src  : "{{ cert_hash_list[0].csr_priv_key_path }}",
+        dest : "{{ server_certkey[0] }}"
+      }
+   -  { 
+        src  : "{{ cert_hash_list[0].crt_cert_path }}",
+        dest : "{{ server_cert[0] }}"
+      }
+   -  { 
+        src  : "{{ cert_hash_list[1].csr_priv_key_path }}",
+        dest : "{{ server_certkey[1] }}"
+      }
+   -  { 
+        src  : "{{ cert_hash_list[1].crt_cert_path }}",
+        dest : "{{ server_cert[1] }}"
+      }
+# Base vars to upload the key/cert when first running and
+# download when cert changes, just as a backup.
+# confdir is defined in common role
+local_certkey_path      : 
+   - "{{ confdir }}/drupal-stg.key"
+   - "{{ confdir }}/drupal.key"
+local_cert_path         : 
+   - "{{ confdir }}/drupal-stg.crt"
+   - "{{ confdir }}/drupal.crt"
+up_down_cert_files_list :
+   -  { 
+        src  : "{{ local_certkey_path[0] }}",
+        dest : "{{ server_certkey[0] }}"
+      }
+   -  { 
+        src  : "{{ local_cert_path[0] }}" ,
+        dest : "{{ server_cert[0] }}"
+      }
+   -  { 
+        src  : "{{ local_certkey_path[1] }}",
+        dest : "{{ server_certkey[1] }}"
+      }
+   -  { 
+        src  : "{{ local_cert_path[1] }}" ,
+        dest : "{{ server_cert[1] }}"
+      }
+

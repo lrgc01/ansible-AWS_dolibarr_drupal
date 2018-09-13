@@ -1,17 +1,17 @@
 # Two step challenge to create CRT cert
 - name: Create certificate - 1st step challenge -----------
   acme_certificate:
-    account_key_src: "{{ item.account_private_key_path }}"
+    account_key_src: "{{ item.account_priv_key_path }}"
     acme_version: '2'
     acme_directory: "{{ item.acme_directory }}"
     modify_account: "no"
-    csr: "{{ item.site_csr_cert_path }}"
-    dest: "{{ item.site_crt_cert_path }}"
-    fullchain_dest: "{{ item.site_crt_fullchain_path }}"
+    csr: "{{ item.csr_cert_path }}"
+    dest: "{{ item.crt_cert_path }}"
+    fullchain_dest: "{{ item.crt_fullchain_path }}"
     force: "{{ item.force_cert_y_n }}"
     remaining_days: "{{ item.remaining_days }}"
   loop: "{{ cert_hash_list }}"
-  when: private_key_created is success and csr_cert_created is success
+  when: private_key_created is success and csr_cert_created is success and cert_hash_list[0]
   register: cert_challenge_first
   tags: ssl_certificate
 
@@ -35,14 +35,14 @@
 
 - name: Create certificate - 2nd step challenge -get certs-
   acme_certificate:
-    account_key_src: "{{ item.account_private_key_path }}"
+    account_key_src: "{{ item.account_priv_key_path }}"
     acme_version: '2'
     acme_directory: "{{ item.acme_directory }}"
     modify_account: "no"
-    csr: "{{ item.site_csr_cert_path }}"
-    dest: "{{ item.site_crt_cert_path }}"
-    fullchain_dest: "{{ item.site_crt_fullchain_path }}"
-    chain_dest: "{{ item.site_crt_interchain_path }}"
+    csr: "{{ item.csr_cert_path }}"
+    dest: "{{ item.crt_cert_path }}"
+    fullchain_dest: "{{ item.crt_fullchain_path }}"
+    chain_dest: "{{ item.crt_interchain_path }}"
     remaining_days: "{{ item.remaining_days }}"
     data: "{{ cert_challenge_first }}"
   loop: "{{ cert_hash_list }}"
