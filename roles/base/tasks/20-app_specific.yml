@@ -7,7 +7,7 @@
     group: "{{ git_user }}"
     mode: "g+rwx"
     recurse: false
-  when: git_repodir
+  when: git_repodir != false
   register: git_perms_in_repodir
   tags: git_config
 
@@ -18,7 +18,7 @@
     chdir: "{{ git_repodir }}"
     warn: false
   loop: "{{ project_list }}"
-  when: git_perms_in_repodir is success and git_repodir
+  when: git_perms_in_repodir is success and git_repodir != false
   register: git_repos_created
   tags: git_config
 

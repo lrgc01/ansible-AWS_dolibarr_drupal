@@ -1,5 +1,14 @@
 ---
 #
+# Local basic configuration
+# 
+# basedir, confdir, sshconf should be passed in command line as --extra-vars
+basedir         : "/home/luiz/git_projects/test"
+confdir         : "{{ basedir }}/conf.d"
+sshconf         : "{{ confdir }}/ssh_config"
+facts_out_dir   : "{{ basedir }}/facts.d"
+tmp_dir         : "/tmp"
+#
 # Our web server definitions
 #
 www_basedir             : "/var/www"
@@ -10,6 +19,7 @@ web_service             : "nginx"                                       # will b
 # General package and service hash list
 #
 dep_pkg_list		:
+   - false
    - { pkg : "{{ web_service }}" ,  srv : "{{ web_service }}" , state : "started" , enabled : true }
    - { pkg : "composer"		}
    - { pkg : "git"		}
@@ -18,6 +28,7 @@ dep_pkg_list		:
 #
 # Will be used in template and file modules.
 dir_file_tmpl_list     :
+   - false
    - { types : [ "tmpl" ]         , dest : "~ubuntu" , name : "updatedns.sh" , mode : "0755" }
 
 #
@@ -25,6 +36,7 @@ dir_file_tmpl_list     :
 #
 # Will install composer packages inside root dir  when become=true
 composer_list		:
+   - false
    - "drush/drush:7"
 composer_path		: "PATH=/bin:/sbin:/usr/bin:/usr/sbin:/root/.config/composer/vendor/bin"
 #
@@ -36,12 +48,16 @@ git_user		: "git"
 # users to be created.
 # A later task will retrieve these keys asked to be created in here:
 users_list              :
+   - false
    - { username : "{{ drupaladm_user }}" , comment : "Drupal admin user" , groups : "www-data" , sshkey: false }
    - { username : "{{ siteadm_user }}"   , comment : "Site admin user"   , groups : "www-data" , sshkey: false }
    - { username : "{{ git_user }}"       , comment : "Git user"          , groups : ""         , sshkey: true  }
 auth_keys_file_list	:
+   - false
    - { username : "{{ git_user }}"	, pub_key_file : "conf.d/luiz_pub_key"		}
    - { username : "{{ git_user }}"	, pub_key_file : "conf.d/luiz_newage1_pub_key"	}
+
+git_repodir	: false
 #
 # boto* is for AWS
 #pip_install_list        : [ "botocore" , "boto" , "boto3" ]

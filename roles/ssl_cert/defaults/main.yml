@@ -1,0 +1,44 @@
+---
+#
+# SSL certificate and private key
+#
+# Production directory in Let's Encrypt: "https://acme-v02.api.letsencrypt.org/directory",
+# Staging directory in Let's Encrypt: "https://acme-staging-v02.api.letsencrypt.org/directory",
+#
+key_base_path           : "/etc/ssl/private"
+cert_base_path          : "/etc/ssl/certs"
+site_certkey            : "{{ key_base_path }}/drupal.key"
+site_cert               : "{{ cert_base_path }}/drupal.crt"
+cert_name_prefix       : "stg-letsencrypt"
+#cert_name_prefix        : "pro-letsencrypt"
+cert_hash_list		:
+   - false
+   - {
+      account_private_key_path : "{{ key_base_path }}/{{ cert_name_prefix }}-account-key.key",
+      csr_private_key_path     : "{{ key_base_path }}/{{ cert_name_prefix }}-csr-key.key",
+      site_csr_cert_path       : "{{ cert_base_path }}/{{ cert_name_prefix }}.csr",
+      site_crt_cert_path       : "{{ cert_base_path }}/{{ cert_name_prefix }}.crt",
+      site_crt_fullchain_path  : "{{ cert_base_path }}/{{ cert_name_prefix }}-fullchain.crt",
+      site_crt_interchain_path : "{{ cert_base_path }}/{{ cert_name_prefix }}-intermmediate.crt",
+      acme_directory           : "https://acme-staging-v02.api.letsencrypt.org/directory",
+      C                        : "GB",
+      ST                       : "England",
+      L                        : "London",
+      O                        : "Ansible test",
+      OU                       : "Ansible test",
+      email_address            : "luizrogeriocarvalho@gmail.com",
+      CN                       : "lrgc01.uk.to",
+      force_cert_y_n           : "no",
+      allow_creation_y_n       : "yes",
+      remaining_days           : "30"
+   }
+cert_n_key_list         :
+   - false
+   -  { 
+        src  : "{{ cert_params_hash.csr_private_key_path }}",
+        dest : "{{ site_certkey }}"
+      }
+   -  { 
+        src  : "{{ cert_params_hash.site_crt_cert_path }}",
+        dest  : "{{ site_cert }}"
+
