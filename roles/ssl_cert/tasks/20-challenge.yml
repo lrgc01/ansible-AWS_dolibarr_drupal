@@ -18,7 +18,7 @@
 - name: Create directory structure for challenge ----------
   file:
     state: "directory"
-    path: "{{ drupal_site_rootdir }}/{{ cert_challenge_first['challenge_data'][item.CN]['http-01']['resource'] | dirname }}"
+    path: "{{ item.web_rootdir }}/{{ cert_challenge_first['challenge_data'][item.CN]['http-01']['resource'] | dirname }}"
   loop: "{{ cert_hash_list }}"
   when: cert_challenge_first is changed 
   register: cert_challenge_dir_created
@@ -26,7 +26,7 @@
   
 - name: Copy resource to web site to complete the 2nd step  
   copy:
-    dest: "{{ drupal_site_rootdir }}/{{ cert_challenge_first['challenge_data'][item.CN]['http-01']['resource'] }}"
+    dest: "{{ item.web_rootdir }}/{{ cert_challenge_first['challenge_data'][item.CN]['http-01']['resource'] }}"
     content: "{{ cert_challenge_first['challenge_data'][item.CN]['http-01']['resource_value'] }}"
   loop: "{{ cert_hash_list }}"
   when: cert_challenge_first is changed and cert_challenge_dir_created is success

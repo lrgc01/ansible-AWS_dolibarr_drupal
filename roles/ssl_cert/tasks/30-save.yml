@@ -1,10 +1,18 @@
+---
+- name: debug line
+  debug:
+    msg: "{{ item  }}"
+  vars: 
+     #listing: "{{ ['csr_priv_key_path','server_certkey_path','crt_cert_path','server_cert_path'] | map('extract',item) | list }}"
+  loop: "{{ cert_hash_list }}"
+  tags: test2
 
 - name: Copy new cert and key to web server's place -------
   copy:
     dest: "{{ item.dest }}"
     src: "{{ item.src }}"
     remote_src: true
-  loop: "{{ cert_n_key_list }}"
+  loop: "{{ cert_hash_list }}"
   when: cert_n_key_list[0]
   register: new_cert_n_key_in_place
   notify: Restart web server

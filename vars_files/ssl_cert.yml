@@ -8,10 +8,10 @@
 key_base_path		: "/etc/ssl/private"
 cert_base_path		: "/etc/ssl/certs"
 server_certkey		: 
-   - "{{ key_base_path }}/drupal-stg.key"
+   - "{{ key_base_path }}/stg-drupal.key"
    - "{{ key_base_path }}/drupal.key"
 server_cert		: 
-   - "{{ cert_base_path }}/drupal-stg.crt"
+   - "{{ cert_base_path }}/stg-drupal.crt"
    - "{{ cert_base_path }}/drupal.crt"
 cert_name_prefix	: "stg-letsencrypt"
 cert_name_prefix2	: "pro-letsencrypt"
@@ -33,11 +33,12 @@ cert_hash_list		:
       CN			: "lrgc01.uk.to",
       force_cert_y_ni		: "no",
       allow_creation_y_n	: "yes",
-      remaining_days		: "30"
-      server_certkey		: "{{ key_base_path }}/drupal-stg.key"
-      server_cert		: "{{ cert_base_path }}/drupal-stg.crt"
-      local_certkey_path	: "{{ confdir }}/drupal-stg.key"
-      local_cert_path		: "{{ confdir }}/drupal-stg.crt"
+      remaining_days		: "30",
+      server_certkey_path	: "{{ key_base_path }}/stg-drupal.key",
+      server_cert_path		: "{{ cert_base_path }}/stg-drupal.crt",
+      local_certkey_path	: "{{ confdir }}/stg-drupal.key",
+      local_cert_path		: "{{ confdir }}/stg-drupal.crt",
+      web_rootdir		: "/var/www/Drupal-site"
    }
    - {
       account_priv_key_path	: "{{ key_base_path }}/{{ cert_name_prefix2 }}-account-key.key",
@@ -56,11 +57,12 @@ cert_hash_list		:
       CN			: "lrgc01.uk.to",
       force_cert_y_ni		: "no",
       allow_creation_y_n	: "yes",
-      remaining_days		: "30"
-      server_certkey		: "{{ key_base_path }}/drupal.key"
-      server_cert		: "{{ cert_base_path }}/drupal.crt"
-      local_certkey_path	: "{{ confdir }}/drupal.key"
-      local_cert_path		: "{{ confdir }}/drupal.crt"
+      remaining_days		: "30",
+      server_certkey_path	: "{{ key_base_path }}/drupal.key",
+      server_cert_path		: "{{ cert_base_path }}/drupal.crt",
+      local_certkey_path	: "{{ confdir }}/drupal.key",
+      local_cert_path		: "{{ confdir }}/drupal.crt",
+      web_rootdir		: "/var/www/Drupal-site"
    }
 cert_n_key_list         :
    -  { 
