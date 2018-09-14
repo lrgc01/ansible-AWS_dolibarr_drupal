@@ -1,0 +1,17 @@
+---
+update_cache_y_n:	false
+# If you delete/terminate an instance and keep its name in the list below (unless 
+# with state absent), the instances|sg|keys will be recriated in next call 
+# to the playbook.
+# id: is the idempotent factor and in our task is built using the formula below:
+# "{{ region + '_' + item.tags.Name + '_' + item.type + '_' + item.image }}"
+# Where item is one element from the ec2_instances_by_tag list defined here.
+ec2_instances_by_tag      : 
+   - { 
+       tags      : { Name : "server2" }, 
+       state     : "stopped",
+       SG_name   : "{{ srv_sg_name }}", 
+       type      : "{{ srv_instance_type }}",
+       image     : "ami-6b3fd60c",
+       key_name  : "{{ linuxkey }}"
+     }

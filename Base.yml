@@ -1,10 +1,20 @@
 ---
-- hosts: server2
+- hosts: server1
   gather_facts: "{{ gather_y_n }}"
   become: true
   remote_user: "ubuntu"
-#  vars_files:
-#   - vars_files/base.yml
+  vars_files:
+   - vars_files/base.yml
+   - vars_files/users.yml
+   - vars_files/sslcrt.yml
+   - vars_files/phpcfg.yml
+   - vars_files/python.yml
+   - vars_files/gitcfg.yml
   roles:
    - common
    - base
+   - users
+   - gitcfg
+   - phpcfg
+   - python
+   - SSLcrt

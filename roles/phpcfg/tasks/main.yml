@@ -1,0 +1,10 @@
+---
+- name: Set composer packs if required (PHP) --------------
+  composer:
+    command: require
+    arguments: "{{ item }}"
+    global_command: yes
+  loop: "{{ composer_list }}"
+  when: composer_list[0]
+  register: composer_done
+  tags: php_config

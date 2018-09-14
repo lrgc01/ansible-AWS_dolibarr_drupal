@@ -1,8 +1,8 @@
 ---
-- name: Install local dependencies via pip
+- name: Install local python dependencies via pip ---------
   pip:
     name: "{{ item }}"
   loop: "{{ pip_install_list }}"
   when: pip_install_list[0]
-  tags: base_config
+  tags: python_config
 

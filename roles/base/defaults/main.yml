@@ -1,14 +1,5 @@
 ---
 #
-# Local basic configuration
-# 
-# basedir, confdir, sshconf should be passed in command line as --extra-vars
-basedir         : "/home/luiz/git_projects/test"
-confdir         : "{{ basedir }}/conf.d"
-sshconf         : "{{ confdir }}/ssh_config"
-facts_out_dir   : "{{ basedir }}/facts.d"
-tmp_dir         : "/tmp"
-#
 # Our web server definitions
 #
 www_basedir             : "/var/www"
@@ -18,6 +9,8 @@ web_service             : "nginx"                                       # will b
 #
 # General package and service hash list
 #
+# If a packet has a service associate it should be listed with srv, state and enabled.
+# enabled and state defaults to true and started respectively.
 dep_pkg_list		:
    - false
    - { pkg : "{{ web_service }}" ,  srv : "{{ web_service }}" , state : "started" , enabled : true }
@@ -26,39 +19,53 @@ dep_pkg_list		:
 #
 # dir, file, template or link, depending on key values
 #
-# Will be used in template and file modules.
+# Will be used in template and file modules to create, delete and link.
+#
+# This dir_file_tmpl_list dict var will be used in 4 different tasks, one of 
+# each type: tmpl, dir, link and file.
+#
+# For template, the name will be appended to dest dir. If src exists it will use, otherwise, only name.j2.
+# For dir, the src doesn't make sense, neither name.
+# For link, src and dest are mandatory and will always have name appended to them.
+# Files may removed with absent.
+# If mode not present, it will default to 0644
+# Note that one line may be used to multiple goals as defined in types.
 dir_file_tmpl_list     :
    - false
+   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/sites-available" , name : "Drupal-site" }
+   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/snippets"        , name : "drupalcert.conf" }
+   - { types : [ "dir" , "link" ] , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "Drupal-site" }
+   - { types : [ "absent"       ] , dest : "/etc/nginx/sites-enabled/default" }
    - { types : [ "tmpl" ]         , dest : "~ubuntu" , name : "updatedns.sh" , mode : "0755" }
 
-#
-# PHP composer
-#
-# Will install composer packages inside root dir  when become=true
-composer_list		:
-   - false
-   - "drush/drush:7"
-composer_path		: "PATH=/bin:/sbin:/usr/bin:/usr/sbin:/root/.config/composer/vendor/bin"
-#
-# User administration
-#
-drupaladm_user          : "drupaladm"
-siteadm_user            : "siteadm"
-git_user		: "git"
-# users to be created.
-# A later task will retrieve these keys asked to be created in here:
-users_list              :
-   - false
-   - { username : "{{ drupaladm_user }}" , comment : "Drupal admin user" , groups : "www-data" , sshkey: false }
-   - { username : "{{ siteadm_user }}"   , comment : "Site admin user"   , groups : "www-data" , sshkey: false }
-   - { username : "{{ git_user }}"       , comment : "Git user"          , groups : ""         , sshkey: true  }
-auth_keys_file_list	:
-   - false
-   - { username : "{{ git_user }}"	, pub_key_file : "conf.d/luiz_pub_key"		}
-   - { username : "{{ git_user }}"	, pub_key_file : "conf.d/luiz_newage1_pub_key"	}
 
-git_repodir	: false
+# Specific var to updatedns.sh template
+updatedns_pair_list :
+   - { updateurl : "http://sync.afraid.org/u/wg5sveMTKQ3EPFYFceGLxwQA/" , domainname : "lrgc01.uk.to" }
+   - { updateurl : "http://sync.afraid.org/u/de7wHJAUyj6dQTPb6wWETYD3/" , domainname : "lrgc01.us.to" }
 #
-# boto* is for AWS
-#pip_install_list        : [ "botocore" , "boto" , "boto3" ]
-pip_install_list        : [ false ]
+# INI file configuration (php and others)
+#
+ini_file_list           :
+   - false
+   - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "allow_url_fopen" , value : "Off" }
+   - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "memory_limit"    , value : "64M" }
+#
+# Cron
+#
+cron_list	:
+   - false
+   - { name: "Update domain" , minute: "*/5" , job: "~ubuntu/updatedns.sh"  , user: "ubuntu" , state: "present" }
+
+# Define local and remote files both for upload (copy)
+# and download (fetch).
+# Action is mandatory (same idea of types in dir_file_tmpl_list above).
+# action = list of upload or download or both
+up_down_files_list :
+   - false
+   -  { 
+        local  : "{{ confdir }}/drupal.key",
+        remote : "/etc/ssl/private/drupal.key" ,
+        action : [ "upload", "download" ]
+      }
+

@@ -1,0 +1,15 @@
+---
+#- name: Apt repositories for certbot ----------------------
+#  apt_repository:
+#    repo: ppa:certbot/certbot
+#  register: certbot_repo_added
+#  tags: update_repository
+#
+- name: Update cache and upgrade ------------------------
+  apt: 
+    update_cache: "{{ update_cache_y_n }}"
+    upgrade: "{{ update_cache_y_n }}"
+  register: updated_cache
+  when: update_cache_y_n
+  tags: update_repository
+

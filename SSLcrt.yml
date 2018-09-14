@@ -1,10 +1,10 @@
 ---
-- hosts: server2
+- hosts: server1
   gather_facts: "{{ gather_y_n }}"
   become: true
   remote_user: "ubuntu"
   vars_files:
-   - vars_files/ssl_cert.yml
+   - vars_files/sslcrt.yml
   roles:
    - common
-   - ssl_cert
+   - SSLcrt

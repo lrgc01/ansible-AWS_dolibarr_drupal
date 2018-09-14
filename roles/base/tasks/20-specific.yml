@@ -1,0 +1,11 @@
+---
+- name: Set some ini type files ---------------------------
+  ini_file:
+    path: "{{ item.path }}"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  loop: "{{ ini_file_list }}"
+  when: ini_file_list[0]
+  register: ini_file_updated
+  tags: config_files

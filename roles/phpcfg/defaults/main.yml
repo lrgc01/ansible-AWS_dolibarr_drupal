@@ -1,0 +1,9 @@
+---
+#
+# PHP composer
+#
+# Will install composer packages inside root dir  when become=true
+composer_list           :
+   - false
+   - "drush/drush:7"
+composer_path           : "PATH=/bin:/sbin:/usr/bin:/usr/sbin:/root/.config/composer/vendor/bin"

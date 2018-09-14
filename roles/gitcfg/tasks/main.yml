@@ -1,4 +1,4 @@
-
+---
 - name: Grant repodir permissions to git user -------------
   file:
     path: "{{ git_repodir }}"
@@ -18,24 +18,7 @@
     chdir: "{{ git_repodir }}"
     warn: false
   loop: "{{ project_list }}"
-  when: git_perms_in_repodir is success and git_repodir != false
+  when: project_list[0] and git_perms_in_repodir is success and git_repodir != false
   register: git_repos_created
   tags: git_config
-
-- name: Set composer packs if required (PHP) --------------
-  composer:
-    command: require
-    arguments: "{{ item }}"
-    global_command: yes
-  loop: "{{ composer_list }}"
-  when: composer_list[0]
-  register: composer_done
-  tags: php_config
-
-- name: Install local python dependencies via pip ---------
-  pip:
-    name: "{{ item }}"
-  loop: "{{ pip_install_list }}"
-  when: pip_install_list[0]
-  tags: python_config
 

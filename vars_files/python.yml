@@ -1,0 +1,5 @@
+#
+# boto* is for AWS
+#pip_install_list        : [ "botocore" , "boto" , "boto3" ]
+pip_install_list        : [ false ]
+

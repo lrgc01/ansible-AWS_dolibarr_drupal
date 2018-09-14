@@ -1,18 +1,4 @@
 ---
-#- name: Apt repositories for certbot ----------------------
-#  apt_repository:
-#    repo: ppa:certbot/certbot
-#  register: certbot_repo_added
-#  tags: update_repository
-#
-- name: Update cache and upgrade --------------------------
-  apt: 
-    update_cache: "{{ update_cache_y_n }}"
-    upgrade: "{{ update_cache_y_n }}"
-  register: updated_cache
-  when: update_cache_y_n
-  tags: update_repository
-
 - name: Install dependency packages -----------------------
   apt: 
     pkg: "{{ item.pkg }}" 
@@ -29,34 +15,51 @@
   loop: "{{ dir_file_tmpl_list }}"
   when: 'dir_file_tmpl_list[0] and "dir" in item.types'
   register: directories_in_place
-  tags: deploy_templates
+  tags: config_files, deploy_templates
 
-- name: Create some general purpose users -----------------
-  user:
-    name: "{{ item.username }}"
-    comment: "{{ item.comment }}"
-    generate_ssh_key: "{{ item.sshkey }}"
-    groups: "{{ item.groups }}"
-    append: true
-  loop: "{{ users_list }}"
-  when: users_list[0]
-  register: users_created
-  tags: base_users
+- name: Remove undesired files (absent in item.types) -----
+  file:
+    path: "{{ item.dest }}"
+    state: "absent"
+  loop: "{{ dir_file_tmpl_list }}"
+  when: dir_file_tmpl_list[0] and directories_in_place is success and "absent" in item.types
+  register: removed_files
+  tags: config_files, deploy_templates
 
-- name: Retrieve priv key from list of users --------------
-  fetch: 
-    dest: "{{ confdir }}/{{ item.username }}_priv_key"
-    src: "~{{ item.username }}/.ssh/id_rsa"
-    flat: true
-  loop: "{{ users_list }}"
-  when: users_list[0] and item.sshkey
-  tags: base_users, auth_keys
+- name: Deploy templates dir_file_tmpl_list.types=tmpl ----
+  template:
+    src: "{{ item.src | default(item.name) + '.j2' }}"
+    dest: "{{ item.dest }}/{{ item.name }}"
+    mode: "{{ item.mode | default('0644') }}"
+  loop: "{{ dir_file_tmpl_list }}"
+  when: dir_file_tmpl_list[0] and directories_in_place is success and "tmpl" in item.types
+  register: templates_in_place
+  tags: config_files, deploy_templates
 
-- name: Fill in authorized_keys to each user of a list ----
-  authorized_key:
-    user: "{{ item.username }}"
-    state: present
-    key: "{{ lookup('file', item.pub_key_file ) }}"
-  loop: "{{ auth_keys_file_list }}"
-  when: auth_keys_file_list[0]
-  tags: base_users, auth_keys
+- name: Make proper links dir_file_tmpl_list.types=link ---
+  file:
+    src: "{{ item.src }}/{{ item.name }}"
+    dest: "{{ item.dest }}/{{ item.name }}"
+    state: link
+  loop: "{{ dir_file_tmpl_list }}"
+  when: dir_file_tmpl_list[0] and removed_files is success and templates_in_place is success and "link" in item.types
+  register: links_in_place
+  tags: config_files
+
+- name: Upload some files from a list when action=upload --
+  copy:
+    dest: "{{ item.remote }}"
+    src: "{{ item.local }}"
+  loop: "{{ up_down_files_list }}"
+  when: up_down_files_list[0] and "upload" in item.action
+  register: files_uploaded
+  tags: config_files, copy_files
+
+- name: Restart service after tmpl/file/link change -------
+  service:
+    name: "{{ item.item.srv }}"
+    state: "restarted"    
+    enabled: true
+  loop: "{{ templates_in_place.results }} + {{ files_uploaded.results }}"
+  when: (templates_in_place is changed or files_uploaded is changed) and item is changed and item.item.srv is defined
+

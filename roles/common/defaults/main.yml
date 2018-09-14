@@ -1,8 +1,8 @@
 ---
-gather_y_n	: "yes"
-update_cache_y_n: "yes"
-purge_y_n	: "no"
-autoremove_y_n  : "no"
+gather_y_n	: true
+update_cache_y_n: true
+purge_y_n	: false
+autoremove_y_n  : false
 basedir		: "/home/luiz/compucorp"
 confdir         : "{{ basedir }}/conf.d"
 sshconf		: "{{ confdir }}/ssh_config"
