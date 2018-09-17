@@ -11,7 +11,7 @@
     force: "{{ item.force_cert_y_n }}"
     remaining_days: "{{ item.remaining_days }}"
   loop: "{{ cert_hash_list }}"
-  when: private_key_created is success and csr_cert_created is success and cert_hash_list[0]
+  when: private_key_created is success and csr_cert_created is success and cert_hash_list_enable
   register: cert_challenge_first
   tags: ssl_certificate
 
@@ -29,7 +29,6 @@
     dest: "{{ item.item.web_rootdir }}/{{ item['challenge_data'][item.item.CN]['http-01']['resource'] }}"
     content: "{{ item['challenge_data'][item.item.CN]['http-01']['resource_value'] }}"
   loop: "{{ cert_challenge_first.results }}"
-  #when: cert_challenge_first is changed and cert_challenge_dir_created is success
   when: cert_challenge_first is changed and item is changed and cert_challenge_dir_created is success
   register: cert_challenge_in_place
   tags: ssl_certificate
@@ -46,9 +45,7 @@
     chain_dest: "{{ item.item.crt_interchain_path }}"
     remaining_days: "{{ item.item.remaining_days }}"
     data: "{{ item }}"
-  #loop: "{{ cert_hash_list }}"
   loop: "{{ cert_challenge_first.results }}"
-  #when: cert_challenge_first is changed or cert_challenge_in_place is changed
   when: cert_challenge_first is changed and item is changed
   register: challenge_2nd_step_done
   tags: ssl_certificate

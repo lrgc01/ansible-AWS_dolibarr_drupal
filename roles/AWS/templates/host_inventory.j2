@@ -3,7 +3,7 @@
 [{{ instance.tags.Name }}]
 {{ instance.public_dns_name }}
 
-[{{ instance.tags.Name }}:vars]
-ansible_python_interpreter=/usr/bin/python3
+#[{{ instance.tags.Name }}:vars]
+#ansible_python_interpreter=/usr/bin/python3
   {%- endif -%}
 {%- endfor -%}

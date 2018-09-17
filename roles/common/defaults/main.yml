@@ -8,3 +8,5 @@ confdir         : "{{ basedir }}/conf.d"
 sshconf		: "{{ confdir }}/ssh_config"
 facts_out_dir	: "{{ basedir }}/facts.d"
 tmp_dir		: "/tmp"
+# Our choice web service
+web_service     : "nginx"

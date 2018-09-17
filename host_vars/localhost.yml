@@ -6,12 +6,16 @@ update_cache_y_n:	false
 # id: is the idempotent factor and in our task is built using the formula below:
 # "{{ region + '_' + item.tags.Name + '_' + item.type + '_' + item.image }}"
 # Where item is one element from the ec2_instances_by_tag list defined here.
+# states available: running, stopped, rebooted
 ec2_instances_by_tag      : 
    - { 
        tags      : { Name : "server2" }, 
-       state     : "stopped",
+       state     : "running",
        SG_name   : "{{ srv_sg_name }}", 
        type      : "{{ srv_instance_type }}",
        image     : "ami-6b3fd60c",
        key_name  : "{{ linuxkey }}"
      }
+#really_delete_rds         : true
+#db_instance_name_to_delete: [ "drupalinstance" ]
+
