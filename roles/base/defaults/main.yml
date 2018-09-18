@@ -1,4 +1,5 @@
 ---
+# Base example yml var file
 #
 # Our web server definitions
 #
@@ -32,17 +33,16 @@ dep_pkg_list		:
 # Note that one line may be used to multiple goals as defined in types.
 dir_file_tmpl_list     :
    - false
-   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/sites-available" , name : "Drupal-site" }
-   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/snippets"        , name : "drupalcert.conf" }
-   - { types : [ "dir" , "link" ] , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "Drupal-site" }
-   - { types : [ "absent"       ] , dest : "/etc/nginx/sites-enabled/default" }
-   - { types : [ "tmpl" ]         , dest : "~ubuntu" , name : "updatedns.sh" , mode : "0755" }
+   - { types : [ "absent" ]       , dest : "/etc/nginx/sites-enabled/default" }
+   - { types : [ "tmpl" ]         , dest : "~ubuntu"                    , name : "updatedns.sh" , mode : "0755" }
+   - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "{{ domain2 }}-cert.conf"  , srv : "{{ web_service }}" }
+   - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ domain2 }}.conf"       , srv : "{{ web_service }}" }
+   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "{{ domain2 }}.conf" }
 
+#   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/sites-available" , name : "Drupal-site" }
+#   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/snippets"        , name : "drupalcert.conf" }
+#   - { types : [ "dir" , "link" ] , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "Drupal-site" }
 
-# Specific var to updatedns.sh template
-updatedns_pair_list :
-   - { updateurl : "http://sync.afraid.org/u/wg5sveMTKQ3EPFYFceGLxwQA/" , domainname : "lrgc01.uk.to" }
-   - { updateurl : "http://sync.afraid.org/u/de7wHJAUyj6dQTPb6wWETYD3/" , domainname : "lrgc01.us.to" }
 #
 # INI file configuration (php and others)
 #

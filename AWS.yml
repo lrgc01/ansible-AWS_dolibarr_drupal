@@ -5,7 +5,7 @@
   become: false
 # file not given
   vars_files: 
-    - ../secret/AWS_vars.yml
+    - ../secret/secret.yml
   roles:
    - common
    - AWS

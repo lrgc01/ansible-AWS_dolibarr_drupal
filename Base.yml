@@ -6,10 +6,11 @@
   vars_files:
    - vars_files/base.yml
    - vars_files/users.yml
-   - vars_files/sslcrt.yml
+   - vars_files/gitcfg.yml
    - vars_files/phpcfg.yml
    - vars_files/python.yml
-   - vars_files/gitcfg.yml
+   - vars_files/sslcrt.yml
+   - ../secret/secret.yml
   roles:
    - common
    - base

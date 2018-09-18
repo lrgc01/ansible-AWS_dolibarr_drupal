@@ -1,4 +1,121 @@
 ---
+# Base example yml var file
+#
+# Our web server definitions
+#
+www_basedir             : "/var/www"
+www_htmldir             : "{{ www_basedir }}/html"
+www_username            : "www-data"
+web_service             : "nginx"                                       # will be used more than once later
+#
+# General package and service hash list
+#
+# If a packet has a service associate it should be listed with srv, state and enabled.
+# enabled and state defaults to true and started respectively.
+dep_pkg_list		:
+   - { pkg : "{{ web_service }}" ,  srv : "{{ web_service }}" , state : "started" , enabled : true }
+   - { pkg : "composer"		}
+   - { pkg : "git"		}
+#
+# dir, file, template or link, depending on key values
+#
+# Will be used in template and file modules to create, delete and link.
+#
+# This dir_file_tmpl_list dict var will be used in 4 different tasks, one of 
+# each type: tmpl, dir, link and file.
+#
+# For template, the name will be appended to dest dir. If src exists it will use, otherwise, only name.j2.
+# For dir, the src doesn't make sense, neither name.
+# For link, src and dest are mandatory and will always have name appended to them.
+# Files may removed with absent.
+# If mode not present, it will default to 0644
+# Note that one line may be used to multiple goals as defined in types.
+dir_file_tmpl_list     :
+   - { types : [ "absent" ]       , dest : "/etc/nginx/sites-enabled/default" }
+   - { types : [ "tmpl" ]         , dest : "~ubuntu"                    , name : "updatedns.sh" , mode : "0755" }
+   - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "{{ domain2 }}-cert.conf"  , srv : "{{ web_service }}" }
+   - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ domain2 }}.conf"       , srv : "{{ web_service }}" }
+   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "{{ domain2 }}.conf" }
+
+#   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/sites-available" , name : "Drupal-site" }
+#   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/snippets"        , name : "drupalcert.conf" }
+#   - { types : [ "dir" , "link" ] , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "Drupal-site" }
+
+#
+# INI file configuration (php and others)
+#
+ini_file_list           :
+   - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "allow_url_fopen" , value : "Off" }
+   - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "memory_limit"    , value : "64M" }
+#
+# Cron
+#
+cron_list	:
+   - { name: "Update domain" , minute: "*/5" , job: "~ubuntu/updatedns.sh"  , user: "ubuntu" , state: "present" }
+
+# Define local and remote files both for upload (copy)
+# and download (fetch).
+# Action is mandatory (same idea of types in dir_file_tmpl_list above).
+# action = list of upload or download or both
+up_down_files_list :
+   -  { 
+        local  : "{{ confdir }}/drupal.key",
+        remote : "/etc/ssl/private/drupal.key" ,
+        action : [ "upload", "download" ]
+      }
+
+#---
+# Users example yml var file
+#
+# User administration
+#
+drupaladm_user          : "drupaladm"
+siteadm_user            : "siteadm"
+git_user		: "git"
+# users to be created.
+# A later task will retrieve these keys asked to be created in here:
+users_list              :
+   - { username : "{{ drupaladm_user }}" , comment : "Drupal admin user" , groups : "www-data" , sshkey: false }
+   - { username : "{{ siteadm_user }}"   , comment : "Site admin user"   , groups : "www-data" , sshkey: false }
+   - { username : "{{ git_user }}"       , comment : "Git user"          , groups : ""         , sshkey: true  }
+auth_keys_file_list	:
+   - { username : "{{ git_user }}"	, pub_key_file : "conf.d/luiz_pub_key"		}
+   - { username : "{{ git_user }}"	, pub_key_file : "conf.d/luiz_newage1_pub_key"	}
+#---
+# Gitcfg example yml var file
+#
+# For git
+#
+#git_repodir	: false
+git_repodir             : "/repos"
+git_user                : "git"
+#
+# DEFINED in users
+#-----------------
+# auth_keys_file_list	:
+#   - { localkeyfile     : "conf.d/luiz_pub_key" , remoteuser : "{{ git_user }}" }
+#   - { localkeyfile     : "conf.d/nono_pub_key" , remoteuser : "{{ git_user }}" }
+project_list            :
+   - "drupal.git"
+   - "test.git"
+
+#---
+# Phpcfg example yml var file
+#
+# PHP composer
+#
+# Will install composer packages inside root dir  when become=true
+composer_list           :
+   - "drush/drush:7"
+composer_path           : "PATH=/bin:/sbin:/usr/bin:/usr/sbin:/root/.config/composer/vendor/bin"
+#---
+# Python example yml var file
+#
+# boto* is for AWS so use in localhost only
+#pip_install_list        : [ "botocore" , "boto" , "boto3" ]
+pip_install_list        : [ false ]
+
+#---
 # SSLcrt example yml var file
 #
 # web service used:
@@ -23,7 +140,7 @@ cert_name_prefix	: "stg-letsencrypt"
 cert_name_prefix2	: "stg-{{ domain2 }}"
 # Due to map filter inside the loop, cert_hash_list first element cannot be false like other lists
 # So we define another parameter to allow the system to run safely
-cert_hash_list_enable	: false
+cert_hash_list_enable	: true
 cert_hash_list		:
    -  {
         account_priv_key_path	: "{{ key_base_path }}/{{ cert_name_prefix }}-account-key.key",
@@ -74,7 +191,6 @@ cert_hash_list		:
         web_rootdir		: "/var/www/html"
     }
 server_cert_n_key_list	:
-   -  false
    -  { 
         src  : "{{ cert_hash_list[0].csr_priv_key_path }}",
         dest : "{{ cert_hash_list[0].server_certkey_path }}"
@@ -93,7 +209,6 @@ server_cert_n_key_list	:
       }
 # srv defines if a service will be restarted upon modification in file upload
 up_down_files_list 	:
-   -  false
    -  { 
         local  : "{{ cert_hash_list[0].local_certkey_path }}",
         remote : "{{ cert_hash_list[0].server_certkey_path }}",

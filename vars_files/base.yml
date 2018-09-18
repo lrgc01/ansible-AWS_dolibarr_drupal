@@ -1,4 +1,5 @@
 ---
+# Base example yml var file
 #
 # Our web server definitions
 #
@@ -12,13 +13,9 @@ web_service             : "nginx"                                       # will b
 # If a packet has a service associate it should be listed with srv, state and enabled.
 # enabled and state defaults to true and started respectively.
 dep_pkg_list		:
-   - false
    - { pkg : "{{ web_service }}" ,  srv : "{{ web_service }}" , state : "started" , enabled : true }
    - { pkg : "composer"		}
    - { pkg : "git"		}
-#
-# workaround
-restart_web_after_tmpl: true
 #
 # dir, file, template or link, depending on key values
 #
@@ -44,23 +41,16 @@ dir_file_tmpl_list     :
 #   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/snippets"        , name : "drupalcert.conf" }
 #   - { types : [ "dir" , "link" ] , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "Drupal-site" }
 
-
-# Specific var to updatedns.sh template
-updatedns_pair_list :
-   - { updateurl : "http://sync.afraid.org/u/wg5sveMTKQ3EPFYFceGLxwQA/" , domainname : "lrgc01.uk.to" }
-   - { updateurl : "http://sync.afraid.org/u/de7wHJAUyj6dQTPb6wWETYD3/" , domainname : "lrgc01.us.to" }
 #
 # INI file configuration (php and others)
 #
 ini_file_list           :
-   - false
    - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "allow_url_fopen" , value : "Off" }
    - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "memory_limit"    , value : "64M" }
 #
 # Cron
 #
 cron_list	:
-   - false
    - { name: "Update domain" , minute: "*/5" , job: "~ubuntu/updatedns.sh"  , user: "ubuntu" , state: "present" }
 
 # Define local and remote files both for upload (copy)
@@ -68,7 +58,6 @@ cron_list	:
 # Action is mandatory (same idea of types in dir_file_tmpl_list above).
 # action = list of upload or download or both
 up_down_files_list :
-   - false
    -  { 
         local  : "{{ confdir }}/drupal.key",
         remote : "/etc/ssl/private/drupal.key" ,

@@ -1,4 +1,6 @@
 ---
+# SSLcrt example yml var file
+#
 # web service used:
 web_service		: "nginx"
 #
