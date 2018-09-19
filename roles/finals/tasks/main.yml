@@ -1,0 +1,39 @@
+---
+#
+# Later settings might be necessary after installing base systems
+#
+- name: Deploy later specific templates -------------------
+  template:
+    src: "{{ item.name }}.j2"
+    dest: "{{ item.dest }}/{{ item.name }}"
+  loop: "{{ later_file_descriptor_list }}"
+  when: item.enabled and "tmpl" in item.types
+  register: later_templates_in_place
+  tags: config_files, deploy_templates
+ 
+- name: Create later directories and set permissions ------
+  file: 
+    path: "{{ item.path }}"
+    group: "{{ item.group | default(omit) }}"
+    owner: "{{ item.owner | default(omit) }}"
+    mode: "{{ item.mode | default(omit) }}"
+    state: "directory"
+    recurse: "{{ item.recurse | default(omit) }}"
+  loop: "{{ later_dirs_config_list }}"
+  when: item.enabled
+  register: later_files_adjusted
+  tags: config_files
+
+- name: Add or change line in config files ----------------
+  lineinfile:
+    path: "{{ item.path }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop: "{{ later_lineinfile_config_list }}"
+  when: item.enabled
+  register: later_lineinfile_done
+  tags: config_files
+

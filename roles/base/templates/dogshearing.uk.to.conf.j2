@@ -14,7 +14,7 @@ server {
 
     server_name {{ domain2 }};
 
-    root {{ www_basedir }}/{{ dolibarr_base }}/htdocs;
+    root {{ domain2_rootdir }};
     index index.html index.htm index.nginx-debian.html;
 
     location = /favicon.ico {

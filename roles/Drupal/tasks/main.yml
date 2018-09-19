@@ -1,7 +1,95 @@
 ---
-- import_tasks: 10-base.yml
-- import_tasks: 20-siteconfig.yml
-- import_tasks: 30-ssl_certificate.yml
-- import_tasks: 40-database.yml
-- import_tasks: 50-drupal.yml
-- import_tasks: 90-last.yml
+- name: Download Drupal using drush pm-download (dl) ------
+  shell: "{{ drush_base_cmd }} dl {{ drupal_version }} --drupal-project-rename={{ drupal_basename }}"
+  args:
+    creates: "{{ drupal_site_rootdir }}/.htaccess"
+    chdir: "{{ www_basedir }}"
+  when: composer_done is success and directories_in_place is success
+  register: drupal_installed
+  tags: drupal_site
+
+- name: Download and extract civiCRM ----------------------
+  unarchive: 
+    src: "{{ civicrm_download_url }}"
+    dest: "{{ drupal_all_module_dir }}"
+    remote_src: true
+    owner: "root"
+    group: "root"
+    mode: "a+r"
+    creates: "{{ drupal_all_module_dir }}/civicrm"
+  when: drupal_installed is success
+  register: civicrm_module_downloaded
+  tags: drupal_site
+
+- name: Install Drupal site using drush site-install (si) -
+  shell: "{{ drush_base_cmd }} si {{ drush_si_args }}"
+  args:
+    creates: "{{ drupal_settings_file }}"
+    chdir: "{{ drupal_site_rootdir }}"
+  when: drupal_installed is success
+  register: drupal_installed
+  tags: drupal_site
+
+- name: Install CiviCRM module with drush civicrm-install -
+  shell: "{{ drush_base_cmd }} civicrm-install {{ civicrm_cmd_args }}"
+  args:
+    creates: "{{ civicrm_settings_file }}"
+    chdir: "{{ drupal_site_rootdir }}"
+  when: civicrm_module_downloaded is success
+  register: civicrm_installed
+  tags: drupal_site
+
+# Only after 1st civicrm installation according to "changed" condition.
+- name: Enable some modules with drush --------------------
+  shell: "{{ drush_base_cmd }} pm-enable {{ item }}"
+  args:
+    chdir: "{{ drupal_site_rootdir }}"
+  when: civicrm_installed is changed
+  loop: "{{ drupal_modules_list }}"
+  register: civicrm_modules_enabled
+  tags: drupal_site
+
+- name: Run pm-update to update database if necessary -----
+  shell: "{{ drush_base_cmd }} pm-update "
+  args:
+    chdir: "{{ drupal_site_rootdir }}"
+  when: civicrm_modules_enabled is changed
+  tags: drupal_site
+
+- name: Deploy Drupal specific templates ------------------
+  template:
+    src: "{{ item.name }}.j2"
+    dest: "{{ item.dest }}/{{ item.name }}"
+  loop: "{{ drupal_file_descriptor_list }}"
+  when: directories_in_place is success and "tmpl" in item.types
+  notify: Restart web server
+  register: drupal_templates_in_place
+  tags: drupal_site, deploy_templates
+ 
+- name: Adjust drupal sites and core permissions ----------
+  file: 
+    path: "{{ item.path }}"
+    group: "{{ item.group }}"
+    owner: "{{ item.owner }}"
+    mode: "{{ item.mode }}"
+    state: "directory"
+    recurse: "{{ item.recurse }}"
+  loop: "{{ drupal_dirs_config_list }}"
+  when: drupal_installed is success
+  register: drupal_filesystem_adjusted
+  tags: drupal_site
+
+# Manually set the extension directory in civicrm.settings.php 
+# and request_fails line to settings.php.
+- name: Set variables in settings.php of drupal/civicrm --- 
+  lineinfile:
+    path: "{{ item.path }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+  loop: "{{ drupal_lineinfile_config_list }}"
+  #when: civicrm_installed is success and drupal_installed is success
+  tags: drupal_site
+
