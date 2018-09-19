@@ -3,7 +3,7 @@
   openssl_privatekey:
     path: "{{ item }}"
   loop: "{{ cert_hash_list | map(attribute='account_priv_key_path') | list }} + {{ cert_hash_list | map(attribute='csr_priv_key_path') | list }}"
-  when: cert_hash_list_enable
+  when: cert_hash_list is defined and cert_hash_list[0].enabled
   register: private_key_created
   tags: ssl_certificate, acme_account
 
@@ -19,7 +19,7 @@
     E: "{{ item.email_address }}"
     CN: "{{ item.CN }}"
   loop: "{{ cert_hash_list }}"
-  when: private_key_created is success and cert_hash_list_enable
+  when: private_key_created is success and cert_hash_list is defined and item.enabled
   register: csr_cert_created
   tags: ssl_certificate
 
@@ -34,7 +34,7 @@
     contact:
       - "mailto:{{ item.email_address }}"
   loop: "{{ cert_hash_list }}"
-  when: private_key_created is success and cert_hash_list_enable
+  when: private_key_created is success and cert_hash_list is defined and item.enabled
   register: acme_account_created
   tags: ssl_certificate, acme_account
 

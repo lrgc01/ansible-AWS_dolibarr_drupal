@@ -105,8 +105,10 @@ project_list            :
 # PHP composer
 #
 # Will install composer packages inside root dir  when become=true
+dolibarr_base : "dolibarr-base"
 composer_list           :
-   - "drush/drush:7"
+   - { command : "require"        , global : "true"  , arguments : "drush/drush:7" }
+   - { command : "create-project" , global : "false" , arguments : "dolibarr/dolibarr {{ dolibarr_base }}" , working_dir : "{{ www_basedir }}" , creates : "{{ www_basedir }}/{{ dolibarr_base }}" }
 composer_path           : "PATH=/bin:/sbin:/usr/bin:/usr/sbin:/root/.config/composer/vendor/bin"
 #---
 # Python example yml var file
@@ -135,15 +137,17 @@ cert_base_path		: "/etc/ssl/certs"
 #   - "{{ cert_base_path }}/stg-drupal.crt"
 #   - "{{ cert_base_path }}/drupal.crt"
 domain1			: "lrgc01.uk.to"
-domain2			: "lrgc01.us.to"
+domain2			: "dogshearing.uk.to"
 cert_name_prefix	: "stg-letsencrypt"
-cert_name_prefix2	: "stg-{{ domain2 }}"
+cert_name_prefix2	: "pro-{{ domain2 }}"
+production_account_key  : "pro2-letsencrypt-account-key.key"
+staging_account_key     : "stg-letsencrypt-account-key.key"
 # Due to map filter inside the loop, cert_hash_list first element cannot be false like other lists
-# So we define another parameter to allow the system to run safely
-cert_hash_list_enable	: true
+# So we define another parameter to allow the system to run safely (cert_hash_list[*].enabled)
 cert_hash_list		:
    -  {
-        account_priv_key_path	: "{{ key_base_path }}/{{ cert_name_prefix }}-account-key.key",
+        enabled			: true ,
+        account_priv_key_path	: "{{ key_base_path }}/{{ staging_account_key }}",
         csr_priv_key_path	: "{{ key_base_path }}/{{ cert_name_prefix }}-csr-key.key",
         csr_cert_path		: "{{ cert_base_path }}/{{ cert_name_prefix }}.csr",
         crt_cert_path		: "{{ cert_base_path }}/{{ cert_name_prefix }}.crt",
@@ -167,13 +171,14 @@ cert_hash_list		:
         web_rootdir		: "/var/www/Drupal-site"
       }
    -  {
-        account_priv_key_path	: "{{ key_base_path }}/{{ cert_name_prefix }}-account-key.key",
+        enabled			: true ,
+        account_priv_key_path	: "{{ key_base_path }}/{{ production_account_key }}",
         csr_priv_key_path	: "{{ key_base_path }}/{{ cert_name_prefix2 }}-csr-key.key",
         csr_cert_path		: "{{ cert_base_path }}/{{ cert_name_prefix2 }}.csr",
         crt_cert_path		: "{{ cert_base_path }}/{{ cert_name_prefix2 }}.crt",
         crt_fullchain_path	: "{{ cert_base_path }}/{{ cert_name_prefix2 }}-fullchain.crt",
         crt_interchain_path 	: "{{ cert_base_path }}/{{ cert_name_prefix2 }}-intermmediate.crt",
-        acme_directory		: "https://acme-staging-v02.api.letsencrypt.org/directory",
+        acme_directory		: "https://acme-v02.api.letsencrypt.org/directory",
         C			: "US",
         ST			: "New York",
         L			: "New York",
@@ -188,7 +193,7 @@ cert_hash_list		:
         server_cert_path	: "{{ cert_base_path }}/{{ domain2 }}.crt",
         local_certkey_path	: "{{ confdir }}/{{ domain2 }}.key",
         local_cert_path		: "{{ confdir }}/{{ domain2 }}.crt",
-        web_rootdir		: "/var/www/html"
+        web_rootdir		: "{{ www_basedir }}/{{ dolibarr_base }}/htdocs"
     }
 server_cert_n_key_list	:
    -  { 
@@ -234,3 +239,37 @@ up_down_files_list 	:
         srv    : "{{ web_service }}"
       }
 
+#---
+# DB_adm example yml var file
+# Care should be taken here because mysql_user ansible module 
+# does not support grants on FUNCTIONS and PROCEDURES. 
+# The workaround is to let append_privs=true so that 
+# such kind of priviledge added stay around.
+# dbcreate switches one entry on/off
+db_list                 :
+   -  {
+        admuser      : "root" ,
+        admpass      : '' ,
+        host         : "localhost",
+        user         : "drupal" ,
+        pass         : "Drupal123" ,
+        dbname       : "drupal" ,
+        encoding     : "utf8mb4" ,
+        collation    : "utf8mb4_general_ci" ,
+        perms        : "drupal.*:SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES/civicrm.*:SELECT",
+        append_privs : true ,
+        dbcreate     : true
+      }
+   -  {
+        admuser      : "root" ,
+        admpass      : '' ,
+        host         : "localhost",
+        user         : "civicrm" ,
+        pass         : "Drupal123" ,
+        dbname       : "civicrm" ,
+        encoding     : "utf8mb4" ,
+        collation    : "utf8mb4_general_ci" ,
+        perms        : "civicrm.*:SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES,TRIGGER,CREATE ROUTINE,ALTER ROUTINE,REFERENCES",
+        append_privs : true ,
+        dbcreate     : true
+      }

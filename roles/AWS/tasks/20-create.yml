@@ -72,7 +72,7 @@
   vars:
     sg_id: "results[?group_name=='{{ item.sg_name }}'].group_id"
   register: created_db_instance
-  when: rds_instances_by_name is defined and created_sg is success
+  when: rds_instances_by_name[0] and created_sg is success
   tags: create_rds_instances, create_aws_instances
 
 #######

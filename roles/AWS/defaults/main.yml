@@ -6,9 +6,8 @@ vpc_id		          : "vpc-032db86b"
 # AWS ini $HOME file configuration
 #
 aws_homedir		: "~/.aws"
-aws_ini_file            : "{{ aws_homedir }}/config"
 aws_ini_pairs           :
-   - { section : "default" , option : "region" , value : "{{ region }}" }
+   - { file : "{{ aws_homedir }}/config" , section : "default" , option : "region" , value : "{{ region }}" }
 my_templates		  :
    - {
        src  : "host_inventory.j2",
@@ -19,10 +18,11 @@ my_templates		  :
        dest : "{{ sshconf }}"
      }
 
-# For DB instances
-# name seems to be the idempotent factor
+# For DB instances:
+# Its name seems to be the idempotent factor
 db_sg_name                : "mysql"
 rds_instances_by_name     :
+   - false
    - {
        tags      : { Environment: "testing",  Application: "drupal" },
        type      : "db.t2.micro",

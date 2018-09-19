@@ -17,7 +17,7 @@ echo "Local sudo to install local base requirements (may comment line after firs
 ansible-playbook --ask-become-pass base_AWS.yml
 # can comment the line after first successfull run
 
-# The rest of AWS stuff may be as local non-root user
+# The rest of AWS stuff may work with a local non-root user
 #ansible-playbook --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" --tags "base_config" AWS.yml
 ansible-playbook --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" AWS.yml
 

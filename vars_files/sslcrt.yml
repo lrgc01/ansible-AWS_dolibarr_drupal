@@ -22,10 +22,10 @@ domain2			: "lrgc01.us.to"
 cert_name_prefix	: "stg-letsencrypt"
 cert_name_prefix2	: "stg-{{ domain2 }}"
 # Due to map filter inside the loop, cert_hash_list first element cannot be false like other lists
-# So we define another parameter to allow the system to run safely
-cert_hash_list_enable	: true
+# So we define another parameter to allow the system to run safely (cert_hash_list[*].enabled)
 cert_hash_list		:
    -  {
+        enabled			: true ,
         account_priv_key_path	: "{{ key_base_path }}/{{ cert_name_prefix }}-account-key.key",
         csr_priv_key_path	: "{{ key_base_path }}/{{ cert_name_prefix }}-csr-key.key",
         csr_cert_path		: "{{ cert_base_path }}/{{ cert_name_prefix }}.csr",
@@ -50,6 +50,7 @@ cert_hash_list		:
         web_rootdir		: "/var/www/Drupal-site"
       }
    -  {
+        enabled			: true ,
         account_priv_key_path	: "{{ key_base_path }}/{{ cert_name_prefix }}-account-key.key",
         csr_priv_key_path	: "{{ key_base_path }}/{{ cert_name_prefix2 }}-csr-key.key",
         csr_cert_path		: "{{ cert_base_path }}/{{ cert_name_prefix2 }}.csr",

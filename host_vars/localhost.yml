@@ -17,5 +17,17 @@ ec2_instances_by_tag      :
        key_name  : "{{ linuxkey }}"
      }
 #really_delete_rds         : true
-#db_instance_name_to_delete: [ "drupalinstance" ]
+#db_instance_name_to_delete: [ "dolibarrinstance" ]
+db_sg_name                : "mysql"
+rds_instances_by_name     :
+   - { 
+       tags      : { Environment: "testing",  Application: "Dolibarr" },
+       type      : "db.t2.micro",
+       name      : "websiteinstance",
+       engine    : "mariadb",
+       size      : "20",
+       sg_name   : "{{ db_sg_name }}",
+       username  : "admin",
+       password  : "Admin1234"
+     }
 

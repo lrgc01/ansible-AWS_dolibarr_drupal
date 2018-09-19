@@ -1,21 +1,24 @@
 server {
-    listen 80;
-    listen [::]:80;
-    server_name {{ domain2 }};
-    return 301 https://{{ domain2 }}$request_uri;
+       listen 80;
+       listen [::]:80;
+       server_name {{ cert_params_hash.CN }};
+       return 301 https://{{ cert_params_hash.CN }}$request_uri;
 }
 
 server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
+       listen 443 ssl;
+       listen [::]:443 ssl;
 
-    include snippets/{{ domain2 }}-cert.conf;
-    #include snippets/testcert.conf;
+       include snippets/drupalcert.conf;
+       #include snippets/testcert.conf;
 
-    server_name {{ domain2 }};
+       server_name {{ cert_params_hash.CN }};
 
-    root {{ www_basedir }}/{{ dolibarr_base }}/htdocs;
-    index index.html index.htm index.nginx-debian.html;
+       root {{ drupal_site_rootdir }};
+       index index.php index.html index.htm index.nginx-debian.html;
+
+# Tips for Drupal extracted from:
+#   https://www.nginx.com/resources/wiki/start/topics/recipes/drupal/
 
     location = /favicon.ico {
         log_not_found off;
@@ -85,8 +88,7 @@ server {
     # The laxer rule will continue to work if Drupal uses this new URL
     # pattern with front controllers other than update.php in a future
     # release.
-    #location ~ '\.php$|^/update.php' {
-    location ~ \.php(/|$) {
+    location ~ '\.php$|^/update.php' {
         fastcgi_split_path_info ^(.+?\.php)(|/.*)$;
         # Security note: If you're running a version of PHP older than the
         # latest 5.3, you should have "cgi.fix_pathinfo = 0;" in php.ini.
