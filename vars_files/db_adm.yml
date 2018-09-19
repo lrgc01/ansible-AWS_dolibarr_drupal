@@ -1,19 +1,21 @@
 ---
+# DB_adm example yml var file
 # Care should be taken here because mysql_user ansible module 
 # does not support grants on FUNCTIONS and PROCEDURES. 
 # The workaround is to let append_privs=true so that 
 # such kind of priviledge added stay around.
+# 'db_list[*].dbcreate' switches one entry on/off
 db_list                 :
    -  {
         admuser      : "root" ,
         admpass      : '' ,
         host         : "localhost",
-        user         : "drupal" ,
-        pass         : "Drupal123" ,
-        dbname       : "drupal" ,
+        user         : "dbuser" ,
+        pass         : "dbuserpass" ,
+        dbname       : "myinstance" ,
         encoding     : "utf8mb4" ,
         collation    : "utf8mb4_general_ci" ,
-        perms        : "drupal.*:SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES/civicrm.*:SELECT",
+        perms        : "myinstance.*:SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES/myinstance2.*:SELECT",
         append_privs : true ,
         dbcreate     : true
       }
@@ -21,12 +23,12 @@ db_list                 :
         admuser      : "root" ,
         admpass      : '' ,
         host         : "localhost",
-        user         : "civicrm" ,
-        pass         : "Drupal123" ,
-        dbname       : "civicrm" ,
+        user         : "dbuser2" ,
+        pass         : "dbusepass2" ,
+        dbname       : "myinstance2" ,
         encoding     : "utf8mb4" ,
         collation    : "utf8mb4_general_ci" ,
-        perms        : "civicrm.*:SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES,TRIGGER,CREATE ROUTINE,ALTER ROUTINE,REFERENCES",
+        perms        : "myinstance2.*:SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES,TRIGGER,CREATE ROUTINE,ALTER ROUTINE,REFERENCES",
         append_privs : true ,
         dbcreate     : true
       }

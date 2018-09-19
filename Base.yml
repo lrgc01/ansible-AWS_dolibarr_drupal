@@ -4,13 +4,13 @@
   become: true
   remote_user: "ubuntu"
   vars_files:
-#   - vars_files/base.yml
-#   - vars_files/users.yml
-#   - vars_files/gitcfg.yml
-#   - vars_files/phpcfg.yml
-#   - vars_files/python.yml
-#   - vars_files/sslcrt.yml
-#   - vars_files/db_adm.yml
+   - ../secret/base.yml
+   - ../secret/users.yml
+   - ../secret/gitcfg.yml
+   - ../secret/phpcfg.yml
+   - ../secret/python.yml
+   - ../secret/sslcrt.yml
+   - ../secret/db_adm.yml
    - ../secret/secret.yml
   roles:
    - common

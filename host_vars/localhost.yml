@@ -17,7 +17,7 @@ ec2_instances_by_tag      :
        key_name  : "{{ linuxkey }}"
      }
 #really_delete_rds         : true
-#db_instance_name_to_delete: [ "dolibarrinstance" ]
+#db_instance_name_to_delete: [ "websiteinstance" ]
 db_sg_name                : "mysql"
 rds_instances_by_name     :
    - { 

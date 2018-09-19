@@ -10,9 +10,9 @@ git_user                : "git"
 # DEFINED in users
 #-----------------
 # auth_keys_file_list	:
-#   - { localkeyfile     : "conf.d/luiz_pub_key" , remoteuser : "{{ git_user }}" }
+#   - { localkeyfile     : "conf.d/john_pub_key" , remoteuser : "{{ git_user }}" }
 #   - { localkeyfile     : "conf.d/nono_pub_key" , remoteuser : "{{ git_user }}" }
 project_list            :
    - "drupal.git"
-   - "test.git"
+   - "dolibarr.git"
 

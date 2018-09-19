@@ -245,7 +245,7 @@ up_down_files_list 	:
 # does not support grants on FUNCTIONS and PROCEDURES. 
 # The workaround is to let append_privs=true so that 
 # such kind of priviledge added stay around.
-# dbcreate switches one entry on/off
+# 'db_list[*].dbcreate' switches one entry on/off
 db_list                 :
    -  {
         admuser      : "root" ,
