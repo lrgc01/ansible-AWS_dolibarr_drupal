@@ -4,7 +4,7 @@
   args:
     creates: "{{ drupal_site_rootdir }}/.htaccess"
     chdir: "{{ www_basedir }}"
-  when: composer_done is success and directories_in_place is success
+  when: composer_done is success 
   register: drupal_installed
   tags: drupal_site
 
@@ -54,42 +54,5 @@
   args:
     chdir: "{{ drupal_site_rootdir }}"
   when: civicrm_modules_enabled is changed
-  tags: drupal_site
-
-- name: Deploy Drupal specific templates ------------------
-  template:
-    src: "{{ item.name }}.j2"
-    dest: "{{ item.dest }}/{{ item.name }}"
-  loop: "{{ drupal_file_descriptor_list }}"
-  when: directories_in_place is success and "tmpl" in item.types
-  notify: Restart web server
-  register: drupal_templates_in_place
-  tags: drupal_site, deploy_templates
- 
-- name: Adjust drupal sites and core permissions ----------
-  file: 
-    path: "{{ item.path }}"
-    group: "{{ item.group }}"
-    owner: "{{ item.owner }}"
-    mode: "{{ item.mode }}"
-    state: "directory"
-    recurse: "{{ item.recurse }}"
-  loop: "{{ drupal_dirs_config_list }}"
-  when: drupal_installed is success
-  register: drupal_filesystem_adjusted
-  tags: drupal_site
-
-# Manually set the extension directory in civicrm.settings.php 
-# and request_fails line to settings.php.
-- name: Set variables in settings.php of drupal/civicrm --- 
-  lineinfile:
-    path: "{{ item.path }}"
-    regexp: "{{ item.regexp }}"
-    line: "{{ item.line }}"
-    owner: "{{ item.owner }}"
-    group: "{{ item.group }}"
-    mode: "{{ item.mode }}"
-  loop: "{{ drupal_lineinfile_config_list }}"
-  #when: civicrm_installed is success and drupal_installed is success
   tags: drupal_site
 

@@ -23,9 +23,12 @@ export ANSIBLE_SSH_ARGS="-C -o ControlMaster=auto -o ControlPersist=60s -F ${SSH
 #  - deploy_templates
 #  - install_dep_pkg
 #  - cron_config
+#  - config_files
+#  - databases
+#  - php_config,drupal_site
 
-ansible-playbook -i hosts --extra-vars "gather_y_n=false update_cache_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" --tags "config_files" Base.yml
+#ansible-playbook -i hosts --extra-vars "gather_y_n=false update_cache_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" --tags "php_config,drupal_site" Base.yml
 #ansible-playbook -i hosts --extra-vars "gather_y_n=false update_cache_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" --skip-tags "install_dep_pkg" Base.yml 
-#ansible-playbook -i hosts --extra-vars "gather_y_n=false update_cache_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" Base.yml 
+ansible-playbook -i hosts --extra-vars "gather_y_n=false update_cache_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" Base.yml 
 
 rm -f *.retry

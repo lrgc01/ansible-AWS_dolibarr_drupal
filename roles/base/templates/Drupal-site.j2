@@ -1,8 +1,8 @@
 server {
        listen 80;
        listen [::]:80;
-       server_name {{ cert_params_hash.CN }};
-       return 301 https://{{ cert_params_hash.CN }}$request_uri;
+       server_name {{ domain1 }};
+       return 301 https://{{ domain1 }}$request_uri;
 }
 
 server {
@@ -12,7 +12,7 @@ server {
        include snippets/drupalcert.conf;
        #include snippets/testcert.conf;
 
-       server_name {{ cert_params_hash.CN }};
+       server_name {{ domain1 }};
 
        root {{ drupal_site_rootdir }};
        index index.php index.html index.htm index.nginx-debian.html;

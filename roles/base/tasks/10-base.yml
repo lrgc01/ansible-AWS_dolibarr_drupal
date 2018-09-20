@@ -5,7 +5,7 @@
     state: "present"
   loop: "{{ dep_pkg_list }}"
   when: dep_pkg_list[0]
-  register: drupal_dep_pkg_installed
+  register: dep_pkg_installed
   tags: install_dep_pkg
 
 - name: Ensure directories dir_file_tmpl_list.types=dir ---
