@@ -9,7 +9,7 @@ CONFDIR="${BASEDIR}/conf.d"
 SSHCONF="${CONFDIR}/ssh_config"
 
 # Ensure priv keys in conf.d dir are protected
-chmod 600 ${CONFDIR}/*
+chmod go-w,o-rwx ${CONFDIR}/*
 
 export BASEDIR CONFDIR SSHCONF
 
