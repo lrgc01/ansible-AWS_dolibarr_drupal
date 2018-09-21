@@ -11,6 +11,7 @@ tmp_dir		: "/tmp"
 # Our choice web service
 web_service     : "nginx"
 base_dep_pkg_list:
+   - false
    - { pkg : "python-mysqldb"  }
    - { pkg : "python-openssl"  }
 
