@@ -10,3 +10,7 @@ facts_out_dir	: "{{ basedir }}/facts.d"
 tmp_dir		: "/tmp"
 # Our choice web service
 web_service     : "nginx"
+base_dep_pkg_list:
+   - { pkg : "python-mysqldb"  }
+   - { pkg : "python-openssl"  }
+

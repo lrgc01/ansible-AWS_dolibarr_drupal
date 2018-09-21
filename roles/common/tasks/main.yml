@@ -5,7 +5,7 @@
 #  register: certbot_repo_added
 #  tags: update_repository
 #
-- name: Update cache and upgrade ------------------------
+- name: Update cache and upgrade (may take a time) --------
   apt: 
     update_cache: "{{ update_cache_y_n }}"
     upgrade: "{{ update_cache_y_n }}"
@@ -13,3 +13,11 @@
   when: update_cache_y_n
   tags: update_repository
 
+- name: Install vary basic packages to run ansible --------
+  apt:
+    pkg: "{{ item.pkg }}"
+    state: "present"
+  loop: "{{ base_dep_pkg_list }}"
+  when: base_dep_pkg_list[0]
+  register: base_dep_pkg_installed
+  tags: install_dep_pkg
