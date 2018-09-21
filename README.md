@@ -1,12 +1,15 @@
-This is the README file
+This is the README file and might be out of date.
 
 ----------------------------------------------------------------------
 BEFORE ANYTHING
 ----------------------------------------------------------------------
 
-In the work linux box it should have installed ansible, pip and boto. 
+In this work the linux box should have installed ansible, pip and boto. 
 This list below works fine in ubuntu 16.04 (xenial) and debian 9 
-(stretch) although other versions may work as well:
+(stretch) although other versions may work as well.
+
+The shell script will try to install it first, but keep these in mind
+these versions and packs:
 
 ansible  2.6.3 (from ppa source)
 python3  2.7.13
@@ -27,50 +30,55 @@ GENERAL STRUCTURE
 Basically an ansible with some external configs to SSH access - check 
 all.sh
 
-The inventory is “host” as used by the main playbook YAML file, 
-Drupal.yml
+The inventory is defined by the file “hosts” and the main playbook 
+YAML file is Site.yml. Other files are important as well:
 
  - Files:
 
-   - hosts - inventory for the Drupal + civicrm site
+   - hosts - inventory for the site.
 
-   - group_vars/server2.yml - look for every var definition here
-
-   - Drupal.yml - main playbook to get Drupal + civicrm up and 
-     running
+   - Site.yml - main playbook to get everything up and running
 
    - AWS.yml - playbook used to build server, DB instance, sec 
      groups, etc.
 
-   - base_AWS.yml - this playbook try to install basics like boto*
+   - base_AWS.yml - this playbook try to install basics like boto\*
 
-   - removeDrupal.yml - just to clean the server and restart 
-     Drupal.yml later
+   - Uninstall.yml - just to clean the server and restart  from scratch
 
-   - all.sh - shell used to build everything including AWS (off by 
-     now) together with some SSH base configs
+   - all.sh - shell used to build everything including AWS 
+     together with some SSH base configs
 
-   - aws.sh - just to run AWS playbook
+   - aws.sh - just to run AWS.yml playbook
 
-   - drupal.sh - just to run Drupal playbook
-
-   - uninst.sh - runs the playbook to clean the server in hosts 
-     inventory (removeDrupal.yml)
+   - uninst.sh - runs the playbook to clean the server (Uninstall.yml)
 
  - Folder hierarchy (roles):
 
    - roles/
    - roles/common
-   - roles/inst_Drupal
-   - roles/uninst_Drupal
+   - roles/base
+   - roles/users
+   - roles/gitcfg
+   - roles/phpcfg
+   - roles/python
+   - roles/SSLcrt
+   - roles/DB_adm
+   - roles/Drupal
+   - roles/finals
+   - roles/uninst
    - roles/AWS
    - roles/base_AWS
-   - roles/*/{defaults,tasks,vars,templates,handlers}
+   - roles/\*/{defaults,tasks,vars,templates,handlers}
 
  - Other folders:
 
    - group_vars - from ansible best practices - define vars for 
-     each server in an inventory - the priority definition
+     each group of servers in an inventory 
+
+   - vars_hosts - again from best practices - for specific hostnames
+
+   - vars_files - used for specific vars files
 
    - facts.d - all data from AWS after deploying the platform
 
@@ -78,11 +86,11 @@ Drupal.yml
 
    - test - self explanatory - unused by now
 
-   - secret - sensitive data
+   - secret - sensitive data (apart from this dir level)
 
  - Other files:
 
-   - conf.d/linux-key.pem - The key to SSH to lrgc01.uk.to
+   - conf.d/linux-key.pem - The key to SSH to login to site
 
    - conf.d/ssh_config - SSH client config with hostname and keypath
 
@@ -91,7 +99,7 @@ BASIC RUNNING (helped by shell scripts)
 ----------------------------------------------------------------------
 
 Probably the server (here named server2) is up and running. A first 
-run of the playbook might be right to check it, as soon as all 
+run of the playbook might be right to check it, as soon as all tasks
 returns "ok".
 
 Just do:
@@ -124,7 +132,7 @@ EXTRA VARIABLES SUPPLIED (--extra-vars) AND CURRENT CHOICES
    The same as above, we may uninstall the whole dependency tree
 
 ----------------------------------------------------------------------
-VARIABLES OF MAIN INTEREST IN group_vars/server2.yml
+VARIABLES OF MAIN INTEREST IN group_vars or vars_files and so on
 ----------------------------------------------------------------------
 
  - www_basedir: if using other than the default /var/www.
@@ -161,88 +169,98 @@ TEMPLATES
 All of them are mandatory to be checked. Templates are very particular 
 to one site. They can be found here:
 
- - roles/inst_Drupal/templates
+ - roles/Drupal/templates
+ - roles/base/templates
+ - roles/finals/templates
 
 And
 
  - roles/AWS/templates
 
-for AWS playbook. It defines the ssh_config.
+for AWS playbook. It defines the ssh_config using ssh_config.j2 template.
 
 ----------------------------------------------------------------------
 THE PLAYBOOKs
 ----------------------------------------------------------------------
-Here the output of "ansible-playbook -i hosts --list-tasks Drupal.yml" 
+Here the output of "ansible-playbook -i hosts --list-tasks Site.yml" 
 command:
 
 ----
-playbook: Drupal.yml
+playbook: Site.yml
 
   play #1 (server2): server2    TAGS: []
     tasks:
-      inst_Drupal : Update cache and upgrade -------------------------- TAGS: [update_repository]
-      inst_Drupal : Install Drupal dependencies ----------------------- TAGS: [drupal_site, install_dep_pkg]
-      inst_Drupal : Set composer required pack ------------------------ TAGS: [drupal_site]
-      inst_Drupal : Ensure directories all_descriptor_list.types=dir -- TAGS: [config_files, deploy_templates, drupal_site]
-      inst_Drupal : Create admin users for drupal/site ---------------- TAGS: [drupal_site, git_config]
-      inst_Drupal : Retrieve priv key from git user ------------------- TAGS: [git_config]
-      inst_Drupal : Fill in authorized_keys to git user --------------- TAGS: [git_config]
-      inst_Drupal : Grant repodir permissions to git user ------------- TAGS: [git_config]
-      inst_Drupal : Create some git projects on server ---------------- TAGS: [git_config]
-      inst_Drupal : Set php.ini file ---------------------------------- TAGS: [config_files, config_php_files, deploy_templates]
-      inst_Drupal : Remove undesired files (absent in item.types) ----- TAGS: [config_files, deploy_templates]
-      inst_Drupal : Deploy templates all_descriptor_list.types=tmpl --- TAGS: [config_files, deploy_templates]
-      inst_Drupal : Make proper links all_descriptor_list.types=link -- TAGS: [config_files, deploy_templates]
-      inst_Drupal : Upload cert and key files if needed --------------- TAGS: [config_files, key_cert_copy_only, ssl_certificate]
-      inst_Drupal : Ensure web service is restarted and enabled ------- TAGS: [config_files, config_php_files, deploy_templates, install_dep_pkg]
-      inst_Drupal : Generate private key for account and csr ---------- TAGS: [ssl_certificate]
-      inst_Drupal : Create CSR certificate ---------------------------- TAGS: [ssl_certificate]
-      inst_Drupal : Create ACME account with respective email --------- TAGS: [ssl_certificate]
-      inst_Drupal : Create certificate - 1st step challenge ----------- TAGS: [ssl_certificate]
-      inst_Drupal : Create directory structure for challenge ---------- TAGS: [ssl_certificate]
-      inst_Drupal : Copy resource to web site to complete the 2nd step  TAGS: [ssl_certificate]
-      inst_Drupal : Create certificate - 2nd step challenge -get certs- TAGS: [ssl_certificate]
-      inst_Drupal : Copy new cert and key to web server's place ------- TAGS: [ssl_certificate]
-      inst_Drupal : Download cert and key files if needed ------------- TAGS: [key_cert_copy_only, ssl_certificate]
-      inst_Drupal : Create DBs on respective hosts -------------------- TAGS: [create_databases, databases]
-      inst_Drupal : Grant user privileges in DBs ---------------------- TAGS: [databases, grant_privileges]
-      inst_Drupal : Download Drupal using drush pm-download (dl) ------ TAGS: [drupal_site]
-      inst_Drupal : Download and extract civiCRM ---------------------- TAGS: [drupal_site]
-      inst_Drupal : Install Drupal site using drush site-install (si) - TAGS: [drupal_site]
-      inst_Drupal : Install CiviCRM module with drush civicrm-install - TAGS: [drupal_site]
-      inst_Drupal : Enable some modules with drush -------------------- TAGS: [drupal_site]
-      inst_Drupal : Run pm-update to update database if necessary ----- TAGS: [drupal_site]
-      inst_Drupal : Deploy Drupal specific templates ------------------ TAGS: [deploy_templates, drupal_site]
-      inst_Drupal : Adjust drupal sites and core permissions ---------- TAGS: [drupal_site]
-      inst_Drupal : Set variables in settings.php of drupal/civicrm --- TAGS: [drupal_site]
-      inst_Drupal : Ensure services are started and enabled ----------- TAGS: [install_dep_pkg]
+      common : Update cache and upgrade (may take a time) --------      TAGS: [update_repository]
+      common : Install vary basic packages to run ansible --------      TAGS: [install_dep_pkg]
+      base : Install dependency packages -----------------------        TAGS: [install_dep_pkg]
+      base : Ensure directories dir_file_tmpl_list.types=dir ---        TAGS: [config_files, deploy_templates]
+      base : Remove undesired files (absent in item.types) -----        TAGS: [config_files, deploy_templates]
+      base : Deploy templates dir_file_tmpl_list.types=tmpl ----        TAGS: [config_files, deploy_templates]
+      base : Make proper links dir_file_tmpl_list.types=link ---        TAGS: [config_files]
+      base : Upload some files from a list when action=upload --        TAGS: [config_files, copy_files]
+      base : Restart service after tmpl/file/link change -------        TAGS: [config_files, copy_files]
+      base : Set some ini type files ---------------------------        TAGS: [config_files]
+      base : Configure cron ------------------------------------        TAGS: [cron_config]
+      base : Ensure services are started and enabled -----------        TAGS: [install_dep_pkg]
+      users : Create some general purpose users -----------------       TAGS: [base_users]
+      users : Retrieve priv key from list of users --------------       TAGS: [auth_keys, base_users]
+      users : Fill in authorized_keys to each user of a list ----       TAGS: [auth_keys, base_users]
+      gitcfg : Grant repodir permissions to git user -------------      TAGS: [git_config]
+      gitcfg : Create some git projects on server ----------------      TAGS: [git_config]
+      phpcfg : Set composer packs if required (PHP) --------------      TAGS: [php_config]
+      phpcfg : Composer create-project using command line --------      TAGS: [php_config]
+      python : Install local python dependencies via pip ---------      TAGS: [python_config]
+      SSLcrt : Generate private key for account and csr ----------      TAGS: [acme_account, ssl_certificate]
+      SSLcrt : Create local CSR certificate ----------------------      TAGS: [ssl_certificate]
+      SSLcrt : Create ACME account with respective email ---------      TAGS: [acme_account, ssl_certificate]
+      SSLcrt : Create certificate - 1st step challenge -----------      TAGS: [ssl_certificate]
+      SSLcrt : Create directory structure for challenge ----------      TAGS: [ssl_certificate]
+      SSLcrt : Copy resource to web site to complete the 2nd step       TAGS: [ssl_certificate]
+      SSLcrt : Create certificate - 2nd step challenge -get certs-      TAGS: [ssl_certificate]
+      SSLcrt : Copy new cert and key to web server's place -------      TAGS: [ssl_certificate, test2]
+      SSLcrt : Download cert and key files if needed -------------      TAGS: [key_cert_copy_only, ssl_certificate, test2]
+      DB_adm : Create DBs on respective hosts --------------------      TAGS: [create_databases, databases]
+      DB_adm : Grant user privileges in DBs ----------------------      TAGS: [databases, grant_privileges]
+      Drupal : Download Drupal using drush pm-download (dl) ------      TAGS: [drupal_site]
+      Drupal : Download and extract civiCRM ----------------------      TAGS: [drupal_site]
+      Drupal : Install Drupal site using drush site-install (si) -      TAGS: [drupal_site]
+      Drupal : Install CiviCRM module with drush civicrm-install -      TAGS: [drupal_site]
+      Drupal : Enable some modules with drush --------------------      TAGS: [drupal_site]
+      Drupal : Run pm-update to update database if necessary -----      TAGS: [drupal_site]
+      finals : Deploy later specific templates -------------------      TAGS: [config_files, deploy_templates]
+      finals : Create later directories and set permissions ------      TAGS: [config_files]
+      finals : Add or change line in config files ----------------      TAGS: [config_files]
+      finals : Ensure services are started and enabled -----------      TAGS: [install_dep_pkg]
 ----
 
 The hiphens o minus signs are used just to make the output easier to 
 understand.
 
 Everything is based in few distinct blocks as can be noted in 
-roles/inst_Drupal/tasks folder:
+roles/\*/tasks folders.
 
-	main.yml
+Special attention should be paid to AWS, base and SSLcrt tasks
+in which case have some more included task files like this:
 
-which includes:
-
+AWS:
 	10-base.yml
-	20-siteconfig.yml
-	30-ssl_certificate.yml
-	40-database.yml
-	50-drupal.yml
+	20-create.yml
+	30-modify.yml
+	40-delete.yml
+
+base:
+	10-base.yml
+	20-specific.yml
+	30-cron.yml
 	90-last.yml
 
-They are almost self explanatory, but the idea is to prepare the 
-environment with the base packages with 01-base, then configure
-the mininal nginx with SSL in 02-siteconfig. The 2 step challenge 
-certificate in 03-ssl_certficate needs a web server. The 
-04-database is almost independent and could be the 2nd pass,
-for example, but 04 is fine. Of course Drupal depends on all
-these things before. 06-last is a final check to keep services
-up - may possibly be omitted.
+SSLcrt:
+	10-first.yml
+	20-challenge.yml
+	30-save.yml
+
+This is just to organize. In the future it may lead to separate
+roles.
 
 And now the AWS playbook:
 
@@ -251,6 +269,8 @@ playbook: AWS.yml
 
   play #1 (localhost): localhost        TAGS: []
     tasks:
+      common : Update cache and upgrade (may take a time) --------      TAGS: [update_repository]
+      common : Install vary basic packages to run ansible --------      TAGS: [install_dep_pkg]
       AWS : Ensure aws config dir ------------- TAGS: [base_config]
       AWS : Set AWS config ini style file ----- TAGS: [base_config]
       AWS : Gather default VPC facts ---------- TAGS: [create_aws_instances, create_ec2_instances, create_security_groups, gather_default_vpc]
@@ -274,10 +294,6 @@ playbook: AWS.yml
       AWS : Copy EC2 instances IP/DNS --------- TAGS: [change_state_all_ec2_instances, change_state_all_instances, create_aws_instances, create_ec2_instances, gather_ec2]
       AWS : Deploy templates for inventory ---- TAGS: [config_ansible_host_file, config_files]
 ----
-
-For now it is only tested to create just one server and one DB 
-instance, although it might suggest otherwise when looking
-inside its configs. 
 
 In roles/AWS/vars/main.yml you may define a list of keys to be
 created - they you be downloaded on creation. Also may specify 
@@ -324,10 +340,7 @@ And this is the playbook command itself:
 	ansible-playbook --extra-vars "basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" _PLAYBOOK_.yml
 
 As explained above, some other extra-vars may be used, but all have 
-their own default values already defined in common/defaults/main.yml
-of in PLAYBOOK/vars/main.yml below the roles subdir.
-
-Note that group_vars/_SERVER_GROUP_.yml is the main variable file.
+their own default values already defined in roles/\*/defaults/main.yml.
 
 It is possible to run just the git parts:
 
@@ -336,7 +349,7 @@ $ ansible-playbook \
     --extra-vars \
     "basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" \
     --tags "git_config" \
-    Drupal.yml
+    Site.yml
 
 ----------------------------------------------------------------------
 GIT 
@@ -354,7 +367,7 @@ Find the private key to connect in
 and use it in you ~/.ssh/config. A simple example will look like:
 
 ----
-Host lrgc01.uk.to
+Host mydomain.com
 User git
 ConnectTimeout 600
 Compression yes
@@ -362,7 +375,7 @@ IdentityFile ~/.ssh/git_priv_key
 ----
 
 Then move to a more clean directory and try:
-	git clone ssh://git@lrgc01.uk.to/repos/test.git
+	git clone ssh://git@mydomain.com/repos/test.git
 
 It should retrieve the complete repository of this ansible job 
 including this README file.
