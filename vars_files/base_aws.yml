@@ -1,0 +1,4 @@
+---
+base_dep_pkg_list:
+   - { pkg : "python-pip"  }
+

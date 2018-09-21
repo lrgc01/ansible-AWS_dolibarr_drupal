@@ -4,11 +4,6 @@
 which sudo > /dev/null 2>&1
 [ "$?" != 0 ] && ( echo "You must install sudo to run this script"; exit 1 )
 
-which pip > /dev/null 2>&1
-if [ "$?" != 0 ]; then
-   sudo apt install -y python-pip
-fi
-
 # Check release
 [ -f /etc/os-release ] && . /etc/os-release
 

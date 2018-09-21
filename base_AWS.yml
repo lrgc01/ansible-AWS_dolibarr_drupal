@@ -3,7 +3,8 @@
   connection: local
   gather_facts: false
   become: true
-# file not given
+  vars_files:
+   - vars_files/base_aws.yml
   roles:
    - common
    - base_AWS
