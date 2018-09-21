@@ -38,8 +38,11 @@ cd "$PLAYDIR"
 BASEDIR="`pwd`"
 CONFDIR="${BASEDIR}/conf.d"
 SSHCONF="${CONFDIR}/ssh_config"
+FACTSDIR="${BASEDIR}/facts.d"
 
-export BASEDIR CONFDIR SSHCONF
+[ ! -d ${FACTSDIR} ] && mkdir -p ${FACTSDIR}
+
+export BASEDIR CONFDIR SSHCONF FACTSDIR
 
 export DISPLAY_SKIPPED_HOSTS="false"
 
@@ -49,7 +52,7 @@ ansible-playbook -i hosts --ask-become-pass base_AWS.yml
 # can comment the line after first successfull run
 
 # The rest of AWS stuff may work with a local non-root user
-#ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" --tags "base_config" AWS.yml
-ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" AWS.yml
+#ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} facts_out_dir=${FACTSDIR} sshconf=${SSHCONF}" --tags "base_config" AWS.yml
+ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} facts_out_dir=${FACTSDIR} sshconf=${SSHCONF}" AWS.yml
 
 rm -f *.retry
