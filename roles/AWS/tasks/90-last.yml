@@ -15,7 +15,7 @@
     aws_secret_key: "{{ aws_secret_key }}"
     #filters:
       #"tag:Name": "{{ item.tags.Name }}"
-  #loop: "{{ ec2_instances_by_tag }}"
+  #loop: "{{ ec2_instances }}"
   register: ec2_facts
   tags: gather_ec2, change_state_all_ec2_instances, change_state_all_instances, create_ec2_instances, create_aws_instances
 

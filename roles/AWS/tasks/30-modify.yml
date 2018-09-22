@@ -9,8 +9,7 @@
   when: db_instance_name is defined and false
   tags: reboot_rds_instance, reboot_instance
 
-# terminate (or absent) is in delete.yml task file
-- name: Start/stop EC2 instances by tags --
+- name: Start/stop EC2 instances by tag ---
   ec2:
     aws_access_key: "{{ aws_access_key }}"
     aws_secret_key: "{{ aws_secret_key }}"
@@ -18,13 +17,12 @@
     region: "{{ region }}"
     instance_tags: "{{ item.tags }}"
     wait: "yes"
-  loop: "{{ ec2_instances_by_tag }}"
+  loop: "{{ ec2_instances }}"
   register: instances_state
-  when: (ec2_instances_by_tag is defined and all_ec2_instances_state is not defined) and
+  when: (ec2_instances[0] and all_ec2_instances_state is not defined) and
         (item.state == "running" or item.state == "stopped" or item.state == "rebooted")
   tags: change_state_ec2_instance, change_state_instance
 
-# when: check definition of 'instances_state' to avoid conflict
 - name: Start/stop all EC2 instances ------
   ec2:
     aws_access_key: "{{ aws_access_key }}"

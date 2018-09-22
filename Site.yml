@@ -1,5 +1,5 @@
 ---
-- hosts: server1
+- hosts: webservers
   gather_facts: "{{ gather_y_n }}"
   become: true
   remote_user: "ubuntu"

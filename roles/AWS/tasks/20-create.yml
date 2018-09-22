@@ -44,8 +44,8 @@
     vpc_subnet_id: "{{ item.subnet_id | default(pick_subnet[0]) }}"
     assign_public_ip: "{{ item.pub_ip | default(\"yes\") }}"
     id: "{{ region + '_' + item.tags.Name + '_' + item.type + '_' + item.image }}"
-  loop: "{{ ec2_instances_by_tag }}"
-  when: ec2_instances_by_tag is defined and item.state == "present"
+  loop: "{{ ec2_instances }}"
+  when: ec2_instances[0] and item.state == "present"
   vars:
     pick_subnet: "{{ default_subnets.subnets|map(attribute='id') | list | shuffle(seed=ansible_hostname) }}"
   register: create_ec2_instances
