@@ -19,6 +19,20 @@
   register: ec2_facts
   tags: gather_ec2, change_state_all_ec2_instances, change_state_all_instances, create_ec2_instances, create_aws_instances
 
+- name: Gather RDS instances facts --------
+  rds_instance_facts:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  register: rds_facts
+  tags: gather_rds, change_state_all_instances, create_rds_instances, create_aws_instances
+
+- name: Gather EFS filesystems facts ------
+  efs_facts:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  register: efs_facts
+  tags: gather_efs, change_state_all_instances, create_efs_instances, create_aws_instances
+
 - name: Copy EC2 instances facts ----------
   copy:
     content: "{{ item | to_nice_json }}"
@@ -26,6 +40,22 @@
   loop: "{{ ec2_facts.instances }}"
   when: ec2_facts is success
   tags: gather_ec2, change_state_all_ec2_instances, change_state_all_instances, create_ec2_instances, create_aws_instances
+
+- name: Copy RDS instances facts ----------
+  copy:
+    content: "{{ item | to_nice_json }}"
+    dest: "{{ facts_out_dir }}/{{ item.db_instance_identifier }}.json"
+  loop: "{{ rds_facts.instances }}"
+  when: rds_facts is success
+  tags: gather_rds, change_state_all_instances, create_rds_instances, create_aws_instances
+
+- name: Copy EFS filesystems facts --------
+  copy:
+    content: "{{ item | to_nice_json }}"
+    dest: "{{ facts_out_dir }}/efs-{{ item.name }}.json"
+  loop: "{{ efs_facts.ansible_facts.efs }}"
+  when: efs_facts is success
+  tags: gather_efs, change_state_all_instances, create_efs_instances, create_aws_instances
 
 - name: Copy EC2 instances IP/DNS ---------
   copy:
@@ -35,6 +65,14 @@
   when: ec2_facts is success and 'Name' in item.tags and item.public_ip_address is defined 
         and item.public_dns_name is defined and item.key_name is defined
   tags: gather_ec2, change_state_all_ec2_instances, change_state_all_instances, create_ec2_instances, create_aws_instances
+
+- name: Copy RDS instances useful data ----
+  copy:
+    content: "_INSTANCE_ENDPOINT=\"{{ item.endpoint.address }}\"\n"
+    dest: "{{ facts_out_dir }}/{{ item.db_instance_identifier }}.rc"
+  loop: "{{ rds_facts.instances }}"
+  when: rds_facts is success and item.endpoint is defined
+  tags: gather_rds, change_state_all_instances, create_rds_instances, create_aws_instances
 
 - name: Deploy templates for inventory ----
   template:

@@ -4,6 +4,7 @@
   become: true
   remote_user: "ubuntu"
   vars_files:
+   - ../secret/aws.yml
    - ../secret/general.yml
    - ../secret/base.yml
    - ../secret/users.yml

@@ -45,7 +45,7 @@
     assign_public_ip: "{{ item.pub_ip | default(\"yes\") }}"
     id: "{{ region + '_' + item.tags.Name + '_' + item.type + '_' + item.image }}"
   loop: "{{ ec2_instances }}"
-  when: ec2_instances[0] and item.state == "present"
+  when: ec2_instances[0] and item.state == "present" and default_subnets is success
   vars:
     pick_subnet: "{{ default_subnets.subnets|map(attribute='id') | list | shuffle(seed=ansible_hostname) }}"
   register: create_ec2_instances
@@ -69,17 +69,35 @@
     password: "{{ item.password }}"
     tags: "{{ item.tags }}"
   loop: "{{ rds_instances_by_name }}"
+  when: rds_instances_by_name[0] and created_sg is success
   vars:
     sg_id: "results[?group_name=='{{ item.sg_name }}'].group_id"
   register: created_db_instance
-  when: rds_instances_by_name[0] and created_sg is success
   tags: create_rds_instances, create_aws_instances
+
+##############################
+# EFS file system (to export via NFS)
+- name: Create EFS file systems -----------
+  efs:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ region }}"
+    state: "{{ item.state }}"
+    name: "{{ item.name }}"
+    targets: "{{ item.targets | default(local_targets) }}"
+    tags: "{{ item.tags }}"
+  loop: "{{ efs_instances }}"
+  when: efs_instances[0] and item.state == "present" and default_subnets is success
+  vars:
+    local_targets: "{{ default_subnets | json_query('subnets[*].{subnet_id: subnet_id}') }}"
+  register: efs_instance_created
+  tags: create_efs_instances, create_aws_instances
 
 #######
 # debug
-#- name: Show sec groups
+#- name: Show debug
 #  debug:
-#    var: created_sg | json_query(sg_id)
+#    msg: "{{ default_subnets | json_query(query_by_name) }}"
 #  #loop: "{{ created_sg | json_query('results[?group_name==`rdp`].group_id') }}"
 #  #loop: "{{ created_sg | json_query(query_by_name) }}"
 #  #loop: "{{ keypair_registered | json_query('results[*].key') }}"
@@ -90,6 +108,6 @@
 #    sg_id: "results[?group_name=='{{ rds_instances_by_name[0].sg_name }}'].group_id"
 #    #query_by_name: "results[?group_name=='{{ win_sg_name }}'].group_id"
 #    #query_by_name: "results[?key.name=='test-key'].key"
-#    #query_by_name: "results[*].key.{name: name, fingerprint: fingerprint, private_key: private_key}"
+#    query_by_name: "subnets[*].{subnet_id: subnet_id}"
 #    #query_by_name: "results[?key.private_key!=''].key"
 #  tags: show_debug
