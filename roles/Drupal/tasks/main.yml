@@ -4,7 +4,6 @@
   args:
     creates: "{{ drupal_site_rootdir }}/.htaccess"
     chdir: "{{ www_basedir }}"
-  when: composer_done is success 
   register: drupal_installed
   tags: drupal_site
 

@@ -18,6 +18,7 @@ export DISPLAY_SKIPPED_HOSTS="false"
 export ANSIBLE_SSH_ARGS="-C -o ControlMaster=auto -o ControlPersist=60s -F ${SSHCONF}"
 
 # Use --tags "__TAG_NAME__" to restrict ansible-playbook in the following useful tags:
+#  - bootstrap_python
 #  - base_users
 #  - auth_keys
 #  - deploy_templates
@@ -27,8 +28,10 @@ export ANSIBLE_SSH_ARGS="-C -o ControlMaster=auto -o ControlPersist=60s -F ${SSH
 #  - databases
 #  - php_config,drupal_site
 
-#ansible-playbook -i hosts --extra-vars "gather_y_n=false update_cache_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" --tags "install_dep_pkg" Site.yml
-#ansible-playbook -i hosts --extra-vars "gather_y_n=false update_cache_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" --skip-tags "install_dep_pkg" Site.yml 
-ansible-playbook -i hosts --extra-vars "gather_y_n=false update_cache_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" Site.yml 
+# update_cache_y_n=yes or no
+
+#ansible-playbook -i hosts --extra-vars "gather_y_n=false update_cache_y_n=no basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" --tags "php_config,drupal_site,deploy_templates,config_files" Site.yml
+#ansible-playbook -i hosts --extra-vars "gather_y_n=false update_cache_y_n=no basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" --skip-tags "bootstrap_python,install_dep_pkg,base_users,auth_keys" Site.yml 
+ansible-playbook -i hosts --extra-vars "gather_y_n=false update_cache_y_n=no basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" --skip-tags "bootstrap_python" Site.yml 
 
 rm -f *.retry

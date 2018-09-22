@@ -5,12 +5,16 @@
 #  register: certbot_repo_added
 #  tags: update_repository
 #
+- name: Install python if not installed -------------------
+  raw: "if [ ! -f /usr/bin/python ] ; then apt install -y python; else exit 0 ;fi"
+  tags: bootstrap_python
+
 - name: Update cache and upgrade (may take a time) --------
   apt: 
     update_cache: "{{ update_cache_y_n }}"
     upgrade: "{{ update_cache_y_n }}"
   register: updated_cache
-  when: update_cache_y_n
+  when: update_cache_y_n == "yes"
   tags: update_repository
 
 - name: Install vary basic packages to run ansible --------
