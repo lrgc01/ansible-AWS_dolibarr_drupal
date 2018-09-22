@@ -1,5 +1,5 @@
 [server1]
-ec2-13-58-136-127.us-east-2.compute.amazonaws.com
+ec2-18-188-101-208.us-east-2.compute.amazonaws.com
 
 #[server1:vars]
 #ansible_python_interpreter=/usr/bin/python3
