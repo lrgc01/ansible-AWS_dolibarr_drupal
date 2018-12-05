@@ -191,7 +191,7 @@ THE PLAYBOOKs
 Here the output of "ansible-playbook -i hosts --list-tasks Site.yml" 
 command:
 
-----
+```
 playbook: Site.yml
 
   play #1 (webservers): webservers	TAGS: []
@@ -238,7 +238,7 @@ playbook: Site.yml
       finals : Create later directories and set permissions ------	TAGS: [config_files]
       finals : Add or change line in config files ----------------	TAGS: [config_files]
       finals : Ensure services are started and enabled -----------	TAGS: [install_dep_pkg]
-----
+```
 
 The hiphens o minus signs are used just to make the output easier to 
 understand.
@@ -272,7 +272,7 @@ roles.
 
 And now the AWS playbook:
 
-----
+```
 playbook: AWS.yml
 
   play #1 (localhost): localhost	TAGS: []
@@ -308,7 +308,7 @@ playbook: AWS.yml
       AWS : Copy EC2 instances IP/DNS ---------	TAGS: [change_state_all_ec2_instances, change_state_all_instances, create_aws_instances, create_ec2_instances, gather_ec2]
       AWS : Copy RDS instances useful data ----	TAGS: [change_state_all_instances, create_aws_instances, create_rds_instances, gather_rds]
       AWS : Deploy templates for inventory ----	TAGS: [config_ansible_host_file, config_files]
-----
+```
 
 In roles/AWS/vars/main.yml you may define a list of keys to be
 created - they you be downloaded on creation. Also may specify 
@@ -332,15 +332,7 @@ A shell script with some definitions must be settled:
 
 This is the expected header in each shell script:
 
------
-#!/bin/sh
-
-PLAYDIR="`dirname $0`"
-
-cd "$PLAYDIR"
-
-BASEDIR="`pwd`"
-CONFDIR="${BASEDIR}/conf.d"
+```
 SSHCONF="${CONFDIR}/ssh_config"
 
 export BASEDIR CONFDIR SSHCONF
@@ -348,7 +340,7 @@ export BASEDIR CONFDIR SSHCONF
 export DISPLAY_SKIPPED_HOSTS="false"
 
 export ANSIBLE_SSH_ARGS="-C -o ControlMaster=auto -o ControlPersist=60s -F ${SSHCONF}"
------
+```
 
 And this is the playbook command itself:
 
@@ -360,11 +352,13 @@ their own default values already defined in roles/\*/defaults/main.yml.
 It is possible to run just the git parts:
 
 (after the shell script header!!)
+```
 $ ansible-playbook \ 
     --extra-vars \
     "basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF}" \
     --tags "git_config" \
     Site.yml
+```
 
 ----------------------------------------------------------------------
 GIT 
@@ -381,13 +375,13 @@ Find the private key to connect in
 
 and use it in you ~/.ssh/config. A simple example will look like:
 
-----
+```
 Host mydomain.com
 User git
 ConnectTimeout 600
 Compression yes
 IdentityFile ~/.ssh/git_priv_key
-----
+```
 
 Then move to a more clean directory and try:
 	git clone ssh://git@mydomain.com/repos/test.git
