@@ -250,6 +250,7 @@ Special attention should be paid to AWS, base and SSLcrt tasks
 in which case have some more included task files like this:
 
 AWS:
+
 	10-base.yml
 	20-create.yml
 	30-modify.yml
@@ -257,12 +258,14 @@ AWS:
 	90-last.yml
 
 base:
+
 	10-base.yml
 	20-specific.yml
 	30-cron.yml
 	90-last.yml
 
 SSLcrt:
+
 	10-first.yml
 	20-challenge.yml
 	30-save.yml
