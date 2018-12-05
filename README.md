@@ -28,7 +28,7 @@ python2.
 GENERAL STRUCTURE
 ----------------------------------------------------------------------
 Basically an ansible with some external configs to SSH access - check 
-all.sh
+\*.sh
 
 The inventory is defined by the file “hosts” and the main playbook 
 YAML file is Site.yml. Other files are important as well:
@@ -37,7 +37,7 @@ YAML file is Site.yml. Other files are important as well:
 
    - hosts - inventory for the site.
 
-   - Site.yml - main playbook to get everything up and running
+   - Site.yml - main playbook to get everything up and running.
 
    - AWS.yml - playbook used to build server, DB instance, sec 
      groups, etc.
@@ -46,29 +46,33 @@ YAML file is Site.yml. Other files are important as well:
 
    - Uninstall.yml - just to clean the server and restart  from scratch
 
-   - all.sh - shell used to build everything including AWS 
-     together with some SSH base configs
+   - aws.sh - runs base_AWS.yml and AWS.yml playbooks. After running 
+     base_AWS.yml, it may be commented out.
 
-   - aws.sh - just to run AWS.yml playbook
+   - site.sh - runs Site.yml playbook to build the site after aws.sh 
+     is successful.
 
    - uninst.sh - runs the playbook to clean the server (Uninstall.yml)
 
  - Folder hierarchy (roles):
 
    - roles/
-   - roles/common
+   - roles/AWS
+   - roles/Backup
    - roles/base
-   - roles/users
+   - roles/base_AWS
+   - roles/common
+   - roles/DB_adm
+   - roles/Dolibar
+   - roles/Drupal
+   - roles/finals
    - roles/gitcfg
    - roles/phpcfg
    - roles/python
+   - roles/Restore
    - roles/SSLcrt
-   - roles/DB_adm
-   - roles/Drupal
-   - roles/finals
    - roles/uninst
-   - roles/AWS
-   - roles/base_AWS
+   - roles/users
    - roles/\*/{defaults,tasks,vars,templates,handlers}
 
  - Other folders:
@@ -104,15 +108,17 @@ returns "ok".
 
 Just do:
 
-	prompt$ sh all.sh
+	prompt$ sh aws.sh
+	prompt$ sh site.sh
 
 To destroy just the server and start again:
 
 	prompt$ sh uninst.sh
 
-And again you may run the first shell script to start over:
+And again you may run the first two shell scripts to start over:
 
-	prompt$ sh all.sh
+	prompt$ sh aws.sh
+	prompt$ sh site.sh
 
 ----------------------------------------------------------------------
 EXTRA VARIABLES SUPPLIED (--extra-vars) AND CURRENT CHOICES
@@ -188,49 +194,50 @@ command:
 ----
 playbook: Site.yml
 
-  play #1 (server2): server2    TAGS: []
+  play #1 (webservers): webservers	TAGS: []
     tasks:
-      common : Update cache and upgrade (may take a time) --------      TAGS: [update_repository]
-      common : Install vary basic packages to run ansible --------      TAGS: [install_dep_pkg]
-      base : Install dependency packages -----------------------        TAGS: [install_dep_pkg]
-      base : Ensure directories dir_file_tmpl_list.types=dir ---        TAGS: [config_files, deploy_templates]
-      base : Remove undesired files (absent in item.types) -----        TAGS: [config_files, deploy_templates]
-      base : Deploy templates dir_file_tmpl_list.types=tmpl ----        TAGS: [config_files, deploy_templates]
-      base : Make proper links dir_file_tmpl_list.types=link ---        TAGS: [config_files]
-      base : Upload some files from a list when action=upload --        TAGS: [config_files, copy_files]
-      base : Restart service after tmpl/file/link change -------        TAGS: [config_files, copy_files]
-      base : Set some ini type files ---------------------------        TAGS: [config_files]
-      base : Configure cron ------------------------------------        TAGS: [cron_config]
-      base : Ensure services are started and enabled -----------        TAGS: [install_dep_pkg]
-      users : Create some general purpose users -----------------       TAGS: [base_users]
-      users : Retrieve priv key from list of users --------------       TAGS: [auth_keys, base_users]
-      users : Fill in authorized_keys to each user of a list ----       TAGS: [auth_keys, base_users]
-      gitcfg : Grant repodir permissions to git user -------------      TAGS: [git_config]
-      gitcfg : Create some git projects on server ----------------      TAGS: [git_config]
-      phpcfg : Set composer packs if required (PHP) --------------      TAGS: [php_config]
-      phpcfg : Composer create-project using command line --------      TAGS: [php_config]
-      python : Install local python dependencies via pip ---------      TAGS: [python_config]
-      SSLcrt : Generate private key for account and csr ----------      TAGS: [acme_account, ssl_certificate]
-      SSLcrt : Create local CSR certificate ----------------------      TAGS: [ssl_certificate]
-      SSLcrt : Create ACME account with respective email ---------      TAGS: [acme_account, ssl_certificate]
-      SSLcrt : Create certificate - 1st step challenge -----------      TAGS: [ssl_certificate]
-      SSLcrt : Create directory structure for challenge ----------      TAGS: [ssl_certificate]
-      SSLcrt : Copy resource to web site to complete the 2nd step       TAGS: [ssl_certificate]
-      SSLcrt : Create certificate - 2nd step challenge -get certs-      TAGS: [ssl_certificate]
-      SSLcrt : Copy new cert and key to web server's place -------      TAGS: [ssl_certificate, test2]
-      SSLcrt : Download cert and key files if needed -------------      TAGS: [key_cert_copy_only, ssl_certificate, test2]
-      DB_adm : Create DBs on respective hosts --------------------      TAGS: [create_databases, databases]
-      DB_adm : Grant user privileges in DBs ----------------------      TAGS: [databases, grant_privileges]
-      Drupal : Download Drupal using drush pm-download (dl) ------      TAGS: [drupal_site]
-      Drupal : Download and extract civiCRM ----------------------      TAGS: [drupal_site]
-      Drupal : Install Drupal site using drush site-install (si) -      TAGS: [drupal_site]
-      Drupal : Install CiviCRM module with drush civicrm-install -      TAGS: [drupal_site]
-      Drupal : Enable some modules with drush --------------------      TAGS: [drupal_site]
-      Drupal : Run pm-update to update database if necessary -----      TAGS: [drupal_site]
-      finals : Deploy later specific templates -------------------      TAGS: [config_files, deploy_templates]
-      finals : Create later directories and set permissions ------      TAGS: [config_files]
-      finals : Add or change line in config files ----------------      TAGS: [config_files]
-      finals : Ensure services are started and enabled -----------      TAGS: [install_dep_pkg]
+      common : Install python if not installed -------------------	TAGS: [bootstrap_python]
+      common : Update cache and upgrade (may take a time) --------	TAGS: [update_repository]
+      common : Install vary basic packages to run ansible --------	TAGS: [install_dep_pkg]
+      base : Install dependency packages -----------------------	TAGS: [install_dep_pkg]
+      base : Ensure directories dir_file_tmpl_list.types=dir ---	TAGS: [config_files, deploy_templates]
+      base : Remove undesired files (absent in item.types) -----	TAGS: [config_files, deploy_templates]
+      base : Deploy templates dir_file_tmpl_list.types=tmpl ----	TAGS: [config_files, deploy_templates]
+      base : Make proper links dir_file_tmpl_list.types=link ---	TAGS: [config_files]
+      base : Upload some files from a list when action=upload --	TAGS: [config_files, copy_files]
+      base : Restart service after tmpl/file/link change -------	TAGS: [config_files, copy_files]
+      base : Set some ini type files ---------------------------	TAGS: [config_files]
+      base : Configure cron ------------------------------------	TAGS: [cron_config]
+      base : Ensure services are started and enabled -----------	TAGS: [install_dep_pkg]
+      users : Create some general purpose users -----------------	TAGS: [base_users]
+      users : Retrieve priv key from list of users --------------	TAGS: [auth_keys, base_users]
+      users : Fill in authorized_keys to each user of a list ----	TAGS: [auth_keys, base_users]
+      gitcfg : Grant repodir permissions to git user -------------	TAGS: [git_config]
+      gitcfg : Create some git projects on server ----------------	TAGS: [git_config]
+      phpcfg : Set composer packs if required (PHP) --------------	TAGS: [php_config]
+      phpcfg : Composer create-project using command line --------	TAGS: [php_config]
+      python : Install local python dependencies via pip ---------	TAGS: [python_config]
+      SSLcrt : Generate private key for account and csr ----------	TAGS: [acme_account, ssl_certificate]
+      SSLcrt : Create local CSR certificate ----------------------	TAGS: [ssl_certificate]
+      SSLcrt : Create ACME account with respective email ---------	TAGS: [acme_account, ssl_certificate]
+      SSLcrt : Create certificate - 1st step challenge -----------	TAGS: [ssl_certificate]
+      SSLcrt : Create directory structure for challenge ----------	TAGS: [ssl_certificate]
+      SSLcrt : Copy resource to web site to complete the 2nd step	TAGS: [ssl_certificate]
+      SSLcrt : Create certificate - 2nd step challenge -get certs-	TAGS: [ssl_certificate]
+      SSLcrt : Copy new cert and key to web server's place -------	TAGS: [ssl_certificate, test2]
+      SSLcrt : Download cert and key files if needed -------------	TAGS: [key_cert_copy_only, ssl_certificate, test2]
+      DB_adm : Create DBs on respective hosts --------------------	TAGS: [create_databases, databases]
+      DB_adm : Grant user privileges in DBs ----------------------	TAGS: [databases, grant_privileges]
+      Drupal : Download Drupal using drush pm-download (dl) ------	TAGS: [drupal_site]
+      Drupal : Download and extract civiCRM ----------------------	TAGS: [drupal_site]
+      Drupal : Install Drupal site using drush site-install (si) -	TAGS: [drupal_site]
+      Drupal : Install CiviCRM module with drush civicrm-install -	TAGS: [drupal_site]
+      Drupal : Enable some modules with drush --------------------	TAGS: [drupal_site]
+      Drupal : Run pm-update to update database if necessary -----	TAGS: [drupal_site]
+      finals : Deploy later specific templates -------------------	TAGS: [config_files, deploy_templates]
+      finals : Create later directories and set permissions ------	TAGS: [config_files]
+      finals : Add or change line in config files ----------------	TAGS: [config_files]
+      finals : Ensure services are started and enabled -----------	TAGS: [install_dep_pkg]
 ----
 
 The hiphens o minus signs are used just to make the output easier to 
@@ -247,6 +254,7 @@ AWS:
 	20-create.yml
 	30-modify.yml
 	40-delete.yml
+	90-last.yml
 
 base:
 	10-base.yml
@@ -267,32 +275,39 @@ And now the AWS playbook:
 ----
 playbook: AWS.yml
 
-  play #1 (localhost): localhost        TAGS: []
+  play #1 (localhost): localhost	TAGS: []
     tasks:
-      common : Update cache and upgrade (may take a time) --------      TAGS: [update_repository]
-      common : Install vary basic packages to run ansible --------      TAGS: [install_dep_pkg]
-      AWS : Ensure aws config dir ------------- TAGS: [base_config]
-      AWS : Set AWS config ini style file ----- TAGS: [base_config]
-      AWS : Gather default VPC facts ---------- TAGS: [create_aws_instances, create_ec2_instances, create_security_groups, gather_default_vpc]
-      AWS : Ensure base output dir ------------ TAGS: [create_aws_instances, create_ec2_instances, create_security_groups, gather_default_vpc]
-      AWS : Copy default VPC facts ------------ TAGS: [gather_default_vpc]
-      AWS : Gather default subnets ------------ TAGS: [create_aws_instances, create_ec2_instances, create_security_groups, gather_default_vpc]
-      AWS : Copy default subnets facts -------- TAGS: [gather_default_vpc]
-      AWS : Create security groups ------------ TAGS: [change_state_all_ec2_instances, change_state_all_instances, create_aws_instances, create_ec2_instances, create_rds_instances, create_security_groups]
-      AWS : Create EC2 key pairs -------------- TAGS: [create_aws_instances, create_ec2_instances, create_key_pairs, create_rds_instances]
-      AWS : Create EC2 instances -------------- TAGS: [create_aws_instances, create_ec2_instances]
-      AWS : Create RDS instances -------------- TAGS: [create_aws_instances, create_rds_instances]
-      AWS : Reboot RDS instance by name ------- TAGS: [reboot_instance, reboot_rds_instance]
-      AWS : Start/stop EC2 instances by tags -- TAGS: [change_state_ec2_instance, change_state_instance]
-      AWS : Start/stop all EC2 instances ------ TAGS: [change_state_all_ec2_instances, change_state_all_instances]
-      AWS : Delete RDS instance by name ------- TAGS: [delete_aws_instances, delete_rds_instances]
-      AWS : Delete EC2 instances -------------- TAGS: [delete_aws_instances, delete_ec2_instances]
-      AWS : Remove key pair by its name ------- TAGS: [delete_keys]
-      AWS : Copy security groups facts -------- TAGS: [change_state_all_ec2_instances, change_state_all_instances, create_aws_instances, create_ec2_instances, create_rds_instances, create_security_groups]
-      AWS : Gather EC2 instances facts -------- TAGS: [change_state_all_ec2_instances, change_state_all_instances, create_aws_instances, create_ec2_instances, gather_ec2]
-      AWS : Copy EC2 instances facts ---------- TAGS: [change_state_all_ec2_instances, change_state_all_instances, create_aws_instances, create_ec2_instances, gather_ec2]
-      AWS : Copy EC2 instances IP/DNS --------- TAGS: [change_state_all_ec2_instances, change_state_all_instances, create_aws_instances, create_ec2_instances, gather_ec2]
-      AWS : Deploy templates for inventory ---- TAGS: [config_ansible_host_file, config_files]
+      common : Install python if not installed -------------------	TAGS: [bootstrap_python]
+      common : Update cache and upgrade (may take a time) --------	TAGS: [update_repository]
+      common : Install vary basic packages to run ansible --------	TAGS: [install_dep_pkg]
+      AWS : Ensure aws config dir -------------	TAGS: [base_config]
+      AWS : Set AWS config ini style file -----	TAGS: [base_config]
+      AWS : Gather default VPC facts ----------	TAGS: [create_aws_instances, create_ec2_instances, create_security_groups, gather_default_vpc]
+      AWS : Ensure base output dir ------------	TAGS: [create_aws_instances, create_ec2_instances, create_security_groups, gather_default_vpc]
+      AWS : Copy default VPC facts ------------	TAGS: [gather_default_vpc]
+      AWS : Gather default subnets ------------	TAGS: [create_aws_instances, create_ec2_instances, create_security_groups, gather_default_vpc]
+      AWS : Copy default subnets facts --------	TAGS: [gather_default_vpc]
+      AWS : Create security groups ------------	TAGS: [change_state_all_ec2_instances, change_state_all_instances, create_aws_instances, create_ec2_instances, create_rds_instances, create_security_groups]
+      AWS : Create EC2 key pairs --------------	TAGS: [create_aws_instances, create_ec2_instances, create_key_pairs, create_rds_instances]
+      AWS : Create EC2 instances --------------	TAGS: [create_aws_instances, create_ec2_instances]
+      AWS : Create RDS instances --------------	TAGS: [create_aws_instances, create_rds_instances]
+      AWS : Create EFS file systems -----------	TAGS: [create_aws_instances, create_efs_instances]
+      AWS : Reboot RDS instance by name -------	TAGS: [reboot_instance, reboot_rds_instance]
+      AWS : Start/stop EC2 instances by tag ---	TAGS: [change_state_ec2_instance, change_state_instance]
+      AWS : Start/stop all EC2 instances ------	TAGS: [change_state_all_ec2_instances, change_state_all_instances]
+      AWS : Delete RDS instance by name -------	TAGS: [delete_aws_instances, delete_rds_instances]
+      AWS : Delete EC2 instances --------------	TAGS: [delete_aws_instances, delete_ec2_instances]
+      AWS : Remove key pair by its name -------	TAGS: [delete_keys]
+      AWS : Copy security groups facts --------	TAGS: [change_state_all_ec2_instances, change_state_all_instances, create_aws_instances, create_ec2_instances, create_rds_instances, create_security_groups]
+      AWS : Gather EC2 instances facts --------	TAGS: [change_state_all_ec2_instances, change_state_all_instances, create_aws_instances, create_ec2_instances, gather_ec2]
+      AWS : Gather RDS instances facts --------	TAGS: [change_state_all_instances, create_aws_instances, create_rds_instances, gather_rds]
+      AWS : Gather EFS filesystems facts ------	TAGS: [change_state_all_instances, create_aws_instances, create_efs_instances, gather_efs]
+      AWS : Copy EC2 instances facts ----------	TAGS: [change_state_all_ec2_instances, change_state_all_instances, create_aws_instances, create_ec2_instances, gather_ec2]
+      AWS : Copy RDS instances facts ----------	TAGS: [change_state_all_instances, create_aws_instances, create_rds_instances, gather_rds]
+      AWS : Copy EFS filesystems facts --------	TAGS: [change_state_all_instances, create_aws_instances, create_efs_instances, gather_efs]
+      AWS : Copy EC2 instances IP/DNS ---------	TAGS: [change_state_all_ec2_instances, change_state_all_instances, create_aws_instances, create_ec2_instances, gather_ec2]
+      AWS : Copy RDS instances useful data ----	TAGS: [change_state_all_instances, create_aws_instances, create_rds_instances, gather_rds]
+      AWS : Deploy templates for inventory ----	TAGS: [config_ansible_host_file, config_files]
 ----
 
 In roles/AWS/vars/main.yml you may define a list of keys to be
