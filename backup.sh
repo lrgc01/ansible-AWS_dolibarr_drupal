@@ -17,7 +17,7 @@ export DISPLAY_SKIPPED_HOSTS="false"
 
 export ANSIBLE_SSH_ARGS="-C -o ControlMaster=auto -o ControlPersist=60s -F ${SSHCONF}"
 
-export BKPTAG="`date +%Y%m%d`"
+export BKPTAG="`date +%Y%m%d%H%M`"
 
 ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF} bkptag=${BKPTAG}" Backup.yml 
 
