@@ -93,6 +93,24 @@
   register: efs_instance_created
   tags: create_efs_instances, create_aws_instances
 
+################################
+# CloudFront configs
+- name: Create CloudFront edge distrib ----
+  cloudfront_distribution:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ region }}"
+    state: "{{ item.state }}"
+    caller_reference: "{{ item.uniq_caller_ref }}"
+    default_origin_domain_name: "{{ item.domainname }}"
+    enabled: "{{ item.enabled }}"
+    tags: "{{ item.tags | default(omit) }}"
+  loop: "{{ cloudfront_instances }}"
+  when: cloudfront_instances[0] and item.state == "present" and default_subnets is success
+  register: cloudfront_instance_created
+  tags: create_cfn_instances, create_aws_instances
+
+
 #######
 # debug
 #- name: Show debug

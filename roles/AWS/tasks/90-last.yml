@@ -33,6 +33,14 @@
   register: efs_facts
   tags: gather_efs, change_state_all_instances, create_efs_instances, create_aws_instances
 
+- name: Gather CFN instances facts --------
+  cloudfront_facts:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    all_lists: "yes"
+  register: cfn_facts
+  tags: gather_cfn, change_state_all_instances, create_cfn_instances, create_aws_instances
+
 - name: Copy EC2 instances facts ----------
   copy:
     content: "{{ item | to_nice_json }}"
@@ -56,6 +64,14 @@
   loop: "{{ efs_facts.ansible_facts.efs }}"
   when: efs_facts is success
   tags: gather_efs, change_state_all_instances, create_efs_instances, create_aws_instances
+
+- name: Copy CFN filesystems facts --------
+  copy:
+    content: "{{ item | to_nice_json }}"
+    dest: "{{ facts_out_dir }}/cfn-{{ item.Id }}.json"
+  loop: "{{ cfn_facts.ansible_facts.cloudfront.summary.distributions }}"
+  when: cfn_facts is success
+  tags: gather_cfn, change_state_all_instances, create_cfn_instances, create_aws_instances
 
 - name: Copy EC2 instances IP/DNS ---------
   copy:

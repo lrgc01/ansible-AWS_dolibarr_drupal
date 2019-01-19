@@ -8,5 +8,5 @@
     - ../secret/secret.yml
     - ../secret/aws.yml
   roles:
-   - common
+#   - common
    - AWS
