@@ -24,6 +24,7 @@ dep_pkg_list		:
    - { pkg : "php-mcrypt"      }
    - { pkg : "php-apcu"        }
    - { pkg : "php7.0-intl"     }
+   - { pkg : "mysql-client"    }
 #   - { pkg : "composer"		}
 #   - { pkg : "git"		}
 #

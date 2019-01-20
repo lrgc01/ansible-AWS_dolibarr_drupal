@@ -1,0 +1,50 @@
+---
+sql_bkp_cmd         : "mysqldump -u {{ rds_db_admuser }} -h {{ db_instance_hostname }} -p{{ rds_dbadm_pass }} --opt "
+sql_rest_cmd        : "mysql -u {{ rds_db_admuser }} -h {{ db_instance_hostname }} -p{{ rds_dbadm_pass }} "
+#sql_bkp_cmd         : "mysqldump --opt "
+#sql_rest_cmd        : "mysql"
+remote_bkpdir       : "~ubuntu"
+site_docs_bkp       : "site_{{ bkptag }}.tgz"
+DB_bkp     	    : "DB_bkp_{{ bkptag }}.sql.gz"
+local_bkp_dir       : "{{ confdir }}/bkprest"
+bkp_rest_files_list :
+   -  { 
+         local   : "{{ local_bkp_dir }}/{{ site_docs_bkp }}",
+         remote  : "{{ remote_bkpdir }}/{{ site_docs_bkp }}" ,
+         action  : [ "upload", "download" ]
+      }
+   -  { 
+         local   : "{{ local_bkp_dir }}/{{ DB_bkp }}",
+         remote  : "{{ remote_bkpdir }}/{{ DB_bkp }}" ,
+         action  : [ "upload", "download" ]
+      }
+shell_bkpcmd_list   :
+   -  {
+         enabled  : true ,
+         shellcmd : "{{ sql_bkp_cmd }} my_wiki | gzip -c > {{ DB_bkp }}" ,
+         chdir    : "{{ remote_bkpdir }}" ,
+         creates  : "{{ DB_bkp }}"
+      }
+   -  {
+         enabled  : true ,
+         shellcmd : "tar -czf {{ site_docs_bkp }} /var/lib/mediawiki" ,
+         chdir    : "{{ remote_bkpdir }}" ,
+         creates  : "{{ site_docs_bkp }}"
+      }
+# used only for mysql
+shell_restorecmd_list   :
+   -  {
+         enabled  : false ,
+         shellcmd : "gunzip -c {{ DB_bkp }} | {{ sql_rest_cmd }} my_wiki ; touch sql.restored" ,
+         chdir    : "{{ remote_bkpdir }}" ,
+         creates  : "sql.restored"
+      }
+# restore with tar goes here
+unarchive_bkps    :
+   -  {
+         enabled    : false ,
+         src        : "{{ remote_bkpdir }}/{{ site_docs_bkp }}" ,
+         dest       : "/" ,
+         remote_src : "yes",
+         creates    : "/var/lib/mediawiki/index.php"
+      }
