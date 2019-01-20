@@ -1,0 +1,146 @@
+---
+# General
+region                    : "us-east-2"
+vpc_id		          : ""
+#
+# AWS ini $HOME file configuration
+#
+aws_homedir		: "~/.aws"
+aws_ini_pairs           :
+   - { file : "{{ aws_homedir }}/config" , section : "default" , option : "region" , value : "{{ region }}" }
+my_templates		  :
+   - {
+       src  : "host_inventory.j2",
+       dest : "{{ basedir }}/hosts"
+     }
+   - {
+       src  : "ssh_config.j2",
+       dest : "{{ sshconf }}"
+     }
+   - {
+       src  : "cloudfront_params.j2",
+       dest : "{{ confdir }}/cloudfront.params"
+     }
+
+# For DB instances:
+# Its name seems to be the idempotent factor
+db_sg_name                : "mysql"
+rds_instances_by_name     :
+   - {
+       tags      : { Environment: "vanhack test",  Application: "mediawiki" },
+       type      : "db.t2.micro",
+       name      : "mediawikidb",
+       engine    : "mariadb",
+       size      : "20",
+       sg_name   : "{{ db_sg_name }}",
+       username  : "{{ rds_db_admuser }}",
+       password  : "{{ rds_dbadm_pass }}"
+     }
+
+# For servers instances
+srv_instance_type         : "t2.micro"
+srv_sg_name               : "website-sg"
+win_sg_name               : "rdp"
+winkey			  : "Ohio-win-key"
+linuxkey		  : "Ohio-linux-key"
+# all_ec2_instances_state should be undefined to change the state by tag 
+#all_ec2_instances_state   : "stopped"
+
+############################
+# ATTENTION to DELETION
+# Double check:
+# To delete an ec2|rds|key instance|pair, really_delete_* must be sent to 
+# yes/true (no quotes) besides ec2|rds_instance_ids_to_delete 
+# (key_to_remove_by_name) defined.
+# DON'T FORGET TO DISABLE REMOVAL AFTER!!!
+really_delete_ec2	  : false
+#ec2_instance_ids_to_delete: [ "i-019320ed3a180883a" ]
+really_delete_keys        : false
+#keys_to_remove_by_name    : [ "win-key", "compucorp-key" ]
+really_delete_rds	  : false
+#db_instance_name_to_delete: [ "drupalinstance" ]
+
+security_group_list       :
+   - { 
+       name        : "{{ db_sg_name }}",
+       description : "Access to mysql port 3306",
+       rules       :  [ { proto: "tcp",  ports: "3306",  cidr_ip: "0.0.0.0/0" } ]
+     }
+   - { 
+       name        : "{{ srv_sg_name }}",
+       description : "Website access and administration",
+       rules       :  [ 
+                       { proto: "tcp",  ports: "22",  cidr_ip: "0.0.0.0/0" } ,
+                       { proto: "tcp",  ports: "80",  cidr_ip: "0.0.0.0/0" } ,
+                       { proto: "tcp",  ports: "443",  cidr_ip: "0.0.0.0/0" } 
+                      ]
+     }
+   - {
+       name        : "{{ win_sg_name }}",
+       description : "Access to windows port 3389",
+       rules       :  [ { proto: "tcp",  ports: "3389",  cidr_ip: "0.0.0.0/0" } ]
+     }
+
+key_pair_list             :
+   - { 
+       name        : "{{ linuxkey }}"
+     }
+   - { 
+       name        : "{{ winkey }}"
+     }
+
+#
+# If you delete/terminate an instance and keep its name in the list below (unless 
+# with state absent), the instances|sg|keys will be recriated in next call 
+# to the playbook.
+# id: is the idempotent factor and in our task is built using the formula below:
+# "{{ region + '_' + item.tags.Name + '_' + item.type + '_' + item.image }}"
+# Where 'item' is one element from the ec2_instances list defined here.
+# states available: running, stopped, rebooted
+#
+# To create new use "present" only
+#
+# 'image' must be looked for in amazon AMI inventory
+# old-      image     : "ami-6b3fd60c",
+# jan 2019 	      : "ami-0653e888ec96eab9b"
+#
+# Name is used to fetch facts to local ansible server.
+# Group is used in "hosts" inventory file - must have no spaces.
+ec2_instances             : 
+   - { 
+       tags      : { Name : "server1" , Group : "webservers" }, 
+       state     : "stopped",
+       SG_name   : [ "default" , "{{ srv_sg_name }}" ], 
+       type      : "{{ srv_instance_type }}",
+       image     : "ami-0782e9ee97725263d",
+       key_name  : "{{ linuxkey }}"
+     }
+   - { 
+       tags      : { Name : "server3" , Group : "vanhack_test" }, 
+       state     : "running",
+       SG_name   : [ "default" , "{{ srv_sg_name }}" ], 
+       type      : "{{ srv_instance_type }}",
+       image     : "ami-0653e888ec96eab9b",
+       key_name  : "{{ linuxkey }}"
+     }
+
+# EFS instances
+efs_instances    :
+   - {
+       state     : "present" ,
+       name      : "website_efs" ,
+       tags      : { Name: "website_efs" , Group: "webservers" }
+     }
+
+# CloudFront instances (CFN)
+cfn_domain1      : "dogshearing.uk.to"
+cloudfront_instances :
+   - {
+       enabled        : "yes" ,
+       state          : "present" ,
+       domainname     : "{{ cfn_domain1 }}" ,
+       uniq_caller_ref: "my uniq domain {{ cfn_domain1 }}" ,
+       distribution_id: "IDDOM1" ,
+       origin_id      : "20190119{{ cfn_domain1 }}" ,
+       tags           : { Name: "{{ cfn_domain1 }} CFN" , Group: "webservers" , Project: "VanHack Irish challenge" }
+     }

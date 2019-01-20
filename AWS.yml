@@ -6,7 +6,7 @@
 # file not given
   vars_files: 
     - ../secret/secret.yml
-    - ../secret/aws.yml
+    - vars_files/aws.yml
   roles:
 #   - common
    - AWS

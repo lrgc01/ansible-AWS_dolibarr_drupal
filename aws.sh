@@ -46,8 +46,8 @@ export BASEDIR CONFDIR SSHCONF FACTSDIR
 export DISPLAY_SKIPPED_HOSTS="false"
 
 # First check base local pre-requisites, but becoming root with password:
-echo "Local sudo to install local base requirements (may comment line after first run)"
-#ansible-playbook -i hosts --ask-become-pass base_AWS.yml
+####echo "Local sudo to install local base requirements (may comment line after first run)"
+####ansible-playbook -i hosts --ask-become-pass base_AWS.yml
 # can comment the line after first successfull run
 
 # Some usefull tags to pass with --tags or skip with --skip-tags
@@ -65,6 +65,8 @@ echo "Local sudo to install local base requirements (may comment line after firs
 # The rest of AWS stuff may work with a local non-root user
 #ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF} facts_out_dir=${FACTSDIR}" --tags "gather_cfn" AWS.yml
 #ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF} facts_out_dir=${FACTSDIR}" --tags "create_key_pairs" AWS.yml
-ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF} facts_out_dir=${FACTSDIR}" --skip-tags "bootstrap_python" AWS.yml
+#ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF} facts_out_dir=${FACTSDIR}" --tags "create_key_pairs" AWS.yml
+#ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF} facts_out_dir=${FACTSDIR}" --skip-tags "bootstrap_python" AWS.yml
+ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF} facts_out_dir=${FACTSDIR}" AWS.yml
 
 rm -f *.retry

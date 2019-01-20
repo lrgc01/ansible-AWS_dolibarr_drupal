@@ -5,8 +5,11 @@
 # The workaround is to let append_privs=true so that 
 # such kind of priviledge added stay around.
 # 'db_list[*].dbcreate' switches one entry on/off
+rds_db_admuser : "admin"
+rds_dbadm_pass : "Admin1234"
 db_list                 :
    -  {
+        dbcreate     : false ,
         admuser      : "root" ,
         admpass      : '' ,
         host         : "localhost",
@@ -16,19 +19,18 @@ db_list                 :
         encoding     : "utf8mb4" ,
         collation    : "utf8mb4_general_ci" ,
         perms        : "myinstance.*:SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES/myinstance2.*:SELECT",
-        append_privs : true ,
-        dbcreate     : true
+        append_privs : true 
       }
    -  {
-        admuser      : "root" ,
-        admpass      : '' ,
-        host         : "localhost",
-        user         : "dbuser2" ,
-        pass         : "dbusepass2" ,
-        dbname       : "myinstance2" ,
+        dbcreate     : true ,
+        admuser      : "{{ rds_db_admuser }}" ,
+        admpass      : "{{ rds_dbadm_pass }}" ,
+        host         : "{{ db_instance_hostname }}",
+        user         : "mediawiki" ,
+        pass         : "dbuserpass123" ,
+        dbname       : "my_wiki" ,
         encoding     : "utf8mb4" ,
         collation    : "utf8mb4_general_ci" ,
-        perms        : "myinstance2.*:SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES,TRIGGER,CREATE ROUTINE,ALTER ROUTINE,REFERENCES",
-        append_privs : true ,
-        dbcreate     : true
+        perms        : "my_wiki.*:ALL",
+        append_privs : true 
       }

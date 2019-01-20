@@ -14,8 +14,18 @@ web_service             : "nginx"                                       # will b
 # enabled and state defaults to true and started respectively.
 dep_pkg_list		:
    - { pkg : "{{ web_service }}" ,  srv : "{{ web_service }}" , state : "started" , enabled : true }
-   - { pkg : "composer"		}
-   - { pkg : "git"		}
+   - { pkg : "php"               ,  srv : "php7.0-fpm"        , state : "started" , enabled : true }
+   - { pkg : "php-mysql"       }
+   - { pkg : "php-gd"          }
+   - { pkg : "php-json"        }
+   - { pkg : "php-curl"        }
+   - { pkg : "php-mbstring"    }
+   - { pkg : "php-xml"         }
+   - { pkg : "php-mcrypt"      }
+   - { pkg : "php-apcu"        }
+   - { pkg : "php7.0-intl"     }
+#   - { pkg : "composer"		}
+#   - { pkg : "git"		}
 #
 # dir, file, template or link, depending on key values
 #
@@ -31,11 +41,16 @@ dep_pkg_list		:
 # If mode not present, it will default to 0644
 # Note that one line may be used to multiple goals as defined in types.
 dir_file_tmpl_list     :
+   - { types : [ "dir" ]          , dest : "/var/lib/mediawiki" }
+   - { types : [ "dir" , "link" ] , src  : "/var/lib"                   , dest : "/var/nginx/html" , name : "mediawiki" }
+   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/sites-available" , name : "nginx-default" }
+   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "nginx-default" }
    - { types : [ "absent" ]       , dest : "/etc/nginx/sites-enabled/default" }
-   - { types : [ "tmpl" ]         , dest : "~ubuntu"                    , name : "updatedns.sh" , mode : "0755" }
-   - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "{{ domain2 }}-cert.conf"  , srv : "{{ web_service }}" }
-   - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ domain2 }}.conf"       , srv : "{{ web_service }}" }
-   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "{{ domain2 }}.conf" }
+   - { types : [ "tmpl" ]         , dest : "/var/lib/mediawiki" , name : "LocalSettings.php" }
+#   - { types : [ "tmpl" ]         , dest : "~ubuntu"                    , name : "updatedns.sh" , mode : "0755" }
+#   - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "{{ domain2 }}-cert.conf"  , srv : "{{ web_service }}" }
+#   - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ domain2 }}.conf"       , srv : "{{ web_service }}" }
+#   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "{{ domain2 }}.conf" }
 
 #   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/sites-available" , name : "Drupal-site" }
 #   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/snippets"        , name : "drupalcert.conf" }
@@ -45,22 +60,34 @@ dir_file_tmpl_list     :
 # INI file configuration (php and others)
 #
 ini_file_list           :
-   - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "allow_url_fopen" , value : "Off" }
-   - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "memory_limit"    , value : "64M" }
+   - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "memory_limit"    , value : "128M" }
 #
 # Cron
 #
 cron_list	:
-   - { name: "Update domain" , minute: "*/5" , job: "~ubuntu/updatedns.sh"  , user: "ubuntu" , state: "present" }
+   - false
+#   - { name: "Update domain" , minute: "*/5" , job: "~ubuntu/updatedns.sh"  , user: "ubuntu" , state: "present" }
 
 # Define local and remote files both for upload (copy)
 # and download (fetch).
 # Action is mandatory (same idea of types in dir_file_tmpl_list above).
 # action = list of upload or download or both
 up_down_files_list :
-   -  { 
-        local  : "{{ confdir }}/drupal.key",
-        remote : "/etc/ssl/private/drupal.key" ,
-        action : [ "upload", "download" ]
-      }
+   - false
+#   - { 
+#        local  : "{{ confdir }}/drupal.key",
+#        remote : "/etc/ssl/private/drupal.key" ,
+#        action : [ "upload", "download" ]
+#     }
 
+# List of tar/zip balls to unarchive to specific places.
+# Must define what it creates to be idempotent.
+unarchive_list  :
+   - {
+        src         : "https://releases.wikimedia.org/mediawiki/1.32/mediawiki-1.32.0.tar.gz" ,
+        dest        : "/var/lib/mediawiki" ,
+        creates     : "/var/lib/mediawiki/index.php" ,
+        owner       : "root" ,
+        group       : "root" ,
+        remote_src  : true
+     }

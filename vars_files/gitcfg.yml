@@ -3,9 +3,9 @@
 #
 # For git
 #
-#git_repodir	: false
-git_repodir             : "/repos"
-git_user                : "git"
+git_repodir	: false
+#git_repodir             : "/repos"
+#git_user                : "git"
 #
 # DEFINED in users
 #-----------------
@@ -13,6 +13,7 @@ git_user                : "git"
 #   - { localkeyfile     : "conf.d/john_pub_key" , remoteuser : "{{ git_user }}" }
 #   - { localkeyfile     : "conf.d/nono_pub_key" , remoteuser : "{{ git_user }}" }
 project_list            :
-   - "drupal.git"
-   - "dolibarr.git"
+   - false
+#   - "drupal.git"
+#   - "dolibarr.git"
 

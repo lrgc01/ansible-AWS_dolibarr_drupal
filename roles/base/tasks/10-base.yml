@@ -13,7 +13,7 @@
     path: "{{ item.dest }}" 
     state: "directory"
   loop: "{{ dir_file_tmpl_list }}"
-  when: 'dir_file_tmpl_list[0] and "dir" in item.types'
+  when: dir_file_tmpl_list[0] and "dir" in item.types
   register: directories_in_place
   tags: config_files, deploy_templates
 

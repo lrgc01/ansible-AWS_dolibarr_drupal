@@ -1,0 +1,53 @@
+---
+# Base example yml var file
+#
+# Our web server definitions
+#
+www_basedir             : "/var/www"
+www_htmldir             : "{{ www_basedir }}/html"
+www_username            : "www-data"
+web_service             : "nginx"                                       # will be used more than once later
+
+dolibarr_base 		: "dolibarr-base"
+dolibarr_privdir        : "{{ www_basedir }}/private/dolibarr/documents"
+dolibarr_rootdir	: "{{ www_basedir }}/{{ dolibarr_base }}/htdocs"
+#
+# Will be used mainly with SSL certificate role
+#
+key_base_path           : "/etc/ssl/private"
+cert_base_path          : "/etc/ssl/certs"
+domain1                 : "lrgc01.uk.to"
+domain2                 : "dogshearing.uk.to"
+cert_name_prefix        : "stg-letsencrypt"
+cert_name_prefix2       : "pro-{{ domain2 }}"
+production_account_key  : "pro2-letsencrypt-account-key.key"
+staging_account_key     : "stg-letsencrypt-account-key.key"
+domain2_rootdir         : "{{ dolibarr_rootdir }}"
+#
+# User administration
+#
+drupaladm_user          : "drupaladm"
+siteadm_user            : "siteadm"
+git_user                : "git"
+# For git
+#
+#git_repodir    : false
+git_repodir             : "/repos"
+
+# To AWS instances
+#db_instance_hostname : "websiteinstance.ctxnidj2utoz.us-east-2.rds.amazonaws.com"
+db_instance_hostname : "mediawikidb.ctxnidj2utoz.us-east-2.rds.amazonaws.com"
+
+#
+# Specific for Drupal / civicrm
+#
+drupal_version          : "drupal-7"
+drupal_basename         : "Drupal-site"
+drupal_site_rootdir     : "{{ www_basedir }}/{{ drupal_basename }}"
+#
+
+# These below are used with remote ansible python script and once installed it's better not remove them
+base_dep_pkg_list:
+   - { pkg : "python-mysqldb"  }
+   - { pkg : "python-openssl"  }
+

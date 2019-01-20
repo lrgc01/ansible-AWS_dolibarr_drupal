@@ -1,28 +1,17 @@
 ---
-- hosts: webservers
+- hosts: vanhack_test
   gather_facts: "{{ gather_y_n }}"
   become: true
   remote_user: "ubuntu"
   vars_files:
-   - ../secret/aws.yml
-   - ../secret/general.yml
-   - ../secret/base.yml
-   - ../secret/users.yml
-   - ../secret/gitcfg.yml
-   - ../secret/phpcfg.yml
-   - ../secret/python.yml
-   - ../secret/sslcrt.yml
-   - ../secret/db_adm.yml
-   - ../secret/drupal.yml
-   - ../secret/finals.yml
-   - ../secret/secret.yml
-#   - vars_files/base.yml
-#   - vars_files/users.yml
-#   - vars_files/gitcfg.yml
-#   - vars_files/phpcfg.yml
-#   - vars_files/python.yml
+   - vars_files/general.yml
+   - vars_files/base.yml
+   - vars_files/users.yml
+   - vars_files/gitcfg.yml
+   - vars_files/phpcfg.yml
+   - vars_files/python.yml
 #   - vars_files/sslcrt.yml
-#   - vars_files/db_adm.yml
+   - vars_files/db_adm.yml
   roles:
    - common
    - base
@@ -30,7 +19,7 @@
    - gitcfg
    - phpcfg
    - python
-   - SSLcrt
+#   - SSLcrt
    - DB_adm
-   - Drupal
-   - finals
+#   - Drupal
+#   - finals
