@@ -28,7 +28,7 @@
 
 - name: Deploy templates dir_file_tmpl_list.types=tmpl ----
   template:
-    src: "{{ item.src | default(item.name) + '.j2' }}"
+    src: "{{ item.name + '.j2' }}"
     dest: "{{ item.dest }}/{{ item.name }}"
     mode: "{{ item.mode | default('0644') }}"
   loop: "{{ dir_file_tmpl_list }}"
@@ -38,9 +38,10 @@
 
 - name: Make proper links dir_file_tmpl_list.types=link ---
   file:
-    src: "{{ item.src }}/{{ item.name }}"
-    dest: "{{ item.dest }}/{{ item.name }}"
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
     state: link
+    force: "{{ item.force | default('no') }}"
   loop: "{{ dir_file_tmpl_list }}"
   when: dir_file_tmpl_list[0] and removed_files is success and templates_in_place is success and "link" in item.types
   register: links_in_place

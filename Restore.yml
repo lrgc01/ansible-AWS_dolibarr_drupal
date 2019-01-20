@@ -12,3 +12,15 @@
    - ../secret/secret.yml
   roles:
    - Restore
+
+- hosts: vanhack_test
+  gather_facts: "{{ gather_y_n }}"
+  become: true
+  remote_user: "ubuntu"
+  vars_files:
+   - vars_files/general.yml
+   - vars_files/base.yml
+   - vars_files/db_adm.yml
+   - vars_files/bkprest.yml
+  roles:
+   - Restore

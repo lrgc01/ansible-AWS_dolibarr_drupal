@@ -19,6 +19,11 @@ export ANSIBLE_SSH_ARGS="-C -o ControlMaster=auto -o ControlPersist=60s -F ${SSH
 
 export BKPTAG="`date +%Y%m%d%H%M`"
 
+# From common: (these first two must be called when python is missing)
+#  - install_dep_pkg
+#  - bootstrap_python
+#  - update_repository
+
 ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF} bkptag=${BKPTAG}" Restore.yml 
 
 rm -f *.retry

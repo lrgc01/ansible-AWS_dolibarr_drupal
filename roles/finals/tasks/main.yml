@@ -21,7 +21,7 @@
     recurse: "{{ item.recurse | default(omit) }}"
   loop: "{{ later_dirs_config_list }}"
   when: item.enabled
-  register: later_files_adjusted
+  register: later_dirs_done
   tags: config_files
 
 - name: Add or change line in config files ----------------

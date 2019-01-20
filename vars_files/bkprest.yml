@@ -4,19 +4,32 @@ sql_rest_cmd        : "mysql -u {{ rds_db_admuser }} -h {{ db_instance_hostname 
 #sql_bkp_cmd         : "mysqldump --opt "
 #sql_rest_cmd        : "mysql"
 remote_bkpdir       : "~ubuntu"
+# bkptag is a variable from command line
 site_docs_bkp       : "site_{{ bkptag }}.tgz"
 DB_bkp     	    : "DB_bkp_{{ bkptag }}.sql.gz"
 local_bkp_dir       : "{{ confdir }}/bkprest"
+DB_rest		    : "DB_restore.sql.gz"
+site_rest	    : "site_restore.tgz"
 bkp_rest_files_list :
    -  { 
          local   : "{{ local_bkp_dir }}/{{ site_docs_bkp }}",
          remote  : "{{ remote_bkpdir }}/{{ site_docs_bkp }}" ,
-         action  : [ "upload", "download" ]
+         action  : [ "download" ]
       }
    -  { 
          local   : "{{ local_bkp_dir }}/{{ DB_bkp }}",
          remote  : "{{ remote_bkpdir }}/{{ DB_bkp }}" ,
-         action  : [ "upload", "download" ]
+         action  : [ "download" ]
+      }
+   -  {
+         local   : "{{ local_bkp_dir }}/{{ site_rest }}" ,
+         remote  : "{{ remote_bkpdir }}/{{ site_rest }}" ,
+         action  : [ "upload" ]
+      }
+   -  { 
+         local   : "{{ local_bkp_dir }}/{{ DB_rest }}",
+         remote  : "{{ remote_bkpdir }}/{{ DB_rest }}" ,
+         action  : [ "upload" ]
       }
 shell_bkpcmd_list   :
    -  {
@@ -27,24 +40,24 @@ shell_bkpcmd_list   :
       }
    -  {
          enabled  : true ,
-         shellcmd : "tar -czf {{ site_docs_bkp }} /var/lib/mediawiki" ,
+         shellcmd : "tar -czf {{ site_docs_bkp }} /var/lib/mediawiki/LocalSettings.php" ,
          chdir    : "{{ remote_bkpdir }}" ,
          creates  : "{{ site_docs_bkp }}"
       }
 # used only for mysql
 shell_restorecmd_list   :
    -  {
-         enabled  : false ,
-         shellcmd : "gunzip -c {{ DB_bkp }} | {{ sql_rest_cmd }} my_wiki ; touch sql.restored" ,
+         enabled  : true ,
+         shellcmd : "gunzip -c {{ DB_rest }} | {{ sql_rest_cmd }} my_wiki ; touch sql.restored" ,
          chdir    : "{{ remote_bkpdir }}" ,
          creates  : "sql.restored"
       }
 # restore with tar goes here
 unarchive_bkps    :
    -  {
-         enabled    : false ,
-         src        : "{{ remote_bkpdir }}/{{ site_docs_bkp }}" ,
+         enabled    : true ,
+         src        : "{{ remote_bkpdir }}/{{ site_rest }}" ,
          dest       : "/" ,
          remote_src : "yes",
-         creates    : "/var/lib/mediawiki/index.php"
+         creates    : "/var/lib/mediawiki/LocalSettings.php"
       }

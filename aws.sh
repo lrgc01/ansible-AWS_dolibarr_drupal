@@ -51,7 +51,6 @@ export DISPLAY_SKIPPED_HOSTS="false"
 # can comment the line after first successfull run
 
 # Some usefull tags to pass with --tags or skip with --skip-tags
-#  - bootstrap_python
 #  - base_config
 #  - gather_default_vpc
 #  - create_key_pairs
@@ -61,12 +60,13 @@ export DISPLAY_SKIPPED_HOSTS="false"
 #  - create_rds_instances
 #  - change_state_all_ec2_instances
 #  - change_state_all_instances
+#
+
 
 # The rest of AWS stuff may work with a local non-root user
 #ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF} facts_out_dir=${FACTSDIR}" --tags "gather_cfn" AWS.yml
 #ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF} facts_out_dir=${FACTSDIR}" --tags "create_key_pairs" AWS.yml
 #ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF} facts_out_dir=${FACTSDIR}" --tags "create_key_pairs" AWS.yml
-#ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF} facts_out_dir=${FACTSDIR}" --skip-tags "bootstrap_python" AWS.yml
 ansible-playbook -i hosts --extra-vars "gather_y_n=false basedir=${BASEDIR} confdir=${CONFDIR} sshconf=${SSHCONF} facts_out_dir=${FACTSDIR}" AWS.yml
 
 rm -f *.retry

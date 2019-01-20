@@ -8,6 +8,8 @@ www_htmldir             : "{{ www_basedir }}/html"
 www_username            : "www-data"
 web_service             : "nginx"                                       # will be used more than once later
 #
+# Mediawiki source path (current version)
+mediawiki_ver 		: "mediawiki-1.32.0"
 # General package and service hash list
 #
 # If a packet has a service associate it should be listed with srv, state and enabled.
@@ -35,27 +37,26 @@ dep_pkg_list		:
 # This dir_file_tmpl_list dict var will be used in 4 different tasks, one of 
 # each type: tmpl, dir, link and file.
 #
-# For template, the name will be appended to dest dir. If src exists it will use, otherwise, only name.j2.
-# For dir, the src doesn't make sense, neither name.
-# For link, src and dest are mandatory and will always have name appended to them.
-# Files may removed with absent.
 # If mode not present, it will default to 0644
 # Note that one line may be used to multiple goals as defined in types.
+# "dir" uses dest only
+# "link" uses src and dest: ln -s src dest (force=yes => ln -s -f)
+# "tmpl" uses name and dest: name.j2 -> dest/name
+# "absent" uses dest to remove files
 dir_file_tmpl_list     :
-   - { types : [ "dir" ]          , dest : "/var/lib/mediawiki" }
-   - { types : [ "dir" , "link" ] , src  : "/var/lib"                   , dest : "/var/nginx/html" , name : "mediawiki" }
+   - { types : [ "dir" , "tmpl" ] , dest : "/var/lib/mediawiki/{{ mediawiki_ver }}" , name : "LocalSettings.php" }
+   - { types : [ "link" ]         , src  : "/var/lib/mediawiki/{{ mediawiki_ver }}" , dest : "/var/www/html/mediawiki" , force : "yes" }
    - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/sites-available" , name : "nginx-default" }
-   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "nginx-default" }
+   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/nginx-default" , dest : "/etc/nginx/sites-enabled/nginx-default" }
    - { types : [ "absent" ]       , dest : "/etc/nginx/sites-enabled/default" }
-   - { types : [ "tmpl" ]         , dest : "/var/lib/mediawiki" , name : "LocalSettings.php" }
 #   - { types : [ "tmpl" ]         , dest : "~ubuntu"                    , name : "updatedns.sh" , mode : "0755" }
 #   - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "{{ domain2 }}-cert.conf"  , srv : "{{ web_service }}" }
 #   - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ domain2 }}.conf"       , srv : "{{ web_service }}" }
-#   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "{{ domain2 }}.conf" }
+#   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/{{ domain2 }}.conf" , dest : "/etc/nginx/sites-enabled" }
 
 #   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/sites-available" , name : "Drupal-site" }
 #   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/snippets"        , name : "drupalcert.conf" }
-#   - { types : [ "dir" , "link" ] , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "Drupal-site" }
+#   - { types : [ "dir" , "link" ] , src  : "/etc/nginx/sites-available/Drupal-site" , dest : "/etc/nginx/sites-enabled" }
 
 #
 # INI file configuration (php and others)
@@ -87,7 +88,7 @@ unarchive_list  :
    - {
         src         : "https://releases.wikimedia.org/mediawiki/1.32/mediawiki-1.32.0.tar.gz" ,
         dest        : "/var/lib/mediawiki" ,
-        creates     : "/var/lib/mediawiki/index.php" ,
+        creates     : "/var/lib/mediawiki/{{ mediawiki_ver }}/index.php" ,
         owner       : "root" ,
         group       : "root" ,
         remote_src  : true

@@ -8,5 +8,4 @@
     - ../secret/secret.yml
     - vars_files/aws.yml
   roles:
-#   - common
    - AWS

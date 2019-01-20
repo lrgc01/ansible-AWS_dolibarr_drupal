@@ -1,0 +1,10 @@
+---
+#
+# Removal specific: when purging everything
+#
+base_file_dir_remove_list     :
+   - "/var/lib/mediawiki"
+   - "{{ www_basedir }}/html/mediawiki"
+file_dir_remove_list     :
+   - "/etc/nginx/"
+
