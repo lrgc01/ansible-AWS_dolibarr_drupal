@@ -115,7 +115,7 @@
   #loop: "{{ cloudfront_instances }}"
   #when: cloudfront_instances[0] and default_subnets is success
   # When variables are defined and facts returned no list
-  when: cloudfront_instances[0] is defined and not (cfn_facts.ansible_facts.cloudfront.summary.distributions[0] is defined)
+  when: cloudfront_instances[0].enabled and not (cfn_facts.ansible_facts.cloudfront.summary.distributions[0] is defined)
   register: cloudfront_instance_created
   tags: create_cfn_instances, create_aws_instances
 

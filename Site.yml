@@ -4,25 +4,14 @@
   become: true
   remote_user: "ubuntu"
   vars_files:
-   - ../secret/aws.yml
-   - ../secret/general.yml
-   - ../secret/base.yml
-   - ../secret/users.yml
-   - ../secret/gitcfg.yml
-   - ../secret/phpcfg.yml
-   - ../secret/python.yml
-   - ../secret/sslcrt.yml
-   - ../secret/db_adm.yml
-   - ../secret/drupal.yml
-   - ../secret/finals.yml
    - ../secret/secret.yml
   roles:
    - common
+   - python
    - base
    - users
    - gitcfg
    - phpcfg
-   - python
    - SSLcrt
    - DB_adm
    - Drupal
@@ -42,10 +31,10 @@
    - vars_files/db_adm.yml
   roles:
    - common
+   - python
    - base
    - users
    - gitcfg
    - phpcfg
-   - python
    - DB_adm
 #   - finals

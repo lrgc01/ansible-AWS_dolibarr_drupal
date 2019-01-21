@@ -6,7 +6,7 @@
   template:
     src: "{{ item.name }}.j2"
     dest: "{{ item.dest }}/{{ item.name }}"
-  loop: "{{ later_file_descriptor_list }}"
+  loop: "{{ later_dir_file_tmpl_list }}"
   when: item.enabled and "tmpl" in item.types
   register: later_templates_in_place
   tags: config_files, deploy_templates
@@ -46,3 +46,12 @@
   loop: "{{ dep_pkg_list }}"
   when: item.srv is defined and dep_pkg_installed is changed
   tags: install_dep_pkg
+
+- name: Restart service after later tmpl/file/link change -
+  service:
+    name: "{{ item.item.srv }}"
+    state: "restarted"    
+    enabled: true
+  loop: "{{ later_templates_in_place.results }} + {{ later_lineinfile_done.results }}"
+  when: (templates_in_place is changed or later_lineinfile_done is changed) and item is changed and item.item.srv is defined
+  tags: config_files

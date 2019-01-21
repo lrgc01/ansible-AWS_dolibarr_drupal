@@ -1,6 +1,0 @@
-#jinja2:lstrip_blocks: True
-{% if cfn_facts.ansible_facts.cloudfront.summary.distributions[0] is defined %}
-DomainName = {{ cfn_facts.ansible_facts.cloudfront.summary.distributions[0].DomainName }}
-ETag = {{ cfn_facts.ansible_facts.cloudfront.summary.distributions[0].ETag }}
-Id = {{ cfn_facts.ansible_facts.cloudfront.summary.distributions[0].Id }}
-{% endif %}

@@ -27,9 +27,9 @@ my_templates		  :
 db_sg_name                : "mysql"
 rds_instances_by_name     :
    - {
-       tags      : { Environment: "vanhack test",  Application: "mediawiki" },
+       tags      : { Environment: "Dogshearing",  Application: "dolibarr" },
        type      : "db.t2.micro",
-       name      : "mediawikidb",
+       name      : "websiteinstance",
        engine    : "mariadb",
        size      : "20",
        sg_name   : "{{ db_sg_name }}",
@@ -102,10 +102,7 @@ key_pair_list             :
 #
 # 'image' must be looked for in amazon AMI inventory
 # old-      image     : "ami-6b3fd60c",
-# jan 2019 	      : "ami-0653e888ec96eab9b"
 #
-# Name is used to fetch facts to local ansible server.
-# Group is used in "hosts" inventory file - must have no spaces.
 ec2_instances             : 
    - { 
        tags      : { Name : "server1" , Group : "webservers" }, 
@@ -133,14 +130,14 @@ efs_instances    :
      }
 
 # CloudFront instances (CFN)
-cfn_domain1      : "dogshearing.uk.to"
+cfn_domain1      : "lrgc01.uk.to"
 cloudfront_instances :
    - {
-       enabled        : "yes" ,
+       enabled        : false ,
        state          : "present" ,
        domainname     : "{{ cfn_domain1 }}" ,
        uniq_caller_ref: "my uniq domain {{ cfn_domain1 }}" ,
        distribution_id: "IDDOM1" ,
        origin_id      : "20190119{{ cfn_domain1 }}" ,
-       tags           : { Name: "{{ cfn_domain1 }} CFN" , Group: "webservers" , Project: "VanHack Irish challenge" }
+       tags           : { Name: "{{ cfn_domain1 }} CFN" , Group: "webservers" , Project: "Personal multiple site" }
      }

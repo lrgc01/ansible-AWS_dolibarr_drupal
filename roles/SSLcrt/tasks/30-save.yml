@@ -16,7 +16,7 @@
     src: "{{ item.remote }}"
     dest: "{{ item.local }}"
     flat: true
-  loop: "{{ up_down_files_list }}"
-  when: up_down_files_list[0] and "download" in item.action
+  loop: "{{ ssl_up_down_files_list }}"
+  when: ssl_up_down_files_list[0] and "download" in item.action
   tags: ssl_certificate, key_cert_copy_only,test2
   

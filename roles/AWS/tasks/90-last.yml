@@ -77,8 +77,8 @@
 
 - name: Copy EC2 instances IP/DNS ---------
   copy:
-    content: "_NAME=\"{{ item.tags.Name }}\"\n_IP=\"{{ item.public_ip_address }}\"\n_FQDN=\"{{ item.public_dns_name }}\"\n_KEY=\"{{ item.key_name }}.pem\"\n"
-    dest: "{{ facts_out_dir }}/{{ item.tags.Name }}.rc"
+    content: "EC2_NAME=\"{{ item.tags.Name }}\"\nEC2_IP=\"{{ item.public_ip_address }}\"\nEC2_FQDN=\"{{ item.public_dns_name }}\"\nEC2_KEY=\"{{ item.key_name }}.pem\"\n"
+    dest: "{{ confdir }}/{{ item.tags.Name }}.rc"
   loop: "{{ ec2_facts.instances }}"
   when: ec2_facts is success and 'Name' in item.tags and item.public_ip_address is defined 
         and item.public_dns_name is defined and item.key_name is defined

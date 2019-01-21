@@ -3,9 +3,7 @@
   connection: local
   gather_facts: false
   become: false
-# file not given
   vars_files: 
     - ../secret/secret.yml
-    - vars_files/aws.yml
   roles:
    - AWS

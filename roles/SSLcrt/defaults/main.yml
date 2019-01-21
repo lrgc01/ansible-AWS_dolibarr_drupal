@@ -93,7 +93,7 @@ server_cert_n_key_list	:
         dest : "{{ cert_hash_list[1].server_cert_path }}"
       }
 # srv defines if a service will be restarted upon modification in file upload
-up_down_files_list 	:
+ssl_up_down_files_list 	:
    -  false
    -  { 
         local  : "{{ cert_hash_list[0].local_certkey_path }}",
