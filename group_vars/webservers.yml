@@ -18,9 +18,23 @@ www_htmldir             : "{{ www_basedir }}/html"
 www_username            : "www-data"
 web_service             : "nginx"                                       # will be used more than once later
 
+#
+# Specific for Drupal / civicrm = domain1
+#
+drupal_version          : "drupal-8"
+drupal_basename         : "Drupal-site"
+drupal_site_rootdir     : "{{ www_basedir }}/{{ drupal_basename }}"
+
+domain1_rootdir         : "{{ drupal_site_rootdir }}"
+#
+
+# Dolibarr = dogshearing = domain2
 dolibarr_base 		: "dolibarr-base"
 dolibarr_privdir        : "{{ www_basedir }}/private/dolibarr/documents"
 dolibarr_rootdir	: "{{ www_basedir }}/{{ dolibarr_base }}/htdocs"
+
+domain2_rootdir         : "{{ dolibarr_rootdir }}"
+
 #
 # Will be used mainly with SSL certificate role
 #
@@ -33,9 +47,8 @@ cert_name_prefix        : "pro-{{ domain1 }}"
 cert_name_prefix2       : "pro-{{ domain2 }}"
 production_account_key  : "pro2-letsencrypt-account-key.key"
 staging_account_key     : "stg-letsencrypt-account-key.key"
-domain2_rootdir         : "{{ dolibarr_rootdir }}"
 #
-# User administration
+# User administration (linux users)
 #
 drupaladm_user          : "drupaladm"
 siteadm_user            : "siteadm"
@@ -45,16 +58,8 @@ git_user                : "git"
 #git_repodir    : false
 git_repodir             : "/repos"
 
-# To AWS instances
+# DB AWS instance used widely
 db_instance_hostname : "websiteinstance.ctxnidj2utoz.us-east-2.rds.amazonaws.com"
-
-#
-# Specific for Drupal / civicrm
-#
-drupal_version          : "drupal-7"
-drupal_basename         : "Drupal-site"
-drupal_site_rootdir     : "{{ www_basedir }}/{{ drupal_basename }}"
-#
 
 # These below are used with remote ansible python script and once installed it's better not remove them
 base_dep_pkg_list:
@@ -81,7 +86,6 @@ dep_pkg_list		:
    - { pkg : "php-mbstring"    }
    - { pkg : "php-xml"         }
    - { pkg : "php-mcrypt"      }
-   - { pkg : "composer"	       }
    - { pkg : "git"	       }
 # These below are used with remote ansible python script and once installed it's better not remove them
 #   - { pkg : "python-mysqldb"  }
@@ -105,12 +109,15 @@ dep_pkg_list		:
 dir_file_tmpl_list     :
    - { types : [ "absent" ]       , dest : "/etc/nginx/sites-enabled/default" }
    - { types : [ "tmpl" ]         , dest : "~ubuntu"                    , name : "updatedns.sh" , mode : "0755" }
+   - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "{{ domain1 }}-cert.conf"  , srv : "{{ web_service }}" }
    - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "{{ domain2 }}-cert.conf"  , srv : "{{ web_service }}" }
-   - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "drupalcert.conf" , srv : "{{ web_service }}" }
+   - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ domain1 }}.conf"       , srv : "{{ web_service }}" }
    - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ domain2 }}.conf"       , srv : "{{ web_service }}" }
+   - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ drupal_basename }}" }
+   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/{{ domain1 }}.conf" , dest : "/etc/nginx/sites-enabled/{{ domain1 }}.conf" }
    - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/{{ domain2 }}.conf" , dest : "/etc/nginx/sites-enabled/{{ domain2 }}.conf" }
-   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/sites-available" , name : "{{ drupal_basename }}" }
-   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/{{ drupal_basename }}" , dest : "/etc/nginx/sites-enabled/{{ drupal_basename }}" }
+#   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/{{ drupal_basename }}" , dest : "/etc/nginx/sites-enabled/{{ drupal_basename }}" }
+#   - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "drupalcert.conf" , srv : "{{ web_service }}" }
 
 
 #   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/sites-available" , name : "{{ drupal_basename }}" }
@@ -187,13 +194,14 @@ project_list            :
 # PHP composer
 #
 #
-composer_required       : "drush/drush:7"
+composer_require        : "drush/drush:9"
 composer_path           : "PATH=/bin:/sbin:/usr/bin:/usr/sbin:/root/.composer/vendor/bin"
 #
 # Will install composer packages inside root dir  when become=true
 composer_list           :
-   - { command : "require"        , global : "true"  , arguments : "{{ composer_required }}" }
-   - { command : "create-project" , global : "false" , arguments : "dolibarr/dolibarr {{ dolibarr_base }}" , working_dir : "{{ www_basedir }}" , creates : "{{ www_basedir }}/{{ dolibarr_base }}" }
+   - { command : "require"        , global : "true"  , arguments : "--no-progress {{ composer_require }}" }
+   - { command : "create-project" , global : "false" , arguments : "--no-progress dolibarr/dolibarr {{ dolibarr_base }}" , working_dir : "{{ www_basedir }}" , creates : "{{ www_basedir }}/{{ dolibarr_base }}" }
+#   - { command : "remove"         , global : "true"  , arguments : "--no-progress {{ composer_remove }}" }
 
 #--- End of Phpcfg role block
 
@@ -316,9 +324,11 @@ ssl_up_down_files_list 	:
 # mysql_user module, because it always shows no idempotency.
 #
 # 'db_list[*].dbcreate' switches one entry on/off
+# drop is used un role/uninst to remove a database
 db_list              :
    -  {
         dbcreate     : true ,
+        drop	     : true ,
         admuser      : "root" ,
         admpass      : '' ,
         host         : "localhost",
@@ -332,6 +342,7 @@ db_list              :
       }
    -  {
         dbcreate     : true ,
+        drop	     : true ,
         admuser      : "root" ,
         admpass      : '' ,
         host         : "localhost",
@@ -345,6 +356,7 @@ db_list              :
       }
    -  {
         dbcreate     : true ,
+        drop	     : false ,
         admuser      : "{{ rds_db_admuser }}" ,
         admpass      : "{{ rds_dbadm_pass }}" ,
         host         : "{{ db_instance_hostname }}",
@@ -539,3 +551,11 @@ unarchive_bkps    :
          remote_src : "yes",
          creates    : "{{ dolibarr_rootdir }}/conf/conf.php"
       }
+
+#--- End Backup and Restore block
+
+#
+# Uninstall role block - ATTENTION!!! Caution!!!
+#
+base_file_dir_remove_list :
+  - "{{ domain1_rootdir }}"

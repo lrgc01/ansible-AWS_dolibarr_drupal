@@ -1,5 +1,5 @@
 ---
-- name: Set composer packs if required (PHP) --------------
+- name: Composer- require, remove, but no create-project --
   composer:
     command: "{{ item.command }}"
     arguments: "{{ item.arguments }}"

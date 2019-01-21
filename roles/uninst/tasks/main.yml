@@ -7,7 +7,7 @@
     name: "{{ item.dbname }}"
     state: absent
   loop: "{{ db_list }}"
-  when: item.dbcreate
+  when: item.drop
   register: databases_dropped
   tags: drop_databases
 

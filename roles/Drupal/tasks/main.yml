@@ -1,11 +1,14 @@
 ---
-- name: Download Drupal using drush pm-download (dl) ------
-  shell: "{{ drush_base_cmd }} dl {{ drupal_version }} --drupal-project-rename={{ drupal_basename }}"
-  args:
-    creates: "{{ drupal_site_rootdir }}/.htaccess"
-    chdir: "{{ www_basedir }}"
-  register: drupal_installed
-  tags: drupal_site
+#
+# Deprecated in drush 9 - use composer
+#
+#- name: Download Drupal using drush pm-download (dl) ------
+#  shell: "{{ drush_base_cmd }} dl {{ drupal_version }} --drupal-project-rename={{ drupal_basename }}"
+#  args:
+#    creates: "{{ drupal_site_rootdir }}/.htaccess"
+#    chdir: "{{ www_basedir }}"
+#  register: drupal_installed
+#  tags: drupal_site
 
 - name: Download and extract civiCRM ----------------------
   unarchive: 
