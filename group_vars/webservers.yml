@@ -21,7 +21,7 @@ web_service             : "nginx"                                       # will b
 #
 # Specific for Drupal / civicrm = domain1
 #
-drupal_version          : "drupal-8"
+drupal_version          : "drupal-8.6.7"
 drupal_basename         : "Drupal-site"
 drupal_site_rootdir     : "{{ www_basedir }}/{{ drupal_basename }}"
 
@@ -116,6 +116,7 @@ dir_file_tmpl_list     :
    - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ drupal_basename }}" }
    - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/{{ domain1 }}.conf" , dest : "/etc/nginx/sites-enabled/{{ domain1 }}.conf" }
    - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/{{ domain2 }}.conf" , dest : "/etc/nginx/sites-enabled/{{ domain2 }}.conf" }
+   - { types : [ "link" ]         , src  : "{{ www_basedir }}/{{ drupal_version }}"        , dest : "{{ www_htmldir }}/{{ drupal_basename }}" , force : "yes" }
 #   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/{{ drupal_basename }}" , dest : "/etc/nginx/sites-enabled/{{ drupal_basename }}" }
 #   - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "drupalcert.conf" , srv : "{{ web_service }}" }
 
@@ -151,11 +152,18 @@ up_down_files_list :
 # List of tar/zip balls to unarchive to specific places.
 # Must define what it creates to be idempotent.
 unarchive_list  :
-   - false
+   - {
+        src         : "https://www.drupal.org/download-latest/tar.gz" ,
+        dest        : "{{ www_basedir }}" ,
+        creates     : "{{ www_basedir }}/{{ drupal_version }}/index.php" ,
+        owner       : "root" ,
+        group       : "root" ,
+        remote_src  : true
+     }
 #   - {
 #        src         : "https://releases.wikimedia.org/mediawiki/1.32/mediawiki-1.32.0.tar.gz" ,
-#        dest        : "/var/lib/mediawiki" ,
-#        creates     : "/var/lib/mediawiki/{{ mediawiki_ver }}/index.php" ,
+#        dest        : "{{ www_htmldir }}" ,
+#        creates     : "{{ www_htmldir }}/{{ mediawiki_ver }}/index.php" ,
 #        owner       : "root" ,
 #        group       : "root" ,
 #        remote_src  : true
