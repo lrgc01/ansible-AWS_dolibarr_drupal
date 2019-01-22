@@ -416,7 +416,7 @@ drupal_all_module_dir   : "{{ drupal_site_rootdir }}/sites/all/modules"
 drupal_all_themes_dir   : "{{ drupal_site_rootdir }}/sites/all/themes"
 drupal_file_system_dir  : "{{ drupal_sites_default }}/files"
 drupal_settings_file    : "{{ drupal_sites_default }}/settings.php"
-drupal_private_files_dir: "{{ www_basedir }}/private/drupal/files"
+drupal_privdir          : "{{ www_basedir }}/private/drupal/files"
 drupal_modules_list     : [ "ctools" , "views" , "views_ui" ]
 #
 # civiCRM specific
@@ -443,15 +443,15 @@ later_dir_file_tmpl_list   :
 #   - { enabled : true , types : [ "tmpl" ] , dest : "{{ drupal_sites_default }}" , name : "views.inc" }
 
 later_dirs_config_list       :
-   - { enabled : true , path : "{{ dolibarr_privdir }}"         , owner: "{{ www_username }}"   , mode : "u+w,g-w,o-rwx"       , recurse : true }
-   - { enabled : true , path : "{{ drupal_modules_dir }}"       , owner: "{{ drupaladm_user }}" , group : "{{ www_username }}" , mode : "u+w,g-w,o-rwx" , recurse : true  }
-   - { enabled : true , path : "{{ drupal_themes_dir }}"        , owner: "{{ drupaladm_user }}" , group : "{{ www_username }}" , mode : "u+w,g-w,o-rwx" , recurse : true  }
-   - { enabled : true , path : "{{ drupal_all_module_dir }}"    , owner: "{{ siteadm_user }}"   , group : "{{ www_username }}" , mode : "u+w,g-w,o-rwx" , recurse : false }
-   - { enabled : true , path : "{{ drupal_all_themes_dir }}"    , owner: "{{ siteadm_user }}"   , group : "{{ www_username }}" , mode : "u+w,g-w,o-rwx" , recurse : false }
-   - { enabled : true , path : "{{ drupal_sites_default }}"     , owner: "{{ siteadm_user }}"   , group : "{{ www_username }}" , mode : "u+w,g-w,o-rwx" , recurse : false }
-   - { enabled : true , path : "{{ drupal_file_system_dir }}"   , owner: "{{ www_username }}"   , group : "{{ www_username }}" , mode : "u+rwX"         , recurse : true  }
-   - { enabled : true , path : "{{ drupal_private_files_dir }}" , owner: "{{ siteadm_user }}"   , group : "{{ www_username }}" , mode : "u+w,g+w,o-rwx" , recurse : false }
-   - { enabled : true , path : "{{ civicrm_extensions_dir }}"   , owner: "{{ siteadm_user }}"   , group : "{{ www_username }}" , mode : "u+w,g+w,o-rwx" , recurse : false }
+   - { enabled : true , path : "{{ dolibarr_privdir }}"       , owner: "{{ www_username }}"   , mode : "u+w,g-w,o-rwx"       , recurse : true }
+   - { enabled : true , path : "{{ drupal_modules_dir }}"     , owner: "{{ drupaladm_user }}" , group : "{{ www_username }}" , mode : "u+w,g-w,o-rwx" , recurse : true  }
+   - { enabled : true , path : "{{ drupal_themes_dir }}"      , owner: "{{ drupaladm_user }}" , group : "{{ www_username }}" , mode : "u+w,g-w,o-rwx" , recurse : true  }
+   - { enabled : true , path : "{{ drupal_all_module_dir }}"  , owner: "{{ siteadm_user }}"   , group : "{{ www_username }}" , mode : "u+w,g-w,o-rwx" , recurse : false }
+   - { enabled : true , path : "{{ drupal_all_themes_dir }}"  , owner: "{{ siteadm_user }}"   , group : "{{ www_username }}" , mode : "u+w,g-w,o-rwx" , recurse : false }
+   - { enabled : true , path : "{{ drupal_sites_default }}"   , owner: "{{ siteadm_user }}"   , group : "{{ www_username }}" , mode : "u+w,g-w,o-rwx" , recurse : false }
+   - { enabled : true , path : "{{ drupal_file_system_dir }}" , owner: "{{ www_username }}"   , group : "{{ www_username }}" , mode : "u+rwX"         , recurse : true  }
+   - { enabled : true , path : "{{ drupal_privdir }}"         , owner: "{{ siteadm_user }}"   , group : "{{ www_username }}" , mode : "u+w,g+w,o-rwx" , recurse : false }
+   - { enabled : true , path : "{{ civicrm_extensions_dir }}" , owner: "{{ siteadm_user }}"   , group : "{{ www_username }}" , mode : "u+w,g+w,o-rwx" , recurse : false }
 
 
 later_lineinfile_config_list :
@@ -489,7 +489,7 @@ later_lineinfile_config_list :
        group  : "{{ www_username }}" ,
        mode   : "0444" ,
        regexp : ".*\\$conf\\['file_private_path'\\] =.*" ,
-       line   : "$conf['file_private_path'] = \'{{ drupal_private_files_dir }}\';"
+       line   : "$conf['file_private_path'] = \'{{ drupal_privdir }}\';"
      }
    - {
        enabled : true ,
@@ -508,30 +508,55 @@ later_lineinfile_config_list :
 #
 sql_bkp_cmd         : "mysqldump -u {{ rds_db_admuser }} -h {{ db_instance_hostname }} -p{{ rds_dbadm_pass }} --opt "
 sql_rest_cmd        : "mysql -u {{ rds_db_admuser }} -h {{ db_instance_hostname }} -p{{ rds_dbadm_pass }} "
+sql_bkp_cmd2        : "mysqldump -u root --opt "
 #sql_bkp_cmd         : "mysqldump --opt "
 #sql_rest_cmd        : "mysql"
 remote_bkpdir       : "~ubuntu"
 dolibarr_docs_bkp   : "dolibarr_{{ bkptag }}.documents.tgz"
 dolibarr_DB_bkp     : "dolibarr_{{ bkptag }}.sql.gz"
+drupal_DB_bkp       : "drupal_{{ bkptag }}.sql.gz"
+drupal_docs_bkp     : "drupal_{{ bkptag }}.documents.tgz"
 git_bkp_file        : "git_repos_{{ bkptag }}.tgz"
 local_bkp_dir       : "{{ confdir }}/bkprest"
 bkp_rest_files_list :
    -  { 
-         local   : "{{ local_bkp_dir }}/{{ dolibarr_docs_bkp }}",
-         remote  : "{{ remote_bkpdir }}/{{ dolibarr_docs_bkp }}" ,
-         action  : [ "upload", "download" ]
+         local   : "{{ local_bkp_dir }}/{{ drupal_DB_bkp }}",
+         remote  : "{{ remote_bkpdir }}/{{ drupal_DB_bkp }}" ,
+         action  : [ "download" ]
+      }
+   -  { 
+         local   : "{{ local_bkp_dir }}/{{ drupal_docs_bkp }}",
+         remote  : "{{ remote_bkpdir }}/{{ drupal_docs_bkp }}" ,
+         action  : [ "download" ]
       }
    -  { 
          local   : "{{ local_bkp_dir }}/{{ dolibarr_DB_bkp }}",
          remote  : "{{ remote_bkpdir }}/{{ dolibarr_DB_bkp }}" ,
-         action  : [ "upload", "download" ]
+         action  : [ "download" ]
+      }
+   -  { 
+         local   : "{{ local_bkp_dir }}/{{ dolibarr_docs_bkp }}",
+         remote  : "{{ remote_bkpdir }}/{{ dolibarr_docs_bkp }}" ,
+         action  : [ "download" ]
       }
    -  { 
          local   : "{{ local_bkp_dir }}/{{ git_bkp_file }}",
          remote  : "{{ remote_bkpdir }}/{{ git_bkp_file }}" ,
-         action  : [ "upload", "download" ]
+         action  : [ "download" ]
       }
 shell_bkpcmd_list   :
+   -  {
+         enabled  : true ,
+         shellcmd : "{{ sql_bkp_cmd2 }} drupal | gzip -c > {{ drupal_DB_bkp }}" ,
+         chdir    : "{{ remote_bkpdir }}" ,
+         creates  : "{{ drupal_DB_bkp }}"
+      }
+   -  {
+         enabled  : true ,
+         shellcmd : "tar -czf {{ drupal_docs_bkp }} {{ drupal_privdir }} {{ www_basedir }}/{{ drupal_version }}" ,
+         chdir    : "{{ remote_bkpdir }}" ,
+         creates  : "{{ drupal_docs_bkp }}"
+      }
    -  {
          enabled  : true ,
          shellcmd : "{{ sql_bkp_cmd }} dolibarr | gzip -c > {{ dolibarr_DB_bkp }}" ,

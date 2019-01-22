@@ -17,7 +17,8 @@ export DISPLAY_SKIPPED_HOSTS="false"
 
 export ANSIBLE_SSH_ARGS="-C -o ControlMaster=auto -o ControlPersist=60s -F ${SSHCONF}"
 
-export BKPTAG="`date +%Y%m%d%H%M`"
+export BKPTAG="`date +%Y%m%d%H`"
+#export BKPTAG="201901222049"
 
 # Useful tags to skip
 # From common: (these first two must be called when python is missing)
