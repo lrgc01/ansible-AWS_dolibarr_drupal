@@ -45,7 +45,7 @@
   loop: "{{ dir_file_tmpl_list }}"
   when: dir_file_tmpl_list[0] and removed_files is success and templates_in_place is success and "link" in item.types
   register: links_in_place
-  tags: config_files
+  tags: config_files, deploy_templates
 
 - name: Upload some files from a list when action=upload --
   copy:
@@ -63,5 +63,5 @@
     enabled: true
   loop: "{{ templates_in_place.results }} + {{ files_uploaded.results }}"
   when: (templates_in_place is changed or files_uploaded is changed) and item is changed and item.item.srv is defined
-  tags: config_files, copy_files
+  tags: config_files, deploy_templates, copy_files
 

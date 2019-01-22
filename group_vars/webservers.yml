@@ -23,7 +23,7 @@ web_service             : "nginx"                                       # will b
 #
 drupal_version          : "drupal-8.6.7"
 drupal_basename         : "Drupal-site"
-drupal_site_rootdir     : "{{ www_basedir }}/{{ drupal_basename }}"
+drupal_site_rootdir     : "{{ www_basedir }}/{{ drupal_version }}"
 
 domain1_rootdir         : "{{ drupal_site_rootdir }}"
 #
@@ -130,7 +130,7 @@ dir_file_tmpl_list     :
 #
 ini_file_list           :
    - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "allow_url_fopen" , value : "Off" }
-   - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "memory_limit"    , value : "64M" }
+   - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "memory_limit"    , value : "128M" }
 #
 # Cron
 #
@@ -336,7 +336,7 @@ ssl_up_down_files_list 	:
 db_list              :
    -  {
         dbcreate     : true ,
-        drop	     : true ,
+        drop	     : false ,
         admuser      : "root" ,
         admpass      : '' ,
         host         : "localhost",
@@ -350,7 +350,7 @@ db_list              :
       }
    -  {
         dbcreate     : true ,
-        drop	     : true ,
+        drop	     : false ,
         admuser      : "root" ,
         admpass      : '' ,
         host         : "localhost",
@@ -388,32 +388,40 @@ drush_base_cmd          : "{{ composer_path }} drush -y {{ civicrm_include_line 
 #
 # Drupal specific
 #
-drush_db_url            : "--db-url=mysql://{{ db_list[0].user }}:{{ db_list[0].pass }}@{{ db_list[0].host }}/{{ db_list[0].dbname }}"
-#drush_account_name      : "--account-name={{ db_list[0].admuser }}"
-#drush_account_pass      : "--account-pass={{ db_list[0].admpass }}"
-drush_account_name      : ""
-drush_account_pass      : ""
-drush_account_mail      : "--account-mail=admin@lrgc01.uk.to"
-drush_site_name         : "--site-name={{ cert_hash_list[0].CN }}"
-drush_extra_args        : "--clean-url=0 install_configure_form.site_default_country=GB"
-drush_si_args           : "standard {{ drush_db_url }} {{ drush_account_name }} {{ drush_account_pass }} {{ drush_account_mail }} {{ drush_site_name }} {{ drush_extra_args }}"
+#drush_db_url            : "--db-url=mysql://{{ db_list[0].user }}:{{ db_list[0].pass }}@{{ db_list[0].host }}/{{ db_list[0].dbname }}"
+##drush_account_name      : "--account-name={{ db_list[0].admuser }}"
+##drush_account_pass      : "--account-pass={{ db_list[0].admpass }}"
+#drush_account_name      : ""
+#drush_account_pass      : ""
+#drush_account_mail      : "--account-mail=admin@lrgc01.uk.to"
+#drush_site_name         : "--site-name={{ cert_hash_list[0].CN }}"
+#drush_extra_args        : "--clean-url=0 install_configure_form.site_default_country=GB"
+#drush_si_args           : "standard {{ drush_db_url }} {{ drush_account_name }} {{ drush_account_pass }} {{ drush_account_mail }} {{ drush_site_name }} {{ drush_extra_args }}"
+#
+#
+drupal_db_url 	        : "--db-url=mysql://{{ db_list[0].user }}:{{ db_list[0].pass }}@{{ db_list[0].host }}/{{ db_list[0].dbname }}"
+# site account name and password - adminstrator
+drupal_account_name     : "--account-name=admin"
+drupal_account_pass     : "--account-pass=Admin1234"
+drupal_account_mail     : "--account-mail=admin@lrgc01.uk.to"
+drupal_site_name        : "--site-name={{ cert_hash_list[0].CN }}"
+drupal_extra_args       : "--root {{ www_basedir }}/{{ drupal_version }}"
+drupal_si_args          : "standard {{ drupal_db_url }} {{ drupal_account_name }} {{ drupal_account_pass }} {{ drupal_account_mail }} {{ drupal_site_name }} {{ drupal_extra_args }}"
 #
 # Some drupal dir/files vars
-#
-drupal_modules_dir            : "{{ drupal_site_rootdir }}/modules"
-drupal_themes_dir             : "{{ drupal_site_rootdir }}/themes"
-drupal_sites_default          : "{{ drupal_site_rootdir }}/sites/default"
-drupal_all_module_dir         : "{{ drupal_site_rootdir }}/sites/all/modules"
-drupal_all_themes_dir         : "{{ drupal_site_rootdir }}/sites/all/themes"
-drupal_file_system_dir        : "{{ drupal_sites_default }}/files"
-drupal_settings_file          : "{{ drupal_sites_default }}/settings.php"
-drupal_default_settings_file  : "{{ drupal_sites_default }}/default.settings.php"
-drupal_private_files_dir      : "{{ www_basedir }}/private/drupal/files"
-drupal_modules_list           : [ "ctools" , "views" , "views_ui" ]
+drupal_modules_dir      : "{{ drupal_site_rootdir }}/modules"
+drupal_themes_dir       : "{{ drupal_site_rootdir }}/themes"
+drupal_sites_default    : "{{ drupal_site_rootdir }}/sites/default"
+drupal_all_module_dir   : "{{ drupal_site_rootdir }}/sites/all/modules"
+drupal_all_themes_dir   : "{{ drupal_site_rootdir }}/sites/all/themes"
+drupal_file_system_dir  : "{{ drupal_sites_default }}/files"
+drupal_settings_file    : "{{ drupal_sites_default }}/settings.php"
+drupal_private_files_dir: "{{ www_basedir }}/private/drupal/files"
+drupal_modules_list     : [ "ctools" , "views" , "views_ui" ]
 #
 # civiCRM specific
 #
-civicrm_download_url    : "https://download.civicrm.org/civicrm-5.4.1-drupal.tar.gz"
+civicrm_download_url    : "https://storage.googleapis.com/civicrm/civicrm-stable/5.9.1/civicrm-5.9.1-drupal.tar.gz"
 civicrm_dbhost          : "--dbhost=\'{{ db_list[1].host }}\'"
 civicrm_dbname          : "--dbname={{ db_list[1].dbname }}"
 civicrm_dbpass          : "--dbpass={{ db_list[1].pass }}"
@@ -431,8 +439,8 @@ civicrm_extensions_dir  : "{{ www_basedir }}/private/civicrm/ext"
 # In tmpl the name will be appended to dest and the template itself will have .j2 appended to its name.
 later_dir_file_tmpl_list   :
    - { enabled : true , types : [ "tmpl" ] , dest : "{{ drupal_site_rootdir }}"  , name : "info.php" }
-   - { enabled : true , types : [ "tmpl" ] , dest : "{{ drupal_sites_default }}" , name : "views.inc" }
    - { enabled : true , types : [ "tmpl" ] , dest : "{{ domain2_rootdir }}/conf"  , name : "conf.php" }
+#   - { enabled : true , types : [ "tmpl" ] , dest : "{{ drupal_sites_default }}" , name : "views.inc" }
 
 later_dirs_config_list       :
    - { enabled : true , path : "{{ dolibarr_privdir }}"         , owner: "{{ www_username }}"   , mode : "u+w,g-w,o-rwx"       , recurse : true }
@@ -448,7 +456,7 @@ later_dirs_config_list       :
 
 later_lineinfile_config_list :
    - {
-       enabled : true ,
+       enabled : false ,
        path   : "{{ civicrm_settings_file }}" ,
        owner  : "{{ drupaladm_user }}" ,
        group  : "{{ www_username }}" ,
@@ -457,7 +465,7 @@ later_lineinfile_config_list :
        line   : "$civicrm_setting['Directory Preferences']['extensionsDir'] = \'{{ civicrm_extensions_dir }}\';"
      }
    - {
-       enabled : true ,
+       enabled : false ,
        path   : "{{ drupal_settings_file }}" ,
        owner  : "{{ drupaladm_user }}" ,
        group  : "{{ www_username }}" ,
@@ -466,7 +474,7 @@ later_lineinfile_config_list :
        line   : "require_once '{{ drupal_sites_default }}/views.inc';"
      }
    - {
-       enabled : true ,
+       enabled : false ,
        path   : "{{ drupal_settings_file }}" ,
        owner  : "{{ drupaladm_user }}" ,
        group  : "{{ www_username }}" ,

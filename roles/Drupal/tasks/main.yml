@@ -19,16 +19,16 @@
     group: "root"
     mode: "a+r"
     creates: "{{ drupal_all_module_dir }}/civicrm"
-  when: drupal_installed is success
+  when: unarchived_packs is changed and false
   register: civicrm_module_downloaded
   tags: drupal_site
 
 - name: Install Drupal site using drush site-install (si) -
-  shell: "{{ drush_base_cmd }} si {{ drush_si_args }}"
+  shell: "{{ drush_base_cmd }} si {{ drupal_si_args }}"
   args:
     creates: "{{ drupal_settings_file }}"
     chdir: "{{ drupal_site_rootdir }}"
-  when: drupal_installed is success
+  when: unarchived_packs is changed 
   register: drupal_installed
   tags: drupal_site
 
@@ -37,7 +37,7 @@
   args:
     creates: "{{ civicrm_settings_file }}"
     chdir: "{{ drupal_site_rootdir }}"
-  when: civicrm_module_downloaded is success
+  when: civicrm_module_downloaded is success and false
   register: civicrm_installed
   tags: drupal_site
 
