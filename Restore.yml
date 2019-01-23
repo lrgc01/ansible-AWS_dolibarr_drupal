@@ -4,11 +4,6 @@
   become: true
   remote_user: "ubuntu"
   vars_files:
-   - ../secret/general.yml
-   - ../secret/base.yml
-   - ../secret/db_adm.yml
-   - ../secret/drupal.yml
-   - ../secret/bkprest.yml
    - ../secret/secret.yml
   roles:
    - Restore

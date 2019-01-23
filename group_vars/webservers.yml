@@ -337,9 +337,9 @@ db_list              :
    -  {
         dbcreate     : true ,
         drop	     : false ,
-        admuser      : "root" ,
-        admpass      : '' ,
-        host         : "localhost",
+        admuser      : "{{ rds_db_admuser }}" ,
+        admpass      : "{{ rds_dbadm_pass }}" ,
+        host         : "{{ db_instance_hostname }}",
         user         : "drupal" ,
         pass         : "{{ db_drupal_pass }}" ,
         dbname       : "drupal" ,
@@ -349,8 +349,8 @@ db_list              :
         append_privs : true 
       }
    -  {
-        dbcreate     : true ,
-        drop	     : false ,
+        dbcreate     : false ,
+        drop	     : true ,
         admuser      : "root" ,
         admpass      : '' ,
         host         : "localhost",
@@ -579,6 +579,12 @@ shell_bkpcmd_list   :
 shell_restorecmd_list   :
    -  {
          enabled  : true ,
+         shellcmd : "gunzip -c {{ drupal_DB_bkp }} | {{ sql_rest_cmd }} drupal ; touch drupal.sql.restored" ,
+         chdir    : "{{ remote_bkpdir }}" ,
+         creates  : "drupal.sql.restored"
+      }
+   -  {
+         enabled  : false ,
          shellcmd : "gunzip -c {{ dolibarr_DB_bkp }} | {{ sql_rest_cmd }} dolibarr ; touch dolibarr.sql.restored" ,
          chdir    : "{{ remote_bkpdir }}" ,
          creates  : "dolibarr.sql.restored"
@@ -586,7 +592,7 @@ shell_restorecmd_list   :
 # restore with tar goes here
 unarchive_bkps    :
    -  {
-         enabled    : true ,
+         enabled    : false ,
          src        : "{{ remote_bkpdir }}/{{ dolibarr_docs_bkp }}" ,
          dest       : "/" ,
          remote_src : "yes",
