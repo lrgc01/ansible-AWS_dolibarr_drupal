@@ -402,7 +402,7 @@ drush_base_cmd          : "{{ composer_path }} drush -y {{ civicrm_include_line 
 drupal_db_url 	        : "--db-url=mysql://{{ db_list[0].user }}:{{ db_list[0].pass }}@{{ db_list[0].host }}/{{ db_list[0].dbname }}"
 # site account name and password - adminstrator
 drupal_account_name     : "--account-name=admin"
-drupal_account_pass     : "--account-pass=Admin1234"
+drupal_account_pass     : "--account-pass={{ drupal_adm_pass }}"
 drupal_account_mail     : "--account-mail=admin@lrgc01.uk.to"
 drupal_site_name        : "--site-name={{ cert_hash_list[0].CN }}"
 drupal_extra_args       : "--root {{ www_basedir }}/{{ drupal_version }}"

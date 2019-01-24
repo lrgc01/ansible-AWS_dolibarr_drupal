@@ -19,8 +19,8 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 ## Uncomment this to disable output compression
 # $wgDisableOutputCompression = true;
 
-$wgSitename = "Wiki test at VanHack";
-$wgMetaNamespace = "Wiki_test_at_VanHack";
+$wgSitename = "LRC's Media Wiki";
+$wgMetaNamespace = "LRCs_Media_Wiki";
 
 ## The URL base path to the directory containing the wiki;
 ## defaults for all runtime URL paths are based off of this.
@@ -30,7 +30,7 @@ $wgMetaNamespace = "Wiki_test_at_VanHack";
 $wgScriptPath = "";
 
 ## The protocol and server name to use in fully-qualified URLs
-$wgServer = "http://ec2-18-188-242-193.us-east-2.compute.amazonaws.com";
+$wgServer = "https://{{ domain1 }}";
 
 ## The URL path to static resources (images, scripts, etc.)
 $wgResourceBasePath = $wgScriptPath;
@@ -44,8 +44,8 @@ $wgLogo = "$wgResourceBasePath/resources/assets/wiki.png";
 $wgEnableEmail = true;
 $wgEnableUserEmail = true; # UPO
 
-$wgEmergencyContact = "apache@ec2-18-188-242-193.us-east-2.compute.amazonaws.com";
-$wgPasswordSender = "apache@ec2-18-188-242-193.us-east-2.compute.amazonaws.com";
+$wgEmergencyContact = "apache@{{ domain1 }}";
+$wgPasswordSender = "apache@{{ domain1 }}";
 
 $wgEnotifUserTalk = false; # UPO
 $wgEnotifWatchlist = false; # UPO
@@ -53,10 +53,10 @@ $wgEmailAuthentication = true;
 
 ## Database settings
 $wgDBtype = "mysql";
-$wgDBserver = "mediawikidb.ctxnidj2utoz.us-east-2.rds.amazonaws.com";
-$wgDBname = "my_wiki";
-$wgDBuser = "mediawiki";
-$wgDBpassword = "dbuserpass123";
+$wgDBserver = "{{ db_instance_hostname }}";
+$wgDBname = "{{ db_wiki }}";
+$wgDBuser = "{{ db_mediawiki_user }}";
+$wgDBpassword = "{{ db_mediawiki_pass }}";
 
 # MySQL specific settings
 $wgDBprefix = "";

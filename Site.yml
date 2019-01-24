@@ -7,7 +7,6 @@
    - ../secret/secret.yml
   roles:
    - common
-   - python
    - base
    - users
    - gitcfg
@@ -17,24 +16,15 @@
    - Drupal
    - finals
 
-- hosts: vanhack_test
+- hosts: mediawiki
   gather_facts: "{{ gather_y_n }}"
   become: true
   remote_user: "ubuntu"
   vars_files:
-   - vars_files/general.yml
-   - vars_files/base.yml
-   - vars_files/users.yml
-   - vars_files/gitcfg.yml
-   - vars_files/phpcfg.yml
-   - vars_files/python.yml
-   - vars_files/db_adm.yml
+   - ../secret/secret.yml
   roles:
    - common
-   - python
    - base
    - users
-   - gitcfg
    - phpcfg
    - DB_adm
-#   - finals

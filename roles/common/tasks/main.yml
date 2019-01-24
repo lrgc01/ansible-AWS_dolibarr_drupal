@@ -5,7 +5,7 @@
 #  register: certbot_repo_added
 #  tags: update_repository
 #
-- name: Install python if not installed -------------------
+- name: Install remote python if not installed ------------
   raw: "if [ ! -f /usr/bin/python ] ; then apt install -y python ; exit 0 ; fi"
   tags: bootstrap_python
 
@@ -24,4 +24,4 @@
   loop: "{{ base_dep_pkg_list }}"
   when: base_dep_pkg_list[0]
   register: base_dep_pkg_installed
-  tags: install_dep_pkg
+  tags: install_base_pkg
