@@ -5,7 +5,7 @@ Host {{ instance.tags.Name }} {{ instance.public_ip_address | default('') }} {{ 
 Compression yes
 ServerAliveInterval 30
     {% if instance.key_name is defined %}
-IdentityFile conf.d/{{ instance.key_name }}.pem
+IdentityFile {{ confdir }}/{{ instance.key_name }}.pem
     {% endif %}
 StrictHostKeyChecking no
 

@@ -1,14 +1,19 @@
 ---
 # General
-region                    : "us-east-2"
-vpc_id		          : ""
+region                : "us-east-2"
+vpc_id		      : ""
 #
 # AWS ini $HOME file configuration
 #
-awsHomeDir		: "~/.aws"
+awsHomeDir	      : "~/.aws"
 awsIniPairs           :
-   - { file : "{{ awsHomeDir }}/config" , section : "default" , option : "region" , value : "{{ region }}" }
-myTemplates		  :
+   - { 
+       file : "{{ awsHomeDir }}/config" , 
+       section : "default" , 
+       option : "region" , 
+       value : "{{ region }}" 
+     }
+myTemplates	      :
    - {
        src  : "host_inventory.j2",
        dest : "{{ basedir }}/hosts"
@@ -17,17 +22,16 @@ myTemplates		  :
        src  : "ssh_config.j2",
        dest : "{{ sshconf }}"
      }
-   - {
-       src  : "cloudfront_params.j2",
-       dest : "{{ confdir }}/cloudfront.params"
-     }
 
 # For DB instances:
 # Its name seems to be the idempotent factor
 dbSgName              : "mysql"
 rdsInstancesByName :
    - {
-       tags      : { Environment: "Dogshearing",  Application: "dolibarr" },
+       tags      : { 
+		     Environment: "Dogshearing",  
+        	     Application: "dolibarr" 
+                   },
        type      : "db.t2.micro",
        name      : "websiteinstance",
        engine    : "mariadb",
@@ -43,15 +47,17 @@ srvSgName             : "website-sg"
 winSgName             : "rdp"
 winKey		      : "Ohio-win-key"
 linuxKey	      : "Ohio-linux-key"
-# allEc2InstancesState should be undefined to change the state by tag 
+# allEc2InstancesState should be undefined to change 
+# the state by tag 
 #allEc2InstancesState : "stopped"
 
 ############################
 # ATTENTION to DELETION
 # Double check:
-# To delete an ec2|rds|key instance|pair, really_delete_* must be sent to 
-# yes/true (no quotes) besides ec2|rdsInstanceIdsToDelete 
-# (keysToRemoveByName) defined.
+# To delete an ec2|rds|key instance|pair, really_delete_* 
+# must be sent to yes/true (no quotes) besides 
+# ec2|rdsInstanceIdsToDelete (keysToRemoveByName) 
+# defined.
 # DON'T FORGET TO DISABLE REMOVAL AFTER!!!
 reallyDeleteEc2     : false
 #ec2InstanceIdsToDelete: [ "i-019320ed3a180883a" ]
@@ -64,21 +70,39 @@ securityGroupList   :
    - { 
        name        : "{{ dbSgName }}",
        description : "Access to mysql port 3306",
-       rules       :  [ { proto: "tcp",  ports: "3306",  cidr_ip: "0.0.0.0/0" } ]
+       rules       :  [ 
+                       { 
+                         proto: "tcp",  
+                         ports: "3306",  
+                         cidr_ip: "0.0.0.0/0" 
+                       } 
+                      ]
      }
    - { 
        name        : "{{ srvSgName }}",
        description : "Website access and administration",
        rules       :  [ 
-                       { proto: "tcp",  ports: "22",  cidr_ip: "0.0.0.0/0" } ,
-                       { proto: "tcp",  ports: "80",  cidr_ip: "0.0.0.0/0" } ,
-                       { proto: "tcp",  ports: "443",  cidr_ip: "0.0.0.0/0" } 
+                       { proto: "tcp",  
+                         ports: "22",  
+                         cidr_ip: "0.0.0.0/0" } ,
+                       { proto: "tcp",  
+                         ports: "80",  
+                         cidr_ip: "0.0.0.0/0" } ,
+                       { proto: "tcp",  
+                         ports: "443",  
+                         cidr_ip: "0.0.0.0/0" } 
                       ]
      }
    - {
        name        : "{{ winSgName }}",
        description : "Access to windows port 3389",
-       rules       :  [ { proto: "tcp",  ports: "3389",  cidr_ip: "0.0.0.0/0" } ]
+       rules       :  [ 
+                       { 
+                         proto: "tcp",  
+                         ports: "3389",  
+                         cidr_ip: "0.0.0.0/0" 
+                       } 
+                      ]
      }
 
 keyPairList      :
@@ -90,12 +114,16 @@ keyPairList      :
      }
 
 #
-# If you delete/terminate an instance and keep its name in the list below (unless 
-# with state absent), the instances|sg|keys will be recriated in next call 
-# to the playbook.
-# id: is the idempotent factor and in our task is built using the formula below:
-# "{{ region + '_' + item.tags.Name + '_' + item.type + '_' + item.image }}"
-# Where 'item' is one element from the ec2_instances list defined here.
+# If you delete/terminate an instance and keep its name 
+# in the list below (unless with state absent), the 
+# instances|sg|keys will be recriated in next call to 
+# the playbook. 
+# id: is the idempotent factor and in our task is 
+# built using the formula below:
+# "{{ region + '_' + item.tags.Name + '_' 
+#            + item.type + '_' + item.image }}"
+# Where 'item' is one element from the ec2Instances 
+# list defined here.
 # states available: running, stopped, rebooted
 #
 # To create new use "present" only
@@ -113,7 +141,7 @@ ec2Instances     :
        key_name  : "{{ linuxKey }}"
      }
    - { 
-       tags      : { Name : "server3" , Group : "vanhack_test" }, 
+       tags      : { Name : "server3" , Group : "test" }, 
        state     : "stopped",
        SG_name   : [ "default" , "{{ srvSgName }}" ], 
        type      : "{{ srvInstanceType }}",
@@ -143,5 +171,9 @@ cloudfrontInstances   :
        uniq_caller_ref: "my uniq domain {{ cfnDomain1 }}" ,
        distribution_id: "IDDOM1" ,
        origin_id      : "20190119{{ cfnDomain1 }}" ,
-       tags           : { Name: "{{ cfnDomain1 }} CFN" , Group: "webservers" , Project: "Personal multiple site" }
+       tags           : { 
+                          Name: "{{ cfnDomain1 }} CFN" , 
+                          Group: "webservers" , 
+                          Project: "Personal multiple site" 
+                        }
      }

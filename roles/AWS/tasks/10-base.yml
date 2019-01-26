@@ -17,6 +17,14 @@
   register: aws_ini_updated
   tags: base_config
 
+- name: Ensure base output dir ------------
+  file: 
+    path: "{{ facts_out_dir }}" 
+    state: "directory"
+  when: facts_out_dir is defined
+  register: output_dir_ready
+  tags: gather_default_vpc, create_security_groups, create_ec2_instances, create_aws_instances
+
 - name: Gather default VPC facts ----------
   ec2_vpc_net_facts:
     aws_access_key: "{{ aws_access_key }}"
@@ -26,20 +34,12 @@
   register: vpc_facts
   tags: gather_default_vpc, create_security_groups, create_ec2_instances, create_aws_instances
 
-- name: Ensure base output dir ------------
-  file: 
-    path: "{{ facts_out_dir }}" 
-    state: "directory"
-  when: facts_out_dir is defined
-  register: output_dir_ready
-  tags: gather_default_vpc, create_security_groups, create_ec2_instances, create_aws_instances
-
 - name: Copy default VPC facts ------------
   copy:
     content: "{{ item | to_nice_json }}"
     dest: "{{ facts_out_dir }}/{{ item.vpc_id }}.json"
   loop: "{{ vpc_facts.vpcs }}"
-  when: vpc_facts is success
+  when: vpc_facts is success and output_dir_ready is success
   tags: gather_default_vpc
 
 - name: Gather default subnets ------------
@@ -57,7 +57,7 @@
     content: "{{ item | to_nice_json }}"
     dest: "{{ facts_out_dir }}/{{ item.subnet_id }}.json"
   loop: "{{ default_subnets.subnets }}"
-  when: default_subnets is success
+  when: default_subnets is success and output_dir_ready is success
   tags: gather_default_vpc
 
 #- name: Show test

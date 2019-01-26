@@ -20,7 +20,7 @@
     state: absent
     region: "{{ region }}"
     instance_ids: "{{ item }}"
-  loop: "{{ ec2InstanceIdsToDelete }"
+  loop: "{{ ec2InstanceIdsToDelete }}"
   when: reallyDeleteEc2 and ec2InstanceIdsToDelete is defined
   register: delete_ec2_instances
   tags: delete_aws_instances, delete_ec2_instances
