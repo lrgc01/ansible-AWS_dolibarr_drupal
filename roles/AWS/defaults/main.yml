@@ -6,10 +6,10 @@ vpc_id		          : "vpc-032db86b"
 #
 # AWS ini $HOME file configuration
 #
-aws_homedir		: "~/.aws"
-aws_ini_pairs           :
-   - { file : "{{ aws_homedir }}/config" , section : "default" , option : "region" , value : "{{ region }}" }
-my_templates		  :
+awsHomeDir		: "~/.aws"
+awsIniPairs           :
+   - { file : "{{ awsHomeDir }}/config" , section : "default" , option : "region" , value : "{{ region }}" }
+myTemplates		  :
    - {
        src  : "host_inventory.j2",
        dest : "{{ basedir }}/hosts"
@@ -21,8 +21,8 @@ my_templates		  :
 
 # For DB instances:
 # Its name seems to be the idempotent factor
-db_sg_name                : "mysql"
-rds_instances_by_name     :
+dbSgName                : "mysql"
+rds_instances_by_name   :
    - false
    - {
        tags      : { Environment: "testing",  Application: "website" },
@@ -30,7 +30,7 @@ rds_instances_by_name     :
        name      : "instance1",
        engine    : "mariadb",
        size      : "20",
-       sg_name   : "{{ db_sg_name }}",
+       sg_name   : "{{ dbSgName }}",
        username  : "adm",
        password  : "Admin321"
      }
@@ -41,8 +41,8 @@ srv_sg_name               : "webserver-sg"
 win_sg_name               : "rdp"
 winkey			  : "win-key"
 linuxkey		  : "linux-key"
-# all_ec2_instances_state should be undefined to change the state by tag 
-#all_ec2_instances_state   : "stopped"
+# allEc2InstancesState should be undefined to change the state by tag 
+#allEc2InstancesState     : "stopped"
 
 ############################
 # ATTENTION to DELETION
@@ -60,7 +60,7 @@ really_delete_rds	  : false
 
 security_group_list       :
    - { 
-       name        : "{{ db_sg_name }}",
+       name        : "{{ dbSgName }}",
        description : "Access to mysql port 3306",
        vpc_id      : "{{ vpc_id }}",
        rules       :  [ { proto: "tcp",  ports: "3306",  cidr_ip: "0.0.0.0/0" } ]

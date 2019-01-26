@@ -1,7 +1,7 @@
 ---
 - name: Ensure aws config dir -------------
   file:
-    path: "{{ aws_homedir }}"
+    path: "{{ awsHomeDir }}"
     state: "directory"
     mode: "0755"
   register: aws_dir_created
@@ -13,7 +13,7 @@
     section: "{{ item.section }}"
     option: "{{ item.option }}"
     value: "{{ item.value }}"
-  loop: "{{ aws_ini_pairs }}"
+  loop: "{{ awsIniPairs }}"
   register: aws_ini_updated
   tags: base_config
 
@@ -69,7 +69,7 @@
 #    #var: item[0].vpc_id + " " + ( item[0].public_dns_name | default(omit) ) 
 #  #loop: "{{ ec2_facts.results }} + [ {{ vpc_facts }} ]"
 #  #loop: "{{ ec2_facts | json_query('results[*].instances') }} + [ {{ vpc_facts.vpcs }} ]"
-#  loop: "{{ ec2_instances }}"
+#  loop: "{{ ec2Instances }}"
 #  vars:
 #    my_string: "{{ item.tags.Name + '_' + item.type + '_' + item.image }}"
 #  tags: show_test
