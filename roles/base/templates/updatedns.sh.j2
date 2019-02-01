@@ -1,6 +1,5 @@
 #!/bin/sh
 #FreeDNS updater script
-#DOM_URL_PAIR="http://sync.afraid.org/u/wg5sveMTKQ3EPFYFceGLxwQA/ lrgc01.uk.to http://sync.afraid.org/u/de7wHJAUyj6dQTPb6wWETYD3/ lrgc01.us.to"
 DOM_URL_PAIR="
 {%- for domain in updatedns_pair_list %}
   {{ domain.updateurl }} {{ domain.domainname }}  
