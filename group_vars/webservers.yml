@@ -40,7 +40,8 @@ domain2_rootdir         : "{{ dolibarr_rootdir }}"
 #
 key_base_path           : "/etc/ssl/private"
 cert_base_path          : "/etc/ssl/certs"
-domain1                 : "lrgc01.uk.to"
+#domain1                 : "lrgc01.uk.to"
+domain1                 : "lrc.sytes.net"
 domain2                 : "dogshearing.uk.to"
 #cert_name_prefix        : "stg-letsencrypt"
 cert_name_prefix        : "pro-{{ domain1 }}"
@@ -144,9 +145,14 @@ cron_list	:
 # DON'T forget local files to upload to the server and local dirs when downloading
 up_down_files_list :
    -  { 
-        local  : "{{ confdir }}/drupal.key",
-        remote : "/etc/ssl/private/drupal.key" ,
-        action : [ "upload", "download" ]
+        local  : "{{ confdir }}/lrc.sytes.net.key",
+        remote : "/etc/ssl/private/lrc.sytes.net.key" ,
+        action : [ "upload" ]
+      }
+   -  { 
+        local  : "{{ confdir }}/lrc.sytes.net.crt",
+        remote : "/etc/ssl/certs/lrc.sytes.net.crt" ,
+        action : [ "upload" ]
       }
 
 # List of tar/zip balls to unarchive to specific places.
@@ -233,11 +239,11 @@ cert_hash_list		:
         crt_fullchain_path	: "{{ cert_base_path }}/{{ cert_name_prefix }}-fullchain.crt",
         crt_interchain_path	: "{{ cert_base_path }}/{{ cert_name_prefix }}-intermmediate.crt",
         acme_directory		: "https://acme-v02.api.letsencrypt.org/directory",
-        C			: "GB",
-        ST			: "England",
-        L			: "London",
-        O			: "Lrgc01 private site",
-        OU			: "Lrgc01 private site",
+        C			: "BR",
+        ST			: "Brazil",
+        L			: "Curitiba",
+        O			: "Lrc private site",
+        OU			: "Lrc private site",
         email_address		: "luizrogeriocarvalho@gmail.com",
         CN			: "{{ domain1 }}",
         force_cert_y_n		: "no",
@@ -500,6 +506,15 @@ later_lineinfile_config_list :
        regexp : ".*\\$conf\\['file_default_scheme'\\] =.*" ,
        line   : "$conf['file_default_scheme'] = 'private';"
      }
+   - {
+       enabled : true ,
+       path   : "{{ drupal_settings_file }}" ,
+       owner  : "{{ drupaladm_user }}" ,
+       group  : "{{ www_username }}" ,
+       mode   : "0444" ,
+       regexp : ".*\\$conf\\['trusted_host_patterns'\\] =.*" ,
+       line   : "$settings['trusted_host_patterns'] = ['^lrc\\.sytes\\.net$'];"
+     }
 
 #--- Finals role block variable definition
 
@@ -605,4 +620,5 @@ unarchive_bkps    :
 # Uninstall role block - ATTENTION!!! Caution!!!
 #
 base_file_dir_remove_list :
+  - false
   - "{{ domain1_rootdir }}"
