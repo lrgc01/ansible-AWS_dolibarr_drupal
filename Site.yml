@@ -28,3 +28,14 @@
    - users
    - phpcfg
    - DB_adm
+
+- hosts: jenkins_servers
+  gather_facts: "{{ gather_y_n }}"
+  become: true
+  remote_user: "luiz"
+  vars_files:
+   - ../secret/secret.yml
+  roles:
+   - common
+   - base
+   - users

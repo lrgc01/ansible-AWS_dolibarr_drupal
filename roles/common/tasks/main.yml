@@ -9,11 +9,29 @@
   raw: "if [ ! -f /usr/bin/python ] ; then apt install -y python ; exit 0 ; fi"
   tags: bootstrap_python
 
+- name: Apt keys - add a repository key -------------------
+  apt_key:
+    url: "{{ item.keyUrl }}"
+    state: "{{ item.state }}"
+  loop: "{{ listAptRepos }}"
+  when: item.state and item.keyUrl
+  register: apt_keys_done
+  tags: update_repository
+
+- name: Apt database - add new repo to repository listing -
+  apt_repository:
+    repo: "{{ item.repoStr }}"
+    state: "{{ item.state }}"
+  loop: "{{ listAptRepos }}"
+  when: item.state and item.repoStr
+  register: apt_repos_done
+  tags: update_repository
+
 - name: Update cache and upgrade (may take a time) --------
   apt: 
-    update_cache: "{{ update_cache_y_n }}"
+    update_cache: "yes"
     upgrade: "{{ update_cache_y_n }}"
-  when: update_cache_y_n == "yes"
+  when: update_cache_y_n == "yes" or apt_repos_done is changed
   register: updated_cache
   tags: update_repository
 
