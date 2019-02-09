@@ -209,11 +209,14 @@ project_list            :
 #
 #
 require_drush        : "drush/drush:9"
+require_google_auth  : "drupal/social_auth_google:^2.0"
 #
-# Will install composer packages inside root dir  when become=true
+# Will always install composer packages inside root dir when global=true
+# In other words, working_dir only works if global=false
 composer_list           :
-   - { command : "require"        , global : "true"  , arguments : "--no-progress {{ require_drush }}" }
-   - { command : "create-project" , global : "false" , arguments : "--no-progress dolibarr/dolibarr {{ dolibarr_base }}" , working_dir : "{{ www_basedir }}" , creates : "{{ www_basedir }}/{{ dolibarr_base }}" }
+   - { command : "require"        , global : false  , arguments : "--no-progress {{ require_google_auth }}" , working_dir : "{{ drupal_site_rootdir }}" }
+   - { command : "require"        , global : true  , arguments : "--no-progress {{ require_drush }}" }
+   - { command : "create-project" , global : false , arguments : "--no-progress dolibarr/dolibarr {{ dolibarr_base }}" , working_dir : "{{ www_basedir }}" , creates : "{{ www_basedir }}/{{ dolibarr_base }}" }
 #   - { command : "remove"         , global : "true"  , arguments : "--no-progress {{ composer_remove }}" }
 
 #--- End of Phpcfg role block
@@ -513,7 +516,7 @@ later_lineinfile_config_list :
        group  : "{{ www_username }}" ,
        mode   : "0444" ,
        regexp : ".*\\$settings\\['trusted_host_patterns'\\] =.*" ,
-       line   : "$settings['trusted_host_patterns'] = ['^lrc\\.sytes\\.net$'];"
+       line   : "$settings['trusted_host_patterns'] = ['^lrc\\.sytes\\.net$','^lrgc01\\.uk\\.to$'];"
      }
 
 #--- Finals role block variable definition
@@ -562,7 +565,7 @@ bkp_rest_files_list :
 shell_bkpcmd_list   :
    -  {
          enabled  : true ,
-         shellcmd : "{{ sql_bkp_cmd2 }} drupal | gzip -c > {{ drupal_DB_bkp }}" ,
+         shellcmd : "{{ sql_bkp_cmd }} drupal | gzip -c > {{ drupal_DB_bkp }}" ,
          chdir    : "{{ remote_bkpdir }}" ,
          creates  : "{{ drupal_DB_bkp }}"
       }
