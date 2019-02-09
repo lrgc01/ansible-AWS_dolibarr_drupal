@@ -208,12 +208,11 @@ project_list            :
 # PHP composer
 #
 #
-composer_require        : "drush/drush:9"
-composer_path           : "PATH=/bin:/sbin:/usr/bin:/usr/sbin:/root/.composer/vendor/bin"
+require_drush        : "drush/drush:9"
 #
 # Will install composer packages inside root dir  when become=true
 composer_list           :
-   - { command : "require"        , global : "true"  , arguments : "--no-progress {{ composer_require }}" }
+   - { command : "require"        , global : "true"  , arguments : "--no-progress {{ require_drush }}" }
    - { command : "create-project" , global : "false" , arguments : "--no-progress dolibarr/dolibarr {{ dolibarr_base }}" , working_dir : "{{ www_basedir }}" , creates : "{{ www_basedir }}/{{ dolibarr_base }}" }
 #   - { command : "remove"         , global : "true"  , arguments : "--no-progress {{ composer_remove }}" }
 
@@ -389,8 +388,9 @@ db_list              :
 # Drupal / civicrm specific role block variable definition
 #
 # other composer related - for drupal/civicrm
+drush_path              : "PATH=/bin:/sbin:/usr/bin:/usr/sbin:/root/.composer/vendor/bin"
 civicrm_include_line    : "--include=sites/all/modules/civicrm/drupal/drush"
-drush_base_cmd          : "{{ composer_path }} drush -y {{ civicrm_include_line }}"
+drush_base_cmd          : "{{ drush_path }} drush -y {{ civicrm_include_line }}"
 #
 # Drupal specific
 #
