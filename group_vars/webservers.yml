@@ -485,8 +485,8 @@ later_lineinfile_config_list :
        owner  : "{{ drupaladm_user }}" ,
        group  : "{{ www_username }}" ,
        mode   : "0444" ,
-       regexp : ".*\\$conf\\['drupal_http_request_fails'\\] =.*" ,
-       line   : "$conf['drupal_http_request_fails'] = FALSE;"
+       regexp : ".*\\$settings\\['drupal_http_request_fails'\\] =.*" ,
+       line   : "$settings['drupal_http_request_fails'] = FALSE;"
      }
    - {
        enabled : true ,
@@ -494,8 +494,8 @@ later_lineinfile_config_list :
        owner  : "{{ drupaladm_user }}" ,
        group  : "{{ www_username }}" ,
        mode   : "0444" ,
-       regexp : ".*\\$conf\\['file_private_path'\\] =.*" ,
-       line   : "$conf['file_private_path'] = \'{{ drupal_privdir }}\';"
+       regexp : ".*\\$settings\\['file_private_path'\\] =.*" ,
+       line   : "$settings['file_private_path'] = \'{{ drupal_privdir }}\';"
      }
    - {
        enabled : true ,
@@ -503,8 +503,8 @@ later_lineinfile_config_list :
        owner  : "{{ drupaladm_user }}" ,
        group  : "{{ www_username }}" ,
        mode   : "0444" ,
-       regexp : ".*\\$conf\\['file_default_scheme'\\] =.*" ,
-       line   : "$conf['file_default_scheme'] = 'private';"
+       regexp : ".*\\$settings\\['file_default_scheme'\\] =.*" ,
+       line   : "$settings['file_default_scheme'] = 'private';"
      }
    - {
        enabled : true ,
@@ -512,7 +512,7 @@ later_lineinfile_config_list :
        owner  : "{{ drupaladm_user }}" ,
        group  : "{{ www_username }}" ,
        mode   : "0444" ,
-       regexp : ".*\\$conf\\['trusted_host_patterns'\\] =.*" ,
+       regexp : ".*\\$settings\\['trusted_host_patterns'\\] =.*" ,
        line   : "$settings['trusted_host_patterns'] = ['^lrc\\.sytes\\.net$'];"
      }
 
