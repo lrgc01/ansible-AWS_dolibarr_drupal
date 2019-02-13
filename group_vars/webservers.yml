@@ -26,6 +26,7 @@ drupal_basename         : "Drupal-site"
 drupal_site_rootdir     : "{{ www_basedir }}/{{ drupal_version }}"
 
 domain1_rootdir         : "{{ drupal_site_rootdir }}"
+domain3_rootdir         : "{{ drupal_site_rootdir }}"
 #
 
 # Dolibarr = dogshearing = domain2
@@ -40,12 +41,13 @@ domain2_rootdir         : "{{ dolibarr_rootdir }}"
 #
 key_base_path           : "/etc/ssl/private"
 cert_base_path          : "/etc/ssl/certs"
-#domain1                 : "lrgc01.uk.to"
 domain1                 : "lrc.sytes.net"
 domain2                 : "dogshearing.uk.to"
+domain3                 : "lrgc01.uk.to"
 #cert_name_prefix        : "stg-letsencrypt"
 cert_name_prefix        : "pro-{{ domain1 }}"
 cert_name_prefix2       : "pro-{{ domain2 }}"
+cert_name_prefix3       : "pro-{{ domain3 }}"
 production_account_key  : "pro2-letsencrypt-account-key.key"
 staging_account_key     : "stg-letsencrypt-account-key.key"
 #
@@ -112,11 +114,14 @@ dir_file_tmpl_list     :
    - { types : [ "tmpl" ]         , dest : "~ubuntu"                    , name : "updatedns.sh" , mode : "0755" }
    - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "{{ domain1 }}-cert.conf"  , srv : "{{ web_service }}" }
    - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "{{ domain2 }}-cert.conf"  , srv : "{{ web_service }}" }
+   - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "{{ domain3 }}-cert.conf"  , srv : "{{ web_service }}" }
    - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ domain1 }}.conf"       , srv : "{{ web_service }}" }
    - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ domain2 }}.conf"       , srv : "{{ web_service }}" }
+   - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ domain3 }}.conf"       , srv : "{{ web_service }}" }
    - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ drupal_basename }}" }
    - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/{{ domain1 }}.conf" , dest : "/etc/nginx/sites-enabled/{{ domain1 }}.conf" }
    - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/{{ domain2 }}.conf" , dest : "/etc/nginx/sites-enabled/{{ domain2 }}.conf" }
+   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/{{ domain3 }}.conf" , dest : "/etc/nginx/sites-enabled/{{ domain3 }}.conf" }
    - { types : [ "link" ]         , src  : "{{ www_basedir }}/{{ drupal_version }}"        , dest : "{{ www_htmldir }}/{{ drupal_basename }}" , force : "yes" }
 #   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/{{ drupal_basename }}" , dest : "/etc/nginx/sites-enabled/{{ drupal_basename }}" }
 #   - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "drupalcert.conf" , srv : "{{ web_service }}" }
@@ -255,7 +260,7 @@ cert_hash_list		:
         server_cert_path	: "{{ cert_base_path }}/{{ domain1 }}.crt",
         local_certkey_path	: "{{ confdir }}/{{ domain1 }}.key",
         local_cert_path		: "{{ confdir }}/{{ domain1 }}.crt",
-        web_rootdir		: "{{ drupal_site_rootdir }}"
+        web_rootdir		: "{{ domain1_rootdir }}"
       }
    -  {
         enabled			: true ,
@@ -266,11 +271,11 @@ cert_hash_list		:
         crt_fullchain_path	: "{{ cert_base_path }}/{{ cert_name_prefix2 }}-fullchain.crt",
         crt_interchain_path 	: "{{ cert_base_path }}/{{ cert_name_prefix2 }}-intermmediate.crt",
         acme_directory		: "https://acme-v02.api.letsencrypt.org/directory",
-        C			: "US",
-        ST			: "New York",
-        L			: "New York",
-        O			: "Ansible test",
-        OU			: "Ansible test",
+        C			: "BR",
+        ST			: "Rio de Janeiro",
+        L			: "Teresopolis",
+        O			: "DogShearin Pet",
+        OU			: "DogShearin Pet",
         email_address		: "luizrogeriocarvalho@gmail.com",
         CN			: "{{ domain2 }}",
         force_cert_y_n		: "no",
@@ -281,6 +286,31 @@ cert_hash_list		:
         local_certkey_path	: "{{ confdir }}/{{ domain2 }}.key",
         local_cert_path		: "{{ confdir }}/{{ domain2 }}.crt",
         web_rootdir		: "{{ domain2_rootdir }}"
+    }
+   -  {
+        enabled			: true ,
+        account_priv_key_path	: "{{ key_base_path }}/{{ production_account_key }}",
+        csr_priv_key_path	: "{{ key_base_path }}/{{ cert_name_prefix3 }}-csr-key.key",
+        csr_cert_path		: "{{ cert_base_path }}/{{ cert_name_prefix3 }}.csr",
+        crt_cert_path		: "{{ cert_base_path }}/{{ cert_name_prefix3 }}.crt",
+        crt_fullchain_path	: "{{ cert_base_path }}/{{ cert_name_prefix3 }}-fullchain.crt",
+        crt_interchain_path 	: "{{ cert_base_path }}/{{ cert_name_prefix3 }}-intermmediate.crt",
+        acme_directory		: "https://acme-v02.api.letsencrypt.org/directory",
+        C			: "BR",
+        ST			: "Brazil",
+        L			: "Curitiba",
+        O			: "Lrc private site",
+        OU			: "Lrc private site",
+        email_address		: "luizrogeriocarvalho@gmail.com",
+        CN			: "{{ domain3 }}",
+        force_cert_y_n		: "no",
+        allow_creation_y_n	: "yes",
+        remaining_days		: "30",
+        server_certkey_path	: "{{ key_base_path }}/{{ domain3 }}.key",
+        server_cert_path	: "{{ cert_base_path }}/{{ domain3 }}.crt",
+        local_certkey_path	: "{{ confdir }}/{{ domain3 }}.key",
+        local_cert_path		: "{{ confdir }}/{{ domain3 }}.crt",
+        web_rootdir		: "{{ domain3_rootdir }}"
     }
 server_cert_n_key_list	:
    -  { 
@@ -298,6 +328,14 @@ server_cert_n_key_list	:
    -  { 
         src  : "{{ cert_hash_list[1].crt_cert_path }}",
         dest : "{{ cert_hash_list[1].server_cert_path }}"
+      }
+   -  { 
+        src  : "{{ cert_hash_list[2].csr_priv_key_path }}",
+        dest : "{{ cert_hash_list[2].server_certkey_path }}"
+      }
+   -  { 
+        src  : "{{ cert_hash_list[2].crt_cert_path }}",
+        dest : "{{ cert_hash_list[2].server_cert_path }}"
       }
 # srv defines if a service will be restarted upon modification in file upload
 ssl_up_down_files_list 	:
@@ -322,6 +360,18 @@ ssl_up_down_files_list 	:
    -  { 
         local  : "{{ cert_hash_list[1].local_cert_path }}" ,
         remote : "{{ cert_hash_list[1].server_cert_path }}",
+        action : [ "upload" , "download" ],
+        srv    : "{{ web_service }}"
+      }
+   -  { 
+        local  : "{{ cert_hash_list[2].local_certkey_path }}",
+        remote : "{{ cert_hash_list[2].server_certkey_path }}",
+        action : [ "upload" , "download" ],
+        srv    : "{{ web_service }}"
+      }
+   -  { 
+        local  : "{{ cert_hash_list[2].local_cert_path }}" ,
+        remote : "{{ cert_hash_list[2].server_cert_path }}",
         action : [ "upload" , "download" ],
         srv    : "{{ web_service }}"
       }
