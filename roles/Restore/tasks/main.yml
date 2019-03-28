@@ -6,7 +6,7 @@
   loop: "{{ bkp_rest_files_list }}"
   when: bkp_rest_files_list[0] and "upload" in item.action
   register: bkp_files_uploaded
-  tags: restore_files
+  tags: restore, upload_to_restore
 
 - name: Restore file hierarchy (extract backup from archive)
   unarchive: 
@@ -20,7 +20,7 @@
   loop: "{{ unarchive_bkps }}"
   when: item.enabled
   register: unarchive_done
-  tags: restore_files
+  tags: restore, restore_files
 
 - name: Restore via shell specific commands ---------------
   shell: "{{ item.shellcmd }}"
@@ -31,4 +31,4 @@
   loop: "{{ shell_restorecmd_list }}"
   when: item.enabled
   register: shell_restore_done
-  tags: restore_files
+  tags: restore, restore_via_shell
