@@ -25,7 +25,6 @@ domain1_rootdir         : "{{ www_htmldir }}"
 #
 # Will be used mainly with SSL certificate role
 #
-#### Our mediawiki will be under domain1 site (Drupal)
 key_base_path           : "/etc/ssl/private"
 cert_base_path          : "/etc/ssl/certs"
 domain1                 : "lrc.sytes.net"
@@ -272,61 +271,61 @@ db_list              :
 # 
 # Backup and Restore roles block variables definition
 #
-sql_bkp_cmd         : "mysqldump -u {{ db_admuser }} -h {{ db_host }} -p{{ db_admpass }} --opt "
-sql_rest_cmd        : "mysql -u {{ db_admuser }} -h {{ db_host }} -p{{ db_admpass }} "
-#sql_bkp_cmd         : "mysqldump --opt "
-#sql_rest_cmd        : "mysql"
-remote_bkpdir       : "~ubuntu"
-mediawiki_DB_bkp    : "mediawiki_{{ bkptag }}.sql.gz"
-mediawiki_docs_bkp  : "mediawiki_{{ bkptag }}.documents.tgz"
-mediawiki_DB_rest   : "wiki_DB_first_install.sql.gz"
-mediawiki_docs_rest : "mediawiki_first_install.documents.tgz"
-local_bkp_dir       : "{{ confdir }}/bkprest"
+sql_bkp_cmd   : "mysqldump -u {{ db_admuser }} -h {{ db_host }} -p{{ db_admpass }} --opt "
+sql_rest_cmd  : "mysql -u {{ db_admuser }} -h {{ db_host }} -p{{ db_admpass }} "
+#sql_bkp_cmd   : "mysqldump --opt "
+#sql_rest_cmd  : "mysql"
+remote_bkpdir : "~azureuser"
+DB_bkp        : "{{ bkptag }}.sql.gz"
+docs_bkp      : "{{ bkptag }}.documents.tgz"
+DB_rest       : "DB_first_install.sql.gz"
+docs_rest     : "first_install.documents.tgz"
+local_bkp_dir : "{{ confdir }}/bkprest"
 bkp_rest_files_list :
    -  { 
-         local   : "{{ local_bkp_dir }}/{{ mediawiki_DB_bkp }}",
-         remote  : "{{ remote_bkpdir }}/{{ mediawiki_DB_bkp }}" ,
+         local   : "{{ local_bkp_dir }}/{{ DB_bkp }}",
+         remote  : "{{ remote_bkpdir }}/{{ DB_bkp }}" ,
          action  : [ "download" ]
       }
    -  { 
-         local   : "{{ local_bkp_dir }}/{{ mediawiki_docs_bkp }}",
-         remote  : "{{ remote_bkpdir }}/{{ mediawiki_docs_bkp }}" ,
+         local   : "{{ local_bkp_dir }}/{{ docs_bkp }}",
+         remote  : "{{ remote_bkpdir }}/{{ docs_bkp }}" ,
          action  : [ "download" ]
       }
    -  { 
-         local   : "{{ local_bkp_dir }}/{{ mediawiki_DB_rest }}",
-         remote  : "{{ remote_bkpdir }}/{{ mediawiki_DB_rest }}" ,
+         local   : "{{ local_bkp_dir }}/{{ DB_rest }}",
+         remote  : "{{ remote_bkpdir }}/{{ DB_rest }}" ,
          action  : [ "upload" ]
       }
 shell_bkpcmd_list   :
    -  {
          enabled  : false ,
-         shellcmd : "{{ sql_bkp_cmd }} {{ db_name }} | gzip -c > {{ mediawiki_DB_bkp }}" ,
+         shellcmd : "{{ sql_bkp_cmd }} {{ db_name }} | gzip -c > {{ DB_bkp }}" ,
          chdir    : "{{ remote_bkpdir }}" ,
-         creates  : "{{ mediawiki_DB_bkp }}"
+         creates  : "{{ DB_bkp }}"
       }
    -  {
          enabled  : false ,
-         shellcmd : "tar -czf {{ mediawiki_docs_bkp }} {{ www_basedir }}/{{ mediawiki_ver }}/LocalSettings.php" ,
+         shellcmd : "tar -czf {{ docs_bkp }} {{ www_htmldir }}" ,
          chdir    : "{{ remote_bkpdir }}" ,
-         creates  : "{{ mediawiki_docs_bkp }}"
+         creates  : "{{ docs_bkp }}"
       }
 # used for mysql
 shell_restorecmd_list   :
    -  {
          enabled  : true ,
-         shellcmd : "gunzip -c {{ mediawiki_DB_rest }} | {{ sql_rest_cmd }} {{ db_name }} ; touch mediawiki.sql.restored" ,
+         shellcmd : "gunzip -c {{ DB_rest }} | {{ sql_rest_cmd }} {{ db_name }} ; touch sql.restored" ,
          chdir    : "{{ remote_bkpdir }}" ,
-         creates  : "mediawiki.sql.restored"
+         creates  : "sql.restored"
       }
 # restore with tar goes here
 unarchive_bkps    :
    -  {
          enabled    : false ,
-         src        : "{{ remote_bkpdir }}/{{ mediawiki_docs_rest }}" ,
+         src        : "{{ remote_bkpdir }}/{{ docs_rest }}" ,
          dest       : "/" ,
          remote_src : "yes",
-         creates    : "{{ mediawiki_rootdir }}/LocalSettings.php"
+         creates    : "{{ www_htmldir }}/index.html"
       }
 
 #--- End Backup and Restore block
