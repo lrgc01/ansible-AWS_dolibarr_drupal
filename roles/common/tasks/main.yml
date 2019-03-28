@@ -14,7 +14,7 @@
     url: "{{ item.keyUrl }}"
     state: "{{ item.state }}"
   loop: "{{ listAptRepos }}"
-  when: item.state and item.keyUrl
+  when: listAptRepos[0] and item.state and item.keyUrl
   register: apt_keys_done
   tags: update_repository
 
@@ -23,7 +23,7 @@
     repo: "{{ item.repoStr }}"
     state: "{{ item.state }}"
   loop: "{{ listAptRepos }}"
-  when: item.state and item.repoStr
+  when: listAptRepos[0] and item.state and item.repoStr
   register: apt_repos_done
   tags: update_repository
 

@@ -39,3 +39,15 @@
    - common
    - base
    - users
+
+- hosts: php_servers
+  gather_facts: "{{ gather_y_n }}"
+  become: true
+  remote_user: "azureuser"
+  vars_files:
+   - ../secret/secret.yml
+  roles:
+   - common
+   - base
+   - phpcfg
+   - DB_adm

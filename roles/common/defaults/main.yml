@@ -15,3 +15,5 @@ base_dep_pkg_list:
    - { pkg : "python-mysqldb"  }
    - { pkg : "python-openssl"  }
 
+listAptRepos :
+   - false

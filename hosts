@@ -1,5 +1,5 @@
 [webservers]
-ec2-18-223-203-47.us-east-2.compute.amazonaws.com
+#ec2-18-223-203-47.us-east-2.compute.amazonaws.com
 
 #[webservers:vars]
 #ansible_python_interpreter=/usr/bin/python3
@@ -8,3 +8,6 @@ ec2-18-223-203-47.us-east-2.compute.amazonaws.com
 
 #[vanhack_test:vars]
 #ansible_python_interpreter=/usr/bin/python3
+
+[php_servers]
+lrgc01.eastus.cloudapp.azure.com
