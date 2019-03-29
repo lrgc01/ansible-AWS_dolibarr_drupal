@@ -6,7 +6,7 @@
   vars_files:
    - ../secret/secret.yml
   roles:
-   - Backup
+   - backup
 
 - hosts: vanhack_test
   gather_facts: "{{ gather_y_n }}"
@@ -18,4 +18,4 @@
    - vars_files/db_adm.yml
    - vars_files/bkprest.yml
   roles:
-   - Backup
+   - backup

@@ -58,7 +58,7 @@ YAML file is Site.yml. Other files are important as well:
 
    - roles/
    - roles/AWS
-   - roles/Backup
+   - roles/backup
    - roles/base
    - roles/base_AWS
    - roles/common
@@ -69,7 +69,7 @@ YAML file is Site.yml. Other files are important as well:
    - roles/gitcfg
    - roles/phpcfg
    - roles/python
-   - roles/Restore
+   - roles/restore
    - roles/SSLcrt
    - roles/uninst
    - roles/users

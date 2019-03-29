@@ -6,7 +6,7 @@
   vars_files:
    - ../secret/secret.yml
   roles:
-   - Restore
+   - restore
 
 - hosts: mediawiki
   gather_facts: "{{ gather_y_n }}"
@@ -15,4 +15,4 @@
   vars_files:
    - ../secret/secret.yml
   roles:
-   - Restore
+   - restore

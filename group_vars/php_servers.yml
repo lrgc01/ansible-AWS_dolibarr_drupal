@@ -1,4 +1,5 @@
 ---
+###########################################
 #
 # Python role block variable definition
 #
@@ -8,6 +9,7 @@ pip_install_list        : [ "botocore" , "boto" , "boto3" ]
 
 #--- End of python role block
 
+###########################################
 #
 # General var definition block - to all roles
 #
@@ -29,9 +31,9 @@ key_base_path           : "/etc/ssl/private"
 cert_base_path          : "/etc/ssl/certs"
 domain1                 : "{{ inventory_hostname }}"
 cert_name_prefix        : "stg-letsencrypt"
-##cert_name_prefix        : "pro-{{ domain1 }}"
-production_account_key  : "pro2-letsencrypt-account-key.key"
 staging_account_key     : "stg-letsencrypt-account-key.key"
+##cert_name_prefix        : "pro-{{ domain1 }}"
+##production_account_key  : "pro-letsencrypt-account-key.key"
 #
 #
 
@@ -51,6 +53,7 @@ base_dep_pkg_list:
 
 #--- End of General vars block
 
+###########################################
 #
 # Base role block variable definition
 #
@@ -64,10 +67,9 @@ dep_pkg_list		:
    - { pkg : "php-fpm"           ,  srv : "php7.2-fpm"        , state : "started" , enabled : true }
    - { pkg : "php-mysql"       }
    - { pkg : "php-gd"          }
-   - { pkg : "mariadb-server"  }
    - { pkg : "zip"             }
    - { pkg : "unzip"           }
-#   - { pkg : "mysql-client"    }
+   - { pkg : "mariadb-client"  }
 
 #
 # dir, file, template or link, depending on key values
@@ -90,27 +92,22 @@ dir_file_tmpl_list     :
    - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/{{ domain1 }}.conf" , dest : "/etc/nginx/sites-enabled/{{ domain1 }}.conf" }
    - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "{{ domain1 }}-cert.conf"  , srv : "{{ web_service }}" }
    - { types : [ "link" ]         , src  : "{{ www_htmldir }}" , dest : "{{ www_htmldir }}/Orm_test-master" }
+   - { types : [ "absent" ]       , dest : "/etc/nginx/sites-enabled/default" }
+#   - { types : [ "absent" ]       , dest : "{{ www_htmldir }}/README.md" }
 #   - { types : [ "absent" ]       , dest : "/etc/nginx/sites-enabled/nginx-default" }
-#   - { types : [ "absent" ]       , dest : "/etc/nginx/sites-enabled/default" }
 
 #
-# INI file configuration (php and others)
+# Some INI file configuration (php mainly, but may be others)
 #
 ini_file_list           :
    - { path : "/etc/php/7.2/fpm/php.ini" , section : "PHP" , option : "allow_url_fopen" , value : "Off" }
    - { path : "/etc/php/7.2/fpm/php.ini" , section : "PHP" , option : "memory_limit"    , value : "128M" }
-#
-# Cron
-#
-cron_list	:
-        - false
-        #   - { name: "Update domain" , minute: "*/5" , job: "~ubuntu/updatedns.sh"  , user: "ubuntu" , state: "present" }
 
 # Define local and remote files both for upload (copy)
 # and download (fetch).
 # Action is mandatory (same idea of types in dir_file_tmpl_list above).
 # action = list of upload or download or both
-# DON'T forget local files to upload to the server and local dirs when downloading
+# DON'T forget to have local files to upload to the server and local dirs when downloading
 up_down_files_list :
    -  { 
         local  : "{{ cert_hash_list[0].local_certkey_path }}",
@@ -137,45 +134,7 @@ unarchive_list  :
 
 #--- End of base role block
 
-#
-# Users role block variable definition
-#
-# users to be created.
-# A later task will retrieve these keys asked to be created in here:
-users_list              :
-        - false
-# Authorized_keys to fullfill in the server
-auth_keys_file_list	:
-        - false
-
-#--- End of Users role block
-
-#
-# Gitcfg role block variable definition
-#
-project_list            :
-        - false
-
-#--- End of Gitcfg role block
-
-#
-# Phpcfg role block variable definition
-#
-# PHP composer
-#
-#
-composer_require        : "drush/drush:9"
-composer_path           : "PATH=/bin:/sbin:/usr/bin:/usr/sbin:/root/.composer/vendor/bin"
-#
-# Will install composer packages inside root dir  when become=true
-composer_list           :
-   - { command : false }
-#   - { command : "require"        , global : "true"  , arguments : "--no-progress {{ composer_require }}" }
-#   - { command : "create-project" , global : "false" , arguments : "--no-progress dolibarr/dolibarr {{ dolibarr_base }}" , working_dir : "{{ www_basedir }}" , creates : "{{ www_basedir }}/{{ dolibarr_base }}" }
-#   - { command : "remove"         , global : "true"  , arguments : "--no-progress {{ composer_remove }}" }
-
-#--- End of Phpcfg role block
-
+###########################################
 #
 # SSLcrt role block variable definition
 #
@@ -188,14 +147,14 @@ composer_list           :
 # So we define another parameter to allow the system to run safely (cert_hash_list[*].enabled)
 cert_hash_list		:
    -  {
-        enabled			: false ,
-        account_priv_key_path	: "{{ key_base_path }}/{{ production_account_key }}",
+        enabled			: true ,
+        account_priv_key_path	: "{{ key_base_path }}/{{ staging_account_key }}",
         csr_priv_key_path	: "{{ key_base_path }}/{{ cert_name_prefix }}-csr-key.key",
         csr_cert_path		: "{{ cert_base_path }}/{{ cert_name_prefix }}.csr",
         crt_cert_path		: "{{ cert_base_path }}/{{ cert_name_prefix }}.crt",
         crt_fullchain_path	: "{{ cert_base_path }}/{{ cert_name_prefix }}-fullchain.crt",
         crt_interchain_path	: "{{ cert_base_path }}/{{ cert_name_prefix }}-intermmediate.crt",
-        acme_directory		: "https://acme-v02.api.letsencrypt.org/directory",
+        acme_directory		: "https://acme-staging-v02.api.letsencrypt.org/directory",
         C			: "CA",
         ST			: "Quebec",
         L			: "Montreal",
@@ -212,6 +171,7 @@ cert_hash_list		:
         local_cert_path		: "{{ confdir }}/{{ domain1 }}.crt",
         web_rootdir		: "{{ domain1_rootdir }}"
       }
+# Below other variables depend on the cert_hash_list above.
 server_cert_n_key_list	:
    -  { 
         src  : "{{ cert_hash_list[0].csr_priv_key_path }}",
@@ -237,85 +197,4 @@ ssl_up_down_files_list 	:
       }
 
 #--- End of SSLCrt role block
-
-#
-# DB_adm role block variable definition
-#
-# Care should be taken here because mysql_user ansible module 
-# does not support grants on FUNCTIONS and PROCEDURES. 
-# The workaround is to let append_privs=true so that 
-# such kind of priviledge added stay around.
-#
-# It seems that aws eds instance has some issue with 
-# mysql_user module, because it always shows no idempotency.
-#
-# 'db_list[*].dbcreate' switches one entry on/off
-# drop is used un role/uninst to remove a database
-db_list              :
-   -  {
-        dbcreate     : true ,
-        drop         : false ,
-        admuser      : "{{ db_admuser }}", 
-        admpass      : "" ,
-        host         : "{{ db_host }}",
-        user         : "{{ db_user }}" ,
-        pass         : "{{ db_pass }}" ,
-        dbname       : "{{ db_name }}" ,
-        encoding     : "utf8mb4" ,
-        collation    : "utf8mb4_general_ci" ,
-        perms        : "{{ db_name }}.*:ALL",
-        append_privs : true 
-      }
-
-#--- End of DB_adm role block
-
-
-# 
-# Backup and Restore roles block variables definition
-#
-sql_bkp_cmd   : "mysqldump -u {{ db_admuser }} -h {{ db_host }} -p{{ db_admpass }} --opt "
-#sql_rest_cmd  : "mysql -u {{ db_admuser }} -h {{ db_host }} -p{{ db_admpass }} "
-#sql_bkp_cmd   : "mysqldump --opt "
-sql_rest_cmd  : "mysql"
-remote_bkpdir : "~azureuser"
-DB_bkp        : "{{ bkptag }}.sql.gz"
-sql_ini_test  : "sql.gz"
-docs_bkp      : "{{ bkptag }}.documents.tgz"
-DB_rest       : "DB_first_install.sql.gz"
-docs_rest     : "first_install.documents.tgz"
-local_bkp_dir : "{{ confdir }}/bkprest"
-bkp_rest_files_list :
-   - false
-shell_bkpcmd_list   :
-   -  {
-         enabled  : false ,
-         shellcmd : "{{ sql_bkp_cmd }} {{ db_name }} | gzip -c > {{ DB_bkp }}" ,
-         chdir    : "{{ remote_bkpdir }}" ,
-         creates  : "{{ DB_bkp }}"
-      }
-   -  {
-         enabled  : false ,
-         shellcmd : "tar -czf {{ docs_bkp }} {{ www_htmldir }}" ,
-         chdir    : "{{ remote_bkpdir }}" ,
-         creates  : "{{ docs_bkp }}"
-      }
-# used for mysql
-shell_restorecmd_list   :
-   -  {
-         enabled  : true ,
-         shellcmd : "zcat {{ www_htmldir }}/include/{{ sql_ini_test }} | {{ sql_rest_cmd }} {{ db_name }} ; touch sql.restored" ,
-         chdir    : "{{ www_htmldir }}/include" ,
-         creates  : "sql.restored"
-      }
-# restore with tar goes here
-unarchive_bkps    :
-   -  {
-         enabled    : false ,
-         src        : "{{ remote_bkpdir }}/{{ docs_rest }}" ,
-         dest       : "/" ,
-         remote_src : "yes",
-         creates    : "{{ www_htmldir }}/index.html"
-      }
-
-#--- End Backup and Restore block
 

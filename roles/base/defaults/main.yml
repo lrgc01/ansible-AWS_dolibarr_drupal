@@ -14,9 +14,9 @@ web_service             : "nginx"                                       # will b
 # enabled and state defaults to true and started respectively.
 dep_pkg_list		:
    - false
-   - { pkg : "{{ web_service }}" ,  srv : "{{ web_service }}" , state : "started" , enabled : true }
-   - { pkg : "composer"		}
-   - { pkg : "git"		}
+#   - { pkg : "{{ web_service }}" ,  srv : "{{ web_service }}" , state : "started" , enabled : true }
+#   - { pkg : "composer"		}
+#   - { pkg : "git"		}
 #
 # dir, file, template or link, depending on key values
 #
@@ -33,12 +33,11 @@ dep_pkg_list		:
 # Note that one line may be used to multiple goals as defined in types.
 dir_file_tmpl_list     :
    - false
-   - { types : [ "absent" ]       , dest : "/etc/nginx/sites-enabled/default" }
-   - { types : [ "tmpl" ]         , dest : "~ubuntu"                    , name : "updatedns.sh" , mode : "0755" }
-   - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "{{ domain2 }}-cert.conf"  , srv : "{{ web_service }}" }
-   - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ domain2 }}.conf"       , srv : "{{ web_service }}" }
-   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "{{ domain2 }}.conf" }
-
+#   - { types : [ "absent" ]       , dest : "/etc/nginx/sites-enabled/default" }
+#   - { types : [ "tmpl" ]         , dest : "~ubuntu"                    , name : "updatedns.sh" , mode : "0755" }
+#   - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "{{ domain2 }}-cert.conf"  , srv : "{{ web_service }}" }
+#   - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ domain2 }}.conf"       , srv : "{{ web_service }}" }
+#   - { types : [ "link" ]         , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "{{ domain2 }}.conf" }
 #   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/sites-available" , name : "Drupal-site" }
 #   - { types : [ "dir" , "tmpl" ] , dest : "/etc/nginx/snippets"        , name : "drupalcert.conf" }
 #   - { types : [ "dir" , "link" ] , src  : "/etc/nginx/sites-available" , dest : "/etc/nginx/sites-enabled" , name : "Drupal-site" }
@@ -48,14 +47,14 @@ dir_file_tmpl_list     :
 #
 ini_file_list           :
    - false
-   - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "allow_url_fopen" , value : "Off" }
-   - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "memory_limit"    , value : "64M" }
+#   - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "allow_url_fopen" , value : "Off" }
+#   - { path : "/etc/php/7.0/fpm/php.ini" , section : "PHP" , option : "memory_limit"    , value : "64M" }
 #
 # Cron
 #
 cron_list	:
    - false
-   - { name: "Update domain" , minute: "*/5" , job: "~ubuntu/updatedns.sh"  , user: "ubuntu" , state: "present" }
+#   - { name: "Update domain" , minute: "*/5" , job: "~ubuntu/updatedns.sh"  , user: "ubuntu" , state: "present" }
 
 # Define local and remote files both for upload (copy)
 # and download (fetch).
@@ -63,9 +62,9 @@ cron_list	:
 # action = list of upload or download or both
 up_down_files_list :
    - false
-   -  { 
-        local  : "{{ confdir }}/drupal.key",
-        remote : "/etc/ssl/private/drupal.key" ,
-        action : [ "upload", "download" ]
-      }
+#   -  { 
+#        local  : "{{ confdir }}/drupal.key",
+#        remote : "/etc/ssl/private/drupal.key" ,
+#        action : [ "upload", "download" ]
+#      }
 
