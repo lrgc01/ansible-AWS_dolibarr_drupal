@@ -21,7 +21,7 @@ www_username            : "www-data"
 web_service             : "nginx"
 
 #
-domain1_rootdir         : "{{ www_htmldir }}"
+domain1_rootdir         : "{{ www_htmldir }}/Orm_site"
 #
 
 #
@@ -91,8 +91,8 @@ dir_file_tmpl_list     :
    - { types : [ "tmpl" ]         , dest : "/etc/nginx/sites-available" , name : "{{ domain1 }}.conf"       , srv : "{{ web_service }}" }
    - { types : [ "link" ]         , src  : "/etc/nginx/sites-available/{{ domain1 }}.conf" , dest : "/etc/nginx/sites-enabled/{{ domain1 }}.conf" }
    - { types : [ "tmpl" ]         , dest : "/etc/nginx/snippets"        , name : "{{ domain1 }}-cert.conf"  , srv : "{{ web_service }}" }
-   - { types : [ "link" ]         , src  : "{{ www_htmldir }}" , dest : "{{ www_htmldir }}/Orm_test-master" }
    - { types : [ "absent" ]       , dest : "/etc/nginx/sites-enabled/default" }
+   - { types : [ "dir" ]          , dest : "/var/git"                     }
 #   - { types : [ "absent" ]       , dest : "{{ www_htmldir }}/README.md" }
 #   - { types : [ "absent" ]       , dest : "/etc/nginx/sites-enabled/nginx-default" }
 
@@ -122,18 +122,36 @@ up_down_files_list :
 
 # List of tar/zip balls to unarchive to specific places.
 # Must define what it creates to be idempotent.
-unarchive_list  :
-   - {
-        src         : "https://github.com/lrgc01/Orm_test/archive/master.zip" ,
-        dest        : "{{ www_htmldir }}" ,
-        creates     : "{{ www_htmldir }}/README.md" ,
-        owner       : "root" ,
-        group       : "root" ,
-        remote_src  : true
-     }
+#unarchive_list  :
+#   - {
+#        src         : "https://github.com/lrgc01/Orm_test/archive/master.zip" ,
+#        dest        : "{{ www_htmldir }}" ,
+#        creates     : "{{ www_htmldir }}/README.md" ,
+#        owner       : "root" ,
+#        group       : "root" ,
+#        remote_src  : true
+#     }
 
 #--- End of base role block
 
+###########################################
+# Authorized_keys to fullfill in the server
+auth_keys_file_list     :
+   - { username : "azureuser"      , pub_key_file : "conf.d/testkey" }
+
+#--- End of user stugg role block
+
+###########################################
+#
+# gitcfg role
+#
+gitRepoList	:
+   - {
+	repo : "https://github.com/lrgc01/Orm_test.git" ,
+        dest : "{{ domain1_rootdir }}" ,
+        gitDir : "/var/git/Orm_test.git"
+     }
+        
 ###########################################
 #
 # SSLcrt role block variable definition

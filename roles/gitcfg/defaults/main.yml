@@ -16,4 +16,5 @@ project_list            :
    - false
    - "drupal.git"
    - "test.git"
-
+gitRepoList	:
+   - false

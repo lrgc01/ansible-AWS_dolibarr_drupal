@@ -9,4 +9,6 @@
    - common
    - base
    - phpcfg
+   - users
+   - gitcfg
    - SSLcrt

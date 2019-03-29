@@ -22,3 +22,12 @@
   register: git_repos_created
   tags: git_config
 
+- name: Clone a remote repo in a separate git dir ---------
+  git:
+    repo: "{{ item.repo }}"
+    dest: "{{ item.dest }}"
+    separate_git_dir: "{{ item.gitDir }}"
+  loop: "{{ gitRepoList }}"
+  when: gitRepoList[0]
+  register: git_repo_cloned
+  tags: git_config, git_clone

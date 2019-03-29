@@ -52,6 +52,13 @@ unarchive_list  :
 
 #--- End of base role block
 
+###########################################
+# Authorized_keys to fullfill in the server
+auth_keys_file_list     :
+   - { username : "azureuser"      , pub_key_file : "conf.d/testkey" }
+
+#--- End of user stugg role block
+
 
 ##############################################
 #
